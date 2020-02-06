@@ -1,0 +1,8 @@
+queue: all.q
+threads: 12
+memory: 8G
+bowtie2:
+    options:
+    ref: /ifs/mirror/genomes/bowtie/mm10
+picard:
+    ref: /ifs/mirror/genomes/plain/mm10.fasta
