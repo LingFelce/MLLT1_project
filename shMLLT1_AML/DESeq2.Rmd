@@ -1,0 +1,188 @@
+---
+title: "Differential expression using DESeq2"
+output: html_document
+---
+
+
+Update: 14th February 2020
+
+
+# Differential gene expression using DESeq2
+Differential gene expression using DESeq2 and visualisation with Venn diagrams. Using Adam's code, some from https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+
+If need to use Biomart to map gene symbols from Ensembl IDs, then use functions_biomart.R instead of functions.R
+
+```{r, include=FALSE}
+source('functions.R')
+library(org.Hs.eg.db)
+library(DESeq2)
+library(pheatmap)
+library(tidyverse)
+library(DT)
+library(limma)
+library(pheatmap)
+library(dplyr)
+```
+
+
+```{r read count and metadata}
+
+df_mRNA <- read.delim("GSE80774_MV411.RNAseq_pool.htseq.txt.gz", sep = "\t", header = TRUE, row.names = 1)
+
+meta_data <- read.table("meta_data.csv", sep=",", header = TRUE)
+
+rownames(meta_data) <- meta_data$Sample
+
+df_mRNA = df_mRNA[,rownames(meta_data)]
+
+all(rownames(meta_data) %in% colnames(df_mRNA))
+
+
+```
+
+
+```{r metadata}
+# set up meta_data for all experiments (only have 1 comparison/metadata sheet)
+
+meta_data_1 <- meta_data %>% 
+  filter(Cell.line == "MV411") %>% 
+  column_to_rownames("Sample")
+
+#meta_data_2 <- meta_data %>%
+  #filter (Cell_line =="Other") %>%
+  #column_to_rownames("Sample")
+
+
+
+```
+
+
+
+
+```{r DESeq}
+## Set up the DESeq2 object
+
+run_deseq2 <- function(df_mRNA, meta_data, control="shNeg", test="shENL", value){
+
+  df_mRNA = df_mRNA[,rownames(meta_data)]
+  
+  
+  dds<- DESeqDataSetFromMatrix(countData=df_mRNA,
+                               colData=meta_data,
+                               design= ~Condition)
+  
+  keep <- rowSums(counts(dds)) >= 10
+  dds <- dds[keep,]
+  
+  dds <- DESeq(dds)
+  
+  res <- results(dds, contrast = c(value, test,control))
+  
+  return(res)
+}
+
+de_res <- run_deseq2(as.data.frame(df_mRNA), meta_data_1, control = "shNeg", test="shENL", value="Condition")
+
+#Keep code below if running multiple comparisons
+
+#Too many objects called res later, so this "master" results is de_res (differential expression results. Obviously)
+
+# stim_res <- run_deseq2(as.data.frame(gene_counts), meta_data_1, control = "soluble", test="stim", value="Condition")
+
+
+
+```
+
+The following describes the analysis of the data using DEseq2. I have separated the analyses into the four different contrasts and have plotted summary statistics and MA plots for each.  
+
+
+## Summary of the data {.tabset .tabset-fade}
+
+### shNeg vs shMLLT1
+
+```{r summary}
+summary(de_res, alpha=0.05)
+```
+
+
+## MA (mean average) plots {.tabset .tabset-fade}
+
+In DESeq2, the function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized counts for all the samples in the DESeqDataSet. Points will be colored red if the adjusted p value is less than 0.01. Points which fall out of the window are plotted as open triangles pointing either up or down.
+
+### shNeg vs shMLLT1
+
+```{r MA plot}
+DESeq2::plotMA(de_res)
+```
+
+
+# Volcano plots {.tabset .tabset-fade}
+
+### shNeg vs shMLLT1
+
+```{r volcano}
+
+library("ggplot2") #Best plots
+library("ggrepel") #Avoid overlapping labels
+
+
+test <- as.data.frame(de_res)
+  
+data <- as.vector(rownames(test))
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBL")
+  
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBL")
+res <- result %>% 
+    dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
+    na.omit()
+  
+
+mutateddf <- mutate(res, sig=ifelse(res$padj<0.05, "padj<0.05", "Not Sig")) #Will have different colors depending on significance
+input <- cbind(gene=rownames(mutateddf), mutateddf )
+input <- input %>% 
+  arrange(input$padj)
+
+#symbol_data <- head(input, 100)
+#symbol_data <- input %>% 
+  #filter(SYMBOL == "CD69" | SYMBOL == "IL2RA" | SYMBOL == "IFNG" | SYMBOL == "IL2")
+
+#convert the rownames to a column
+volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
+    geom_point(aes(col=sig)) + #add points colored by significance
+#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
+      ggtitle("shNeg vs shMLLT1") #e.g. 'Volcanoplot DESeq2'
+#volc+geom_text_repel(data=symbol_data, aes(label=`SYMBOL`)) + scale_colour_Publication() + theme_bw()#adding text for the genes
+
+volc
+
+
+#Save Volcano Plot
+ggsave("volcano/shNeg_vs_shMLLT1.jpeg", device="jpeg") #In case you want to easily save to disk
+
+
+```
+
+
+
+## Results tables
+
+The folowing results tables show the significant genes. Filtering has been performed with a log2 fold change +/- 2.
+
+### shNeg vs shMLLT1
+
+```{r significant genes}
+
+
+dt <- filter_genes(as.data.frame(de_res), name="shNeg_vs_shMLLT1")
+
+
+
+
+datatable(dt$sig)
+
+
+```
+
+
+
