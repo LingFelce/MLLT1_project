@@ -6,9 +6,7 @@ output: html_document
 # Gene ontology and gene set enrichment analysis
 Pathway analysis using code from Rbio Session 4. Gene ontology, network analysis and gene set enrichment analysis using ClusterProfiler.
 
-Update: 14th February 2020
-
-Note: used simplify() for every analysis - if editing and want to Knit to HTML, will take a long time!
+Update: 18th February 2020
 
 
 ```{r, include=FALSE}
@@ -77,14 +75,16 @@ sig_genes_BP <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
 
 write.csv(sig_genes_BP, file="GO/shMLLT1_BP.csv")
 
-simp_ego <- simplify(ego)
+# doesn't actually simplify that much - 135 terms to 65 terms - better to separate into down and upregulated genes to get clearer picture.
 
-dim(simp_ego)
+# simp_ego <- simplify(ego)
+
+# dim(simp_ego)
 
 #Export list of biological processes and genes involved
-simp_BP <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
+# simp_BP <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
 
-write.csv(simp_BP, file="GO/shMLLT1_simp_BP.csv")
+# write.csv(simp_BP, file="GO/shMLLT1_simp_BP.csv")
 
 ```
 ##All GO terms
@@ -114,28 +114,146 @@ cnetplot(ego, foldChange = logFC, showCategory = 10, circular = FALSE)
 
 ```
 
-##Simplified GO terms
-```{r,fig.height=6, fig.width=8}
-barplot (simp_ego, showCategory = 10)
 
-dotplot (simp_ego, showCategory=10)
+## Sorting significant genes to down or upregulated
+
+```{r}
+
+
+sig_down <- sig_genes[(sig_genes$log2FoldChange < 0),]
+
+sig_up <- sig_genes[(sig_genes$log2FoldChange > 0),]
+
+
+```
+
+## Downregulated biological processes
+```{r}
+#Change Entrez IDs from numbers to characters
+
+geneset <- as.character(sig_down$Entrez.Gene)
+
+#This will show Entrez IDs only
+head(geneset)
+
+#This will take a little while to run
+down_ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+#dimensions - number of GO terms
+dim(down_ego)
+
+
+#Export list of biological processes and genes involved
+down_genes_BP <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+write.csv(down_genes_BP, file="GO/down_shMLLT1_BP.csv")
+
+# simp_ego <- simplify(ego)
+
+# dim(simp_ego)
+
+#Export list of biological processes and genes involved
+# simp_BP <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
+
+# write.csv(simp_BP, file="GO/shMLLT1_simp_BP.csv")
+
+```
+
+
+```{r,fig.height=6, fig.width=8}
+barplot (down_ego, showCategory = 10)
+
+dotplot (down_ego, showCategory=10)
 
 ```
 
 ```{r, fig.height=6, fig.width=8}
-emapplot(simp_ego, showCategory=20)
+emapplot(down_ego, showCategory=10)
 
 ```
 
 ```{r, fig.height=14, fig.width=16}
 #logFC is optional, but if available will colour-code the nodes
-logFC <- sig_genes$log2FoldChange
+logFC <- sig_down$log2FoldChange
 #set name of object
-names(logFC) <- sig_genes$Entrez.Gene
+names(logFC) <- sig_down$Entrez.Gene
 head(logFC)
 
-cnetplot(simp_ego, foldChange = logFC, showCategory = 6, circular = FALSE)
+cnetplot(down_ego, foldChange = logFC, showCategory = 10, circular = FALSE)
 #show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 #size = number of genes, fold change = red for upregulated, green for downregulated
 
 ```
+
+## Upregulated biological processes
+```{r}
+#Change Entrez IDs from numbers to characters
+
+geneset <- as.character(sig_up$Entrez.Gene)
+
+#This will show Entrez IDs only
+head(geneset)
+
+#This will take a little while to run
+up_ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+#dimensions - number of GO terms
+dim(up_ego)
+
+
+#Export list of biological processes and genes involved
+up_genes_BP <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+write.csv(up_genes_BP, file="GO/up_shMLLT1_BP.csv")
+
+# simp_ego <- simplify(ego)
+
+# dim(simp_ego)
+
+#Export list of biological processes and genes involved
+# simp_BP <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
+
+# write.csv(simp_BP, file="GO/shMLLT1_simp_BP.csv")
+
+```
+
+
+```{r,fig.height=6, fig.width=8}
+barplot (up_ego, showCategory = 10)
+
+dotplot (up_ego, showCategory=10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
+emapplot(up_ego, showCategory=10)
+
+```
+
+```{r, fig.height=14, fig.width=16}
+#logFC is optional, but if available will colour-code the nodes
+logFC <- sig_up$log2FoldChange
+#set name of object
+names(logFC) <- sig_up$Entrez.Gene
+head(logFC)
+
+cnetplot(up_ego, foldChange = logFC, showCategory = 10, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
+
