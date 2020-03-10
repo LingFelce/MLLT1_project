@@ -3,6 +3,7 @@
 # http://homer.ucsd.edu/homer/ngs/tagDir.html
 # http://homer.ucsd.edu/homer/ngs/ucsc.html
 # http://homer.ucsd.edu/homer/ngs/peaks.html
+# currently only have input and MLLT1 IP (2 replicates for each)
 
 # create tag directory for each bam file (all on one line)
 makeTagDirectory tag_input/ /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/input_1.bam /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/input_2.bam
