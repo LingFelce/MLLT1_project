@@ -40,7 +40,7 @@ annotatePeaks.pl IP_peaks.txt hg19 -annStats IP_peaks.stats.txt > IP_peaks.ann.t
 # annote peak file with number of reads under peak in each tag directory (-d)
 annotePeaks.pl IP_peaks.txt hg19 -d tag_IP/ <other tag folders eg DMSO and SGC> > IP_peaks.quant.txt
 
-# double check - download bed narrowPeak file (optimal IDR thresholded peaks, replicates	1, 2	mapping assembly hg19)
+## double check - download bed narrowPeak file (optimal IDR thresholded peaks, replicates 1, 2 mapping assembly hg19)
 wget https://www.encodeproject.org/files/ENCFF197OGH/@@download/ENCFF197OGH.bed.gz
 
 gunzip ENCFF197OGH.bed.gz
@@ -56,9 +56,6 @@ findPeaks tag_IP/ -style histone -i tag_input/ > IP_peaks_2.txt
 pos2bed.pl IP_peaks_2.txt > IP_peaks_2.bed
 
 # have to manually delete header and column names - use nano. Saved as IP_peaks_edit_2.bed
-
-# overlap peaks to generate Venn diagram - currently don't have any, but will do DMSO v SGC
-mergePeaks -d given IP_peaks.txt <otherfile.bed> -venn overlap.venn.txt > overlap.peak.txt
 
 # annotate peak file with nearest gene and distance to TSS
 annotatePeaks.pl IP_peaks_2.txt hg19 -annStats IP_peaks_2.stats.txt > IP_peaks_2.ann.txt
