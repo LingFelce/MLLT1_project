@@ -4,4 +4,4 @@ index:
 	fasta: /ifs/mirror/genomes/plain/hg38.fasta
 	gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/
 quant:
-	option: --fr-stranded #first read forward
+	option: 
