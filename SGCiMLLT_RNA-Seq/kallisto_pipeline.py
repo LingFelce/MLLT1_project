@@ -36,7 +36,7 @@ def run_quant(infiles, outfile):
     statement = ''' kallisto quant -t %(threads)s %(quant_option)s -i transcripts.index -o %(outdir)s %(read1)s %(read2)s''' #-o is only for output directory
     P.run(statement, job_queue=P.PARAMS['queue'], job_memory ='8G', job_threads=P.PARAMS['threads'])
 	
-#output will be abundance.h5, abundance.tsv and run_info.json (run info). Can import .h5 into R and use R txiimport package to convert to counts
+#output will be abundance.h5, abundance.tsv and run_info.json (run info). Can import .h5 into R and use R tximport package to convert to counts
 
 @merge(run_quant, 'multiqc_report.html')
 def multiqc (infile, outfile):
