@@ -2,6 +2,6 @@ queue: all.q
 threads:12
 index:
 	fasta: /ifs/mirror/genomes/plain/hg38.fasta
-	gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/
+	gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/geneset_all.gtf.gz
 quant:
 	option: 
