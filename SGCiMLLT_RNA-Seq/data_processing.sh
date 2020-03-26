@@ -144,4 +144,54 @@ SUM_SGC_7D_2_R2.fastq.gz: OK
 SUM_SGC_7D_3_R1.fastq.gz: OK
 SUM_SGC_7D_3_R2.fastq.gz: OK
 
-# Files ready for alignment using python
+# Create soft links to .fastq.gz files in src folder
+
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_7D_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_24H_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_7D_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_7D_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_7D_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC_7D_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC-7D_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_SGC-7D_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_24H_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_DMSO_7D_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_24H_3_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_1_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_1_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_2_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_2_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_3_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_3_R2.fastq.gz
+
