@@ -1,0 +1,124 @@
+---
+title: "MCF-7 Clustering"
+output: html_document
+---
+
+Update: 27th March 2020
+
+# Assessment of data quality and quality control - MCF-7
+DESeq2, heatmaps and PCA. Mainly Adam's code plus some extra (see weblinks)
+
+# Clustering of MCF-7 samples
+
+Data quality assessment and quality control (i.e. the removal of insufficiently good data) are essential steps of any data analysis. These steps should typically be performed very early in the analysis of a new data set, preceding or in parallel to the differential expression testing.
+
+We define the term quality as fitness for purpose. Our purpose is the detection of differentially expressed genes, and we are looking in particular for samples whose experimental treatment suffered from an anormality that renders the data points obtained from these particular samples detrimental to our purpose.
+
+In this page, you will see all of the analysis performed to understand which samples are potentially going to negatively impact the downstream analysis.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE)
+source('functions.R')
+library(org.Hs.eg.db)
+library(DESeq2)
+library(pheatmap)
+library(dplyr)
+library(ggplot2)
+library (stringi)
+library(AnnotationDbi)
+library(edgeR)
+library(DEFormats)
+library(statmod)
+library(BiocParallel)
+library(gplots)
+library (limma)
+library("genefilter")
+require(data.table)
+```
+
+
+```{r}
+
+meta_data <- read.table("mcf_metadata.csv", sep=",", header = TRUE)
+
+rownames(meta_data) <- meta_data$Samples
+
+colnames(txi.mcf_kallisto$counts) <- rownames(meta_data)
+
+all(rownames(meta_data) %in% colnames(txi.mcf_kallisto$counts))
+
+
+```
+
+```{r}
+
+dds <- DESeqDataSetFromTximport(txi.mcf_kallisto, meta_data, ~Condition)
+
+
+```
+
+# Heatmap of counts matrix
+
+To explore a count matrix, it is often instructive to look at it as a heatmap. Below we show how to produce such a heatmap for various transformations of the data. I have plotted a heatmap of the top 200 highly expressed genes to determine if the samples cluster together by condition.
+
+```{r}
+library(pheatmap)
+
+vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
+select <- order(rowMeans(counts(dds, normalized=FALSE)), decreasing=TRUE)[1:200]
+df <- as.data.frame(colData(dds)[,"Condition"])
+annotation <- data.frame(Var1 = meta_data$Samples, Var2 = meta_data$Condition)
+rownames(annotation) <- colnames(assay(vsd))
+pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
+```
+
+
+# Heatmap of sample-to-sample distances
+
+Another use of the transformed data is sample clustering. Here, we apply the dist function to the transpose of the transformed count matrix to get sample-to-sample distances.
+
+A heatmap of this distance matrix gives us an overview over similarities and dissimilarities between samples. We have to provide a hierarchical clustering hc to the heatmap function based on the sample distances, or else the heatmap function would calculate a clustering based on the distances between the rows/columns of the distance matrix.
+
+```{r}
+library(RColorBrewer)
+sampleDists <- dist(t(assay(vsd)))
+samplDistMatrix <- as.matrix(sampleDists)
+rownames(samplDistMatrix) <- meta_data$Condition
+colnames(samplDistMatrix) <- meta_data$Samples
+colors <- colorRampPalette(rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(samplDistMatrix, 
+         clustering_distance_cols = sampleDists, 
+         clustering_distance_rows = sampleDists,
+         color = colors)
+```
+
+
+# PCA analysis of the samples {.tabset .tabset-fade}
+
+Related to the distance matrix is the PCA plot, which shows the samples in the 2D plane spanned by their first two principal components. This type of plot is useful for visualizing the overall effect of experimental covariates and batch effects.
+
+## PCA - group
+
+```{r}
+plotPCA(vsd, intgroup=c("Samples","Condition"))
+
+
+```
+
+
+# Heatmap of gene clustering
+In the sample distance heatmap made previously, the dendrogram at the side shows us a hierarchical clustering of the samples. Such a clustering can also be performed for the genes. Since the clustering is only relevant for genes that actually carry a signal, one usually would only cluster a subset of the most highly variable genes. Here, for demonstration, let us select the 20 genes with the highest variance across samples. We will work with the VST data. The heatmap becomes more interesting if we do not look at absolute expression strength but rather at the amount by which each gene deviates in a specific sample from the gene’s average across all samples. Hence, we center each genes’ values across samples, and plot a heatmap (figure below). We provide a data.frame that instructs the pheatmap function how to label the columns.
+
+```{r}
+
+library("genefilter")
+topVarGenes <- head(order(rowVars(assay(vsd)), decreasing = TRUE), 20)
+
+mat  <- assay(vsd)[ topVarGenes, ]
+mat  <- mat - rowMeans(mat)
+anno <- as.data.frame(colData(vsd)[, c("Samples","Condition")])
+pheatmap(mat, annotation_col = anno)
+
+```
+
+
