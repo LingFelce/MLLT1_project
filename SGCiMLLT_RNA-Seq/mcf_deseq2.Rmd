@@ -1,0 +1,304 @@
+---
+title: "Differential expression using DESeq2"
+output: html_document
+---
+
+
+Update: 30th March 2020
+
+#Differential gene expression using DESeq2 - MCF-7
+Differential gene expression using DESeq2 and visualisation with Venn diagrams. Using Adam's code, some from https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+
+If need to use Biomart to map gene symbols from Ensembl IDs, then use functions_biomart.R instead of functions.R
+
+```{r, include=FALSE}
+source('functions.R')
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+library(DESeq2)
+library(pheatmap)
+library(tidyverse)
+library(DT)
+library(limma)
+library(pheatmap)
+```
+
+
+```{r}
+
+meta_data <- read.table("mcf_metadata.csv", sep=",", header = TRUE)
+
+rownames(meta_data) <- meta_data$Samples
+
+colnames(txi.mcf_kallisto$counts) <- rownames(meta_data)
+
+all(rownames(meta_data) %in% colnames(txi.mcf_kallisto$counts))
+
+```
+
+
+```{r}
+# set up meta_data for all experiments (only have 1 comparison)
+
+meta_data_1 <- meta_data %>% 
+  filter(Cell_line == "MCF") %>% 
+  column_to_rownames("Samples")
+
+
+```
+
+
+
+
+```{r}
+## Set up the DESeq2 object
+
+df_mRNA <-  txi.mcf_kallisto
+
+deseq2_txi <- function(df_mRNA, meta_data, control="resting", test="stim", value){
+
+    dds<- DESeqDataSetFromTximport(df_mRNA, meta_data, ~Condition)
+  
+  keep <- rowSums(counts(dds)) >= 10
+  dds <- dds[keep,]
+  
+  dds <- DESeq(dds)
+  
+  res <- results(dds, contrast = c(value, test, control))
+  
+  return(res)
+}
+
+res_24H <- deseq2_txi(df_mRNA, meta_data_1, control = "DMSO_24H", test="SGC_24H", value="Condition")
+
+res_7D <- deseq2_txi(df_mRNA, meta_data_1, control = "DMSO_7D", test="SGC_7D", value="Condition")
+
+res_sgc <- deseq2_txi(df_mRNA, meta_data_1, control = "SGC_24H", test="SGC_7D", value="Condition")
+
+
+
+
+
+
+
+```
+
+The following describes the analysis of the data using DEseq2. I have separated the analyses into the four different contrasts and have plotted summary statistics and MA plots for each.  
+
+
+## Summary of the data {.tabset .tabset-fade}
+
+### DMSO vs SGC at 24 hours
+
+```{r}
+summary(res_24H, alpha=0.05)
+```
+
+### DMSO vs SGC at 7 days
+
+```{r}
+summary(res_7D, alpha=0.05)
+```
+
+### SGC 24 hours vs SGC 7 days
+
+```{r}
+summary(res_sgc, alpha=0.05)
+```
+
+## MA plots {.tabset .tabset-fade}
+
+In DESeq2, the function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized counts for all the samples in the DESeqDataSet. Points will be colored red if the adjusted p value is less than 0.01. Points which fall out of the window are plotted as open triangles pointing either up or down.
+
+### DMSO vs SGC at 24 hours
+
+```{r}
+DESeq2::plotMA(res_24H)
+```
+
+### DMSO vs SGC at 7 days
+
+```{r}
+DESeq2::plotMA(res_7D)
+```
+
+
+### SGC 24 hours vs SGC 7 days
+```{r}
+DESeq2::plotMA(res_sgc)
+```
+
+
+# Volcano plots {.tabset .tabset-fade}
+
+## DMSO vs SGC at 24 hours
+
+```{r}
+
+library("ggplot2") #Best plots
+library("ggrepel") #Avoid overlapping labels
+
+
+test <- as.data.frame(res_24H)
+  
+data <- as.vector(rownames(test))
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
+  
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
+res <- result %>% 
+    dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
+    na.omit()
+  
+
+mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
+input <- cbind(gene=rownames(mutateddf), mutateddf )
+input <- input %>% 
+  arrange(input$padj)
+
+#Add if what to annotate specific genes in Volcano plot
+#symbol_data <- head(input, 100)
+#symbol_data <- input %>% 
+  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
+
+#convert the rownames to a column
+volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
+    geom_point(aes(col=sig)) + #add points colored by significance
+#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
+      ggtitle("DMSO v SGC at 24 hours") #e.g. 'Volcanoplot DESeq2'
+volc
+
+#Save Volcano Plot
+ggsave("volcano/DMSOvSGC_24H.jpeg", device="jpeg") #In case you want to easily save to disk
+
+
+```
+
+### DMSO vs SGC at 7 days
+
+```{r}
+
+library("ggplot2") #Best plots
+library("ggrepel") #Avoid overlapping labels
+
+
+test <- as.data.frame(res_7D)
+  
+data <- as.vector(rownames(test))
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
+  
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
+res <- result %>% 
+    dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
+    na.omit()
+  
+
+mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
+input <- cbind(gene=rownames(mutateddf), mutateddf )
+input <- input %>% 
+  arrange(input$padj)
+
+#Add if what to annotate specific genes in Volcano plot
+#symbol_data <- head(input, 100)
+#symbol_data <- input %>% 
+  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
+
+#convert the rownames to a column
+volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
+    geom_point(aes(col=sig)) + #add points colored by significance
+#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
+      ggtitle("DMSO v SGC at 7 days") #e.g. 'Volcanoplot DESeq2'
+volc
+
+#Save Volcano Plot
+ggsave("volcano/DMSOvSGC_7D.jpeg", device="jpeg") #In case you want to easily save to disk
+
+
+```
+
+### SGC at 24 hours vs SGC at 7 days
+
+```{r}
+
+library("ggplot2") #Best plots
+library("ggrepel") #Avoid overlapping labels
+
+
+test <- as.data.frame(res_sgc)
+  
+data <- as.vector(rownames(test))
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
+  
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
+res <- result %>% 
+    dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
+    na.omit()
+  
+
+mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
+input <- cbind(gene=rownames(mutateddf), mutateddf )
+input <- input %>% 
+  arrange(input$padj)
+
+#Add if what to annotate specific genes in Volcano plot
+#symbol_data <- head(input, 100)
+#symbol_data <- input %>% 
+  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
+
+#convert the rownames to a column
+volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
+    geom_point(aes(col=sig)) + #add points colored by significance
+#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
+      ggtitle("SGC 24 hours vs SGC 7 days") #e.g. 'Volcanoplot DESeq2'
+volc
+
+#Save Volcano Plot
+ggsave("volcano/SGC_24Hv7D.jpeg", device="jpeg") #In case you want to easily save to disk
+
+
+```
+
+
+
+## Results tables
+
+The folowing results tables show the significant genes. Filtering has been performed with a log2 fold change +/- 2.
+
+
+### DMSO vs SGC at 24 hours
+
+```{r}
+
+# altered filter_genes function to work with Ensembl Transcript IDs
+
+dt <- filter_genes(as.data.frame(res_24H), name="DMSOvSGC_24H")
+
+
+datatable(dt$sig)
+
+
+```
+
+
+### DMSO vs SGC at 7 days
+
+```{r}
+dt <- filter_genes(as.data.frame(res_7D), name="DMSOvSGC_7D")
+
+
+datatable(dt$sig)
+
+```
+
+
+### SGC 24 hours vs 7 days
+
+```{r}
+dt <- filter_genes(as.data.frame(res_sgc), name="SGC_24Hv7D")
+
+
+datatable(dt$sig)
+
+```
