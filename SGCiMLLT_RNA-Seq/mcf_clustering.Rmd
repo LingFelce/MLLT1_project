@@ -1,9 +1,12 @@
 ---
 title: "MCF-7 Clustering"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
-Update: 27th March 2020
+Update: 30th March 2020
 
 # Assessment of data quality and quality control - MCF-7
 DESeq2, heatmaps and PCA. Mainly Adam's code 
@@ -17,7 +20,7 @@ We define the term quality as fitness for purpose. Our purpose is the detection 
 In this page, you will see all of the analysis performed to understand which samples are potentially going to negatively impact the downstream analysis.
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(cache=FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 source('functions.R')
 library(org.Hs.eg.db)
 library(DESeq2)
@@ -34,6 +37,9 @@ library(gplots)
 library (limma)
 library("genefilter")
 require(data.table)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
+
 ```
 
 
