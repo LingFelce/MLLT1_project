@@ -6,7 +6,7 @@ output:
 ---
 
 
-Update: 30th March 2020
+Update: 31st March 2020
 
 #Differential gene expression using DESeq2 - SUM159
 Differential gene expression using DESeq2 and visualisation with Venn diagrams. Using Adam's code, some from https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
@@ -25,7 +25,7 @@ library(DT)
 library(limma)
 library(pheatmap)
 
-# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
+# to convert to HTML document, type in Console > rmarkdown::render(input = "file_name.Rmd", output_format = "html_document", output_file = NULL) - have to do HTML due to tab layout
 
 ```
 
@@ -44,19 +44,18 @@ all(rownames(meta_data) %in% colnames(txi.sum_kallisto$counts))
 
 
 ```{r}
-# set up meta_data for all experiments (only have 1 comparison)
+# set up meta_data 
 
 meta_data_1 <- meta_data %>% 
   filter(Cell_line == "SUM") %>% 
   column_to_rownames("Samples")
-
 
 ```
 
 
 
 
-```{r}
+```{r, message=FALSE}
 ## Set up the DESeq2 object
 
 df_mRNA <-  txi.sum_kallisto
@@ -81,18 +80,12 @@ res_7D <- deseq2_txi(df_mRNA, meta_data_1, control = "DMSO_7D", test="SGC_7D", v
 
 res_sgc <- deseq2_txi(df_mRNA, meta_data_1, control = "SGC_24H", test="SGC_7D", value="Condition")
 
-
-
-
-
-
-
 ```
 
-The following describes the analysis of the data using DEseq2. I have separated the analyses into the four different contrasts and have plotted summary statistics and MA plots for each.  
+The following describes the analysis of the data using DEseq2. I have separated the analyses into three different contrasts and have plotted summary statistics and MA plots for each.  
 
 
-## Summary of the data {.tabset .tabset-fade}
+## Summary of the data 
 
 ### DMSO vs SGC at 24 hours
 
@@ -112,7 +105,7 @@ summary(res_7D, alpha=0.05)
 summary(res_sgc, alpha=0.05)
 ```
 
-## MA plots {.tabset .tabset-fade}
+## MA plots 
 
 In DESeq2, the function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized counts for all the samples in the DESeqDataSet. Points will be colored red if the adjusted p value is less than 0.01. Points which fall out of the window are plotted as open triangles pointing either up or down.
 
@@ -135,15 +128,14 @@ DESeq2::plotMA(res_sgc)
 ```
 
 
-# Volcano plots {.tabset .tabset-fade}
+## Volcano plots
 
 ## DMSO vs SGC at 24 hours
 
-```{r}
+```{r, message=FALSE}
 
 library("ggplot2") #Best plots
 library("ggrepel") #Avoid overlapping labels
-
 
 test <- as.data.frame(res_24H)
   
@@ -156,33 +148,25 @@ res <- result %>%
     dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
     na.omit()
   
-
 mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
 input <- cbind(gene=rownames(mutateddf), mutateddf )
 input <- input %>% 
   arrange(input$padj)
 
-#Add if what to annotate specific genes in Volcano plot
-#symbol_data <- head(input, 100)
-#symbol_data <- input %>% 
-  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
-
 #convert the rownames to a column
 volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
     geom_point(aes(col=sig)) + #add points colored by significance
-#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
-      ggtitle("DMSO v SGC at 24 hours") #e.g. 'Volcanoplot DESeq2'
+    ggtitle("DMSO v SGC at 24 hours") #e.g. 'Volcanoplot DESeq2'
 volc
 
 #Save Volcano Plot
 ggsave("volcano/SUM_DMSOvSGC_24H.jpeg", device="jpeg") #In case you want to easily save to disk
 
-
 ```
 
 ### DMSO vs SGC at 7 days
 
-```{r}
+```{r, message=FALSE}
 
 library("ggplot2") #Best plots
 library("ggrepel") #Avoid overlapping labels
@@ -198,38 +182,29 @@ result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
 res <- result %>% 
     dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
     na.omit()
-  
-
+ 
 mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
 input <- cbind(gene=rownames(mutateddf), mutateddf )
 input <- input %>% 
   arrange(input$padj)
 
-#Add if what to annotate specific genes in Volcano plot
-#symbol_data <- head(input, 100)
-#symbol_data <- input %>% 
-  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
-
 #convert the rownames to a column
 volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
     geom_point(aes(col=sig)) + #add points colored by significance
-#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
-      ggtitle("DMSO v SGC at 7 days") #e.g. 'Volcanoplot DESeq2'
+    ggtitle("DMSO v SGC at 7 days") #e.g. 'Volcanoplot DESeq2'
 volc
 
 #Save Volcano Plot
 ggsave("volcano/SUM_DMSOvSGC_7D.jpeg", device="jpeg") #In case you want to easily save to disk
 
-
 ```
 
 ### SGC at 24 hours vs SGC at 7 days
 
-```{r}
+```{r, message=FALSE}
 
 library("ggplot2") #Best plots
 library("ggrepel") #Avoid overlapping labels
-
 
 test <- as.data.frame(res_sgc)
   
@@ -241,28 +216,20 @@ result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
 res <- result %>% 
     dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
     na.omit()
-  
 
 mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
 input <- cbind(gene=rownames(mutateddf), mutateddf )
 input <- input %>% 
   arrange(input$padj)
 
-#Add if what to annotate specific genes in Volcano plot
-#symbol_data <- head(input, 100)
-#symbol_data <- input %>% 
-  #filter(SYMBOL == "TBXT" | SYMBOL == "DDIT3" | SYMBOL == "SOX5" | SYMBOL == "TP53INP1" | SYMBOL == "AURKA" | SYMBOL == "DUSP10" | SYMBOL == "CHAC1" | SYMBOL == "NKX2-2" | SYMBOL == "NKX6-1")
-
 #convert the rownames to a column
 volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
     geom_point(aes(col=sig)) + #add points colored by significance
-#geom_point(data=symbol_data, aes(log2FoldChange, -log10(padj)), colour="red") +
-      ggtitle("SGC 24 hours vs SGC 7 days") #e.g. 'Volcanoplot DESeq2'
+    ggtitle("SGC 24 hours vs SGC 7 days") #e.g. 'Volcanoplot DESeq2'
 volc
 
 #Save Volcano Plot
 ggsave("volcano/SUM_SGC_24Hv7D.jpeg", device="jpeg") #In case you want to easily save to disk
-
 
 ```
 
@@ -270,7 +237,7 @@ ggsave("volcano/SUM_SGC_24Hv7D.jpeg", device="jpeg") #In case you want to easily
 
 ## Results tables
 
-The folowing results tables show the significant genes. Filtering has been performed with a log2 fold change +/- 2.
+The folowing results tables show the significant genes (p<0.05). Filtering has been performed with a log2 fold change +/- 2. These have been exported as .csv files where _res.csv is all genes, and _sig.csv is significant genes (p<0.05) with LFC +/-2 (see results folder)
 
 
 ### DMSO vs SGC at 24 hours
@@ -278,12 +245,9 @@ The folowing results tables show the significant genes. Filtering has been perfo
 ```{r}
 
 # altered filter_genes function to work with Ensembl Transcript IDs
-
 dt <- filter_genes(as.data.frame(res_24H), name="DMSOvSGC_24H")
 
-
 datatable(dt$sig)
-
 
 ```
 
@@ -292,7 +256,6 @@ datatable(dt$sig)
 
 ```{r}
 dt <- filter_genes(as.data.frame(res_7D), name="DMSOvSGC_7D")
-
 
 datatable(dt$sig)
 
@@ -304,14 +267,13 @@ datatable(dt$sig)
 ```{r}
 dt <- filter_genes(as.data.frame(res_sgc), name="SGC_24Hv7D")
 
-
 datatable(dt$sig)
 
 ```
 
 
 ## Genes common between 24h and 7d treatments
-Too few genes to sort into up/downregulated, therefore used online tool Venny https://bioinfogp.cnb.csic.es/tools/venny/. Selected only significant genes from results table p<0.05 (not taking into account value of log fold change) and pasted into online Venny tool.
+Too few genes to sort into up/downregulated. Selected only significant genes from results table p<0.05 (not taking into account value of log fold change).
 
 ```{r}
 
@@ -320,7 +282,6 @@ sig_24h <- res_24h[res_24h$padj<0.05 ,]
 
 res_7d <- read.csv("results/DMSOvSGC_7D_res.csv") 
 sig_7d <- res_7d[res_7d$padj<0.05 ,]
-
 
 common_genes <- sig_7d[is.element(sig_7d$SYMBOL, sig_24h$SYMBOL),]
 
