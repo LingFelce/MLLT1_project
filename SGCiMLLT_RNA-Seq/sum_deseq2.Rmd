@@ -8,7 +8,7 @@ output:
 
 Update: 31st March 2020
 
-#Differential gene expression using DESeq2 - SUM159
+# Differential gene expression using DESeq2 - SUM159
 Differential gene expression using DESeq2 and visualisation with Venn diagrams. Using Adam's code, some from https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 
 If need to use Biomart to map gene symbols from Ensembl IDs, then use functions_biomart.R instead of functions.R
