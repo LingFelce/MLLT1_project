@@ -6,7 +6,7 @@ output:
   word_document: default
 ---
 
-Update: 31st March 2020
+Update: 1st April 2020
 
 # Differential gene expression using DESeq2 - MCF-7
 
@@ -54,7 +54,7 @@ meta_data_1 <- meta_data %>%
 
 
 
-```{r, message=FALSE}
+```{r, message=FALSE, eval=FALSE}
 ## Set up the DESeq2 object
 
 df_mRNA <-  txi.mcf_kallisto
@@ -81,7 +81,7 @@ res_sgc <- deseq2_txi(df_mRNA, meta_data_1, control = "SGC_24H", test="SGC_7D", 
 
 ```
 
-The following describes the analysis of the data using DEseq2. I have separated the analyses into the three different contrasts and have plotted summary statistics and MA plots for each.  
+The following describes the analysis of the data using DEseq2. I have separated the analyses into three different contrasts and have plotted summary statistics and MA plots for each.  
 
 
 ## Summary of the data
@@ -240,10 +240,10 @@ The folowing results tables show the significant genes (p<0.05). Filtering has b
 
 ### DMSO vs SGC at 24 hours
 
-```{r}
+```{r, message=FALSE}
 
 # altered filter_genes function to work with Ensembl Transcript IDs
-dt <- filter_genes(as.data.frame(res_24H), name="DMSOvSGC_24H")
+dt <- filter_genes(as.data.frame(res_24H), name="MCF_DMSOvSGC_24H")
 
 datatable(dt$sig)
 
@@ -252,8 +252,8 @@ datatable(dt$sig)
 
 ### DMSO vs SGC at 7 days
 
-```{r}
-dt <- filter_genes(as.data.frame(res_7D), name="DMSOvSGC_7D")
+```{r, message=FALSE}
+dt <- filter_genes(as.data.frame(res_7D), name="MCF_DMSOvSGC_7D")
 
 datatable(dt$sig)
 
@@ -262,8 +262,8 @@ datatable(dt$sig)
 
 ### SGC 24 hours vs 7 days
 
-```{r}
-dt <- filter_genes(as.data.frame(res_sgc), name="SGC_24Hv7D")
+```{r, message=FALSE}
+dt <- filter_genes(as.data.frame(res_sgc), name="MCF_SGC_24Hv7D")
 
 datatable(dt$sig)
 
@@ -275,10 +275,10 @@ Too few genes to sort into up/downregulated. Selected only significant genes fro
 
 ```{r}
 
-res_24h <- read.csv("results/DMSOvSGC_24H_res.csv") 
+res_24h <- read.csv("results/MCF_DMSOvSGC_24H_res.csv") 
 sig_24h <- res_24h[res_24h$padj<0.05 ,]
 
-res_7d <- read.csv("results/DMSOvSGC_7D_res.csv") 
+res_7d <- read.csv("results/MCF_DMSOvSGC_7D_res.csv") 
 sig_7d <- res_7d[res_7d$padj<0.05 ,]
 
 common_genes <- sig_7d[is.element(sig_7d$SYMBOL, sig_24h$SYMBOL),]
@@ -286,3 +286,112 @@ common_genes <- sig_7d[is.element(sig_7d$SYMBOL, sig_24h$SYMBOL),]
 datatable(common_genes)
 
 ```
+
+## Venn diagrams to show shared genes between DMSOvSGC 24 hours and DMSOvSGC 7 days
+
+```{r}
+# downregulated
+
+res_24h_down <- res_24h %>% 
+  filter(log2FoldChange < 0) %>% 
+  filter(padj < 0.01)
+
+res_7d_down <- res_7d %>% 
+  filter(log2FoldChange < 0) %>% 
+  filter(padj < 0.01)
+
+
+# upregulated
+
+res_24h_up <- res_24h %>% 
+  filter(log2FoldChange > 0)%>% 
+  filter(padj < 0.01)
+
+res_7d_up <- res_7d %>% 
+  filter(log2FoldChange > 0)%>% 
+  filter(padj < 0.01)
+
+```
+
+### Downregulated genes
+
+```{r, message=FALSE, eval=FALSE}
+
+library(reshape)
+library(reshape2)
+
+res_24h_down <- res_24h_down %>% 
+  select(SYMBOL, log2FoldChange)
+res_7d_down <- res_7d_down %>% 
+  select(SYMBOL, log2FoldChange)
+
+merge_down <- merge(res_24h_down, res_7d_down, by="SYMBOL", all = TRUE)
+
+merge_down <- merge_down %>% 
+  mutate(res_24h_LFC = log2FoldChange.x, res_7d_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+merge_down[is.na(merge_down)] <- 0
+
+res_24h_venn <- (merge_down$res_24h_LFC < 0)
+res_7d_venn <- (merge_down$res_7d_LFC < 0)
+
+c2 <- cbind(res_24h_venn, res_7d_venn)
+
+a <- vennCounts(c2)
+a
+
+library("RColorBrewer")
+library(wesanderson)
+c("red", "blue", "darkgreen", "yellow")
+png("venn/MCF_downregulated_venn.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+
+down <- merge_down[complete.cases(merge_down),]
+
+write.csv(down, file="venn/MCF_down.csv")
+
+```
+
+![](venn/MCF_downregulated_venn.png)
+
+### Upregulated genes
+
+```{r, message=FALSE, eval=FALSE}
+
+library(reshape)
+library(reshape2)
+
+res_24h_up <- res_24h_up %>% 
+  select(SYMBOL, log2FoldChange)
+res_7d_up <- res_7d_up %>% 
+  select(SYMBOL, log2FoldChange)
+
+merge_up <- merge(res_24h_up, res_7d_up, by="SYMBOL", all = TRUE)
+
+merge_up <- merge_up %>% 
+  mutate(res_24h_LFC = log2FoldChange.x, res_7d_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+merge_up[is.na(merge_up)] <- 0
+
+res_24h_venn <- (merge_up$res_24h_LFC < 0)
+res_7d_venn <- (merge_up$res_7d_LFC < 0)
+
+c2 <- cbind(res_24h_venn, res_7d_venn)
+
+a <- vennCounts(c2)
+a
+
+library("RColorBrewer")
+library(wesanderson)
+c("red", "blue", "darkgreen", "yellow")
+png("venn/MCF_upregulated_venn.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+
+up <- merge_up[complete.cases(merge_up),]
+
+write.csv(up, file="venn/MCF_up.csv")
+
+```
+![](venn/MCF_upregulated_venn.png)
