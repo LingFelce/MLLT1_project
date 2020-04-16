@@ -1,0 +1,94 @@
+---
+title: "ChIP peaks and RNA-Seq genes"
+output: html_notebook
+---
+
+# Comparing ChIP peaks and RNA-Seq genes in MCF-7
+ChIP peaks from ENCODE data and RNA-Seq genes from own RNA-Seq
+
+```{r}
+
+library(tidyverse)
+
+# read files in
+
+MCF1 <- read.csv("MCF1_sig.csv", header=TRUE)
+MCF2 <- read.csv("MCF2_sig.csv", header=TRUE)
+SUM1 <- read.csv("SUM1_sig.csv", header=TRUE)
+SUM2 <- read.csv("SUM2_sig.csv", header=TRUE)
+original_peaks <- read.delim("ENCF686_peaks.annot.txt", header=TRUE)
+
+# modify peaks file to only include peak score of 1000
+peaks_score <- original_peaks[original_peaks$Peak.Score=="1000",]
+
+# modify peaks file to remove peaks in intergenic regions
+peaks <- peaks_score[peaks_score$Annotation !="Intergenic",]
+
+# create list of promoter peak information
+promoter_peaks <- grep("promoter-TSS (*)", peaks$Annotation, value=TRUE)
+
+# create table with promoter peaks only
+ppt <- peaks[is.element(peaks$Annotation, promoter_peaks),]
+
+# compare gene names in MCF clone 1 with peak file (output as peak table)
+
+peaks_MCF1 <- ppt[is.element(ppt$Gene.Name, MCF1$SYMBOL),]
+
+# compare gene names in MCF clone 2 with peak file (output as peak table)
+
+peaks_MCF2 <- peaks[is.element(ppt$Gene.Name, MCF2$SYMBOL),]
+
+# compare gene names in SUM clone 1 with peak file (output as peak table)
+
+peaks_SUM1 <- ppt[is.element(ppt$Gene.Name, SUM1$SYMBOL),]
+
+# compare gene names in SUM clone 2 with peak file (output as peak table)
+
+peaks_SUM2 <- ppt[is.element(ppt$Gene.Name, SUM2$SYMBOL),]
+
+# combined gene list from MCF1, MCF2, SUM1 and SUM2
+
+gene_list <- c("MYC", "CDKN1B", "MMP16", "HIST1H2AC", "HIST2H2BE", "HIST1H2AG", "CHAC1", "HIST1H2BK", "UGDH", "SLC3A2", "BAG1", "CD55", "PRSS8", "HIST1H2AD", "ATG10", "ARSG", "HK1", "HSPB1", "FOXA1", "OSGIN2", "GRTP1", "BRWD1", "S100PBP", "CRISPLD2", "FHL2", "PREX1", "MED13L", "HIST1H1D", "CALM2", "WDR13", "NRIP1", "VPS28", "PLEC", "ZNF7", "EGR3", "CTGF", "KLF6", "WRAP53", "FLOT1", "ITGB2", "FZD1", "ZNRF2", "GADD45B")
+
+# pull data from peaks table containing only selected genes
+
+genes <- ppt[is.element(ppt$Gene.Name, gene_list),]
+
+write.csv(genes, "genes_for_qpcr.csv")
+
+# find LFC for each gene in each clone
+
+mcf1_lfc <- MCF1[is.element(MCF1$SYMBOL, gene_list),]
+mcf2_lfc <- MCF2[is.element(MCF2$SYMBOL, gene_list),]
+sum1_lfc <- SUM1[is.element(SUM1$SYMBOL, gene_list),]
+sum2_lfc <- SUM2[is.element(SUM2$SYMBOL, gene_list),]
+
+# sort new tables by alphabetical order
+
+mcf1_lfc <- mcf1_lfc[order(mcf1_lfc$SYMBOL),]
+mcf2_lfc <- mcf2_lfc[order(mcf2_lfc$SYMBOL),]
+sum1_lfc <- sum1_lfc[order(sum1_lfc$SYMBOL),]
+sum2_lfc <- sum2_lfc[order(sum2_lfc$SYMBOL),]
+
+# rename columns
+
+mcf1 <- mcf1_lfc %>% rename(lfc = log2FoldChange, symbol = SYMBOL)
+mcf2 <- mcf2_lfc %>% rename(lfc = log2FoldChange, symbol = SYMBOL)
+sum1 <- sum1_lfc %>% rename(lfc = log2FoldChange, symbol = SYMBOL)
+sum2 <- sum2_lfc %>% rename(lfc = log2FoldChange, symbol = SYMBOL)
+
+# create table with columns from above
+
+list1 <- data.frame(mcf1$lfc, mcf1$symbol)
+list2 <- data.frame(mcf2$lfc, mcf2$symbol)
+list3 <- data.frame(sum1$lfc, sum1$symbol)
+list4 <- data.frame(sum2$lfc, sum2$symbol)
+
+lfc <-  list(list1, list2, list3, list4)
+
+# then copy and paste into Excel!! Won't create a table as different number of rows.
+
+
+
+```
+
