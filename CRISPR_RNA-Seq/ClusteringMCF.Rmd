@@ -1,0 +1,286 @@
+---
+title: "Clustering - MCF-7"
+output: html_document
+---
+
+Update: 27th April 2020
+
+# Clustering of all MCF-7 samples
+
+Data quality assessment and quality control (i.e. the removal of insufficiently good data) are essential steps of any data analysis. These steps should typically be performed very early in the analysis of a new data set, preceding or in parallel to the differential expression testing.
+
+We define the term quality as fitness for purpose. Our purpose is the detection of differentially expressed genes, and we are looking in particular for samples whose experimental treatment suffered from an anormality that renders the data points obtained from these particular samples detrimental to our purpose.
+
+In this page, you will see all of the analysis performed to understand which samples are potentially going to negatively impact the downstream analysis.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE)
+source('functions.R')
+library(org.Hs.eg.db)
+library(DESeq2)
+library(pheatmap)
+library(dplyr)
+library(ggplot2)
+library (stringi)
+library(AnnotationDbi)
+library(edgeR)
+library(DEFormats)
+library(statmod)
+library(BiocParallel)
+library(gplots)
+library (limma)
+library("genefilter")
+```
+
+
+```{r , echo=TRUE,warning=FALSE,message=FALSE,error=FALSE}
+
+all_samples <- read.table("genes.tsv", sep = "\t", header = TRUE, row.names = 1)
+
+MCF_only <- all_samples [, c("MCF.MLLT1.1.1_S15", "MCF.MLLT1.1.2_S7", "MCF.MLLT1.1.3_S19", "MCF.MLLT1.2.1_S21", "MCF.MLLT1.2.2_S20", "MCF.MLLT1.2.3_S6", "MCF.NEG.1_S13", "MCF.NEG.2_S9", "MCF.NEG.3_S8")]
+
+write.table(MCF_only, sep="\t",file="MCF_genes.tsv")
+
+df_mRNA <- read.table("MCF_genes.tsv", sep = "\t", header = TRUE)
+
+meta_data <- read.table("MCF_metadata.csv", sep=",", header = TRUE)
+
+rownames(meta_data) <- meta_data$Samples
+
+df_mRNA = df_mRNA[,rownames(meta_data)]
+
+all(rownames(meta_data) %in% colnames(df_mRNA))
+
+```
+
+```{r }
+
+run_deseq2_full <- function(df_mRNA, meta_data){
+  
+  
+  dds<- DESeqDataSetFromMatrix(countData=df_mRNA,
+                               colData=meta_data,
+                               design= ~Condition) 
+  
+  keep <- rowSums(counts(dds)) >= 10
+  dds <- dds[keep,]
+  
+  dds <- DESeq(dds, parallel=TRUE)
+  
+  return(dds)
+}
+
+dds <- run_deseq2_full(df_mRNA, meta_data)
+
+```
+
+# Heatmap of counts matrix
+
+To explore a count matrix, it is often instructive to look at it as a heatmap. Below we show how to produce such a heatmap for various transformations of the data. I have plotted a heatmap of the top 200 highly expressed genes to determine if the samples cluster together by condition.
+
+```{r}
+library(pheatmap)
+
+vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
+select <- order(rowMeans(counts(dds, normalized=TRUE)), decreasing=TRUE)[1:200]
+df <- as.data.frame(colData(dds)[,"Condition"])
+annotation <- data.frame(Var1 = meta_data$Samples, Var2 = meta_data$Condition)
+rownames(annotation) <- colnames(assay(vsd))
+pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
+```
+
+
+# Heatmap of sample-to-sample distances
+
+Another use of the transformed data is sample clustering. Here, we apply the dist function to the transpose of the transformed count matrix to get sample-to-sample distances.
+
+A heatmap of this distance matrix gives us an overview over similarities and dissimilarities between samples. We have to provide a hierarchical clustering hc to the heatmap function based on the sample distances, or else the heatmap function would calculate a clustering based on the distances between the rows/columns of the distance matrix.
+
+```{r}
+library(RColorBrewer)
+sampleDists <- dist(t(assay(vsd)))
+samplDistMatrix <- as.matrix(sampleDists)
+rownames(samplDistMatrix) <- meta_data$Condition
+colnames(samplDistMatrix) <- meta_data$Samples
+colors <- colorRampPalette(rev(brewer.pal(9, "Blues")) )(255)
+pheatmap(samplDistMatrix, 
+         clustering_distance_cols = sampleDists, 
+         clustering_distance_rows = sampleDists,
+         color = colors)
+```
+
+
+# PCA analysis of the samples {.tabset .tabset-fade}
+
+Related to the distance matrix is the PCA plot, which shows the samples in the 2D plane spanned by their first two principal components. This type of plot is useful for visualizing the overall effect of experimental covariates and batch effects.
+
+
+## PCA - PC1 + PC2
+
+```{r}
+
+plotPCA(vsd, intgroup=c("Samples","Condition"))
+
+
+```
+
+## PCA - PC2 + PC3
+
+
+```{r}
+runPCA <-function (object, intgroup=c("Samples","Condition"), ntop = 500, returnData = FALSE) 
+{
+    rv <- rowVars(assay(object))
+    select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
+        length(rv)))]
+    pca <- prcomp(t(assay(object)[select, ]))
+    percentVar <- pca$sdev^2/sum(pca$sdev^2)
+    if (!all(intgroup %in% names(colData(object)))) {
+        stop("the argument 'intgroup' should specify columns of colData(dds)")
+    }
+    intgroup.df <- as.data.frame(colData(object)[, intgroup, 
+        drop = FALSE])
+    group <- if (length(intgroup) > 1) {
+        factor(apply(intgroup.df, 1, paste, collapse = ":"))
+    }
+    else {
+        colData(object)[[intgroup]]
+    }
+    d <- data.frame(PC2 = pca$x[, 2], PC3 = pca$x[, 3], group = group, 
+        intgroup.df, name = colnames(object))
+    if (returnData) {
+        attr(d, "percentVar") <- percentVar[2:3]
+        return(d)
+    }
+    ggplot(data = d, aes_string(x = "PC2", y = "PC3", color = "group")) + 
+        geom_point(size = 3) + xlab(paste0("PC2: ", round(percentVar[1] * 
+        100), "% variance")) + ylab(paste0("PC3: ", round(percentVar[2] * 
+        100), "% variance")) + coord_fixed()
+}
+
+PCA <- runPCA(vsd, intgroup=c("Samples","Condition"))
+
+PCA
+
+```
+
+
+
+## PCA - PC3 + PC4
+
+```{r}
+
+runPCA <-function (object, intgroup=c("Samples","Condition"), ntop = 500, returnData = FALSE) 
+{
+    rv <- rowVars(assay(object))
+    select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
+        length(rv)))]
+    pca <- prcomp(t(assay(object)[select, ]))
+    percentVar <- pca$sdev^2/sum(pca$sdev^2)
+    if (!all(intgroup %in% names(colData(object)))) {
+        stop("the argument 'intgroup' should specify columns of colData(dds)")
+    }
+    intgroup.df <- as.data.frame(colData(object)[, intgroup, 
+        drop = FALSE])
+    group <- if (length(intgroup) > 1) {
+        factor(apply(intgroup.df, 1, paste, collapse = ":"))
+    }
+    else {
+        colData(object)[[intgroup]]
+    }
+    d <- data.frame(PC3 = pca$x[, 3], PC4 = pca$x[, 4], group = group, 
+        intgroup.df, name = colnames(object))
+    if (returnData) {
+        attr(d, "percentVar") <- percentVar[3:4]
+        return(d)
+    }
+    ggplot(data = d, aes_string(x = "PC3", y = "PC4", color = "group")) + 
+        geom_point(size = 3) + xlab(paste0("PC3: ", round(percentVar[1] * 
+        100), "% variance")) + ylab(paste0("PC4: ", round(percentVar[2] * 
+        100), "% variance")) + coord_fixed()
+}
+
+PCA <- runPCA(vsd, intgroup=c("Samples","Condition"))
+
+PCA
+
+```
+
+
+
+# Heatmap of gene clustering
+In the sample distance heatmap made previously, the dendrogram at the side shows us a hierarchical clustering of the samples. Such a clustering can also be performed for the genes. Since the clustering is only relevant for genes that actually carry a signal, one usually would only cluster a subset of the most highly variable genes. Here, for demonstration, let us select the 20 genes with the highest variance across samples. We will work with the VST data. The heatmap becomes more interesting if we do not look at absolute expression strength but rather at the amount by which each gene deviates in a specific sample from the gene’s average across all samples. Hence, we center each genes’ values across samples, and plot a heatmap (figure below). We provide a data.frame that instructs the pheatmap function how to label the columns.
+
+```{r}
+
+library("genefilter")
+topVarGenes <- head(order(rowVars(assay(vsd)), decreasing = TRUE), 20)
+
+mat  <- assay(vsd)[ topVarGenes, ]
+mat  <- mat - rowMeans(mat)
+anno <- as.data.frame(colData(vsd)[, c("Samples","Condition")])
+pheatmap(mat, annotation_col = anno)
+
+```
+
+
+
+#Heatmap of significantly expressed genes (top 200 with lowest p value)
+http://folk.uio.no/jonbra/MBV-INF4410_2017/exercises/2017-12-07_R_DESeq2_exercises_without_results.html
+
+```{r, message=FALSE}
+library("pheatmap")
+
+#Run differential expression pipeline on raw counts with single call to the function DESeq
+dds = DESeq(dds)
+
+#Log transformation
+rld = rlogTransformation(dds)
+
+#Build results table
+res <- results(dds)
+mcols(res, use.names=TRUE)
+
+
+#Heatmap of most significantly expressed genes
+
+mat = assay(rld)[ head(order(res$padj),200), ] # select the top 200 genes with the lowest padj
+mat = mat - rowMeans(mat) # Subtract the row means from each value
+# Optional, but to make the plot nicer:
+df = as.data.frame(colData(rld)[,c("Condition")]) # Create a dataframe with a column of the conditions
+colnames(df) = "Condition" # Rename the column header
+rownames(df) = colnames(mat) # add rownames
+# and plot the actual heatmap
+pheatmap(mat, annotation_col=df, show_rownames=FALSE)
+
+```
+
+#Heatmap of significantly expressed genes (top 20 with lowest p value)
+http://folk.uio.no/jonbra/MBV-INF4410_2017/exercises/2017-12-07_R_DESeq2_exercises_without_results.html
+
+```{r, message=FALSE}
+library("pheatmap")
+
+#Run differential expression pipeline on raw counts with single call to the function DESeq
+dds = DESeq(dds)
+
+#Log transformation
+rld = rlogTransformation(dds)
+
+#Build results table
+res <- results(dds)
+mcols(res, use.names=TRUE)
+
+
+#Heatmap of most significantly expressed genes
+
+mat = assay(rld)[ head(order(res$padj),20), ] # select the top 20 genes with the lowest padj
+mat = mat - rowMeans(mat) # Subtract the row means from each value
+# Optional, but to make the plot nicer:
+df = as.data.frame(colData(rld)[,c("Condition")]) # Create a dataframe with a column of the conditions
+colnames(df) = "Condition" # Rename the column header
+rownames(df) = colnames(mat) # add rownames
+# and plot the actual heatmap
+pheatmap(mat, annotation_col=df)
+
+```
