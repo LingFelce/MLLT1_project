@@ -1,0 +1,179 @@
+---
+title: "GO_Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(pathview)
+library(fgsea)
+library(readr)
+```
+
+# Downstream Analysis of MLLT1 Knockout RNA-Seq
+
+Update: 27th April 2020
+
+## Read in data
+```{r}
+# Genes from Hallmark gene sets (leading edge genes)
+
+mcf2_up <- read.csv("mcf2_up.csv", header = TRUE)
+mcf2_down <- read.csv("mcf2_down.csv", header = TRUE)
+sum1_up <- read.csv("sum1_up.csv", header=TRUE)
+sum2_up <- read.csv("sum2_up.csv", header=TRUE)
+
+# Differentially expressed genes (all)
+
+mcf2_res <- read.csv("MCF2_res.csv", header=TRUE)
+sum1_res <- read.csv("SUM1_res.csv", header=TRUE)
+sum2_res <- read.csv("SUM2_res.csv", header=TRUE)
+
+# Select leading edge genes from all differentially expressed gene list
+
+mcf2_up <- mcf2_res[is.element(mcf2_res$SYMBOL, mcf2_up$Gene),]
+mcf2_down <- mcf2_res[is.element(mcf2_res$SYMBOL, mcf2_down$Gene),]
+sum1_up <- sum1_res[is.element(sum1_res$SYMBOL, sum1_up$Gene),]
+sum2_up <- sum2_res[is.element(sum2_res$SYMBOL, sum2_up$Gene),]
+
+
+
+```
+
+## Convert gene symbols to Entrez ID
+```{r}
+
+mcf2_up$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf2_up$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+mcf2_down$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf2_down$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+sum1_up$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum1_up$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+sum2_up$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum2_up$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+
+```
+
+## MCF-7 Clone 2 Upregulated Genes
+```{r}
+
+mcf2_up_geneset <- as.character(mcf2_up$Entrez.Gene)
+
+mcf2_up_ego <- enrichGO(gene = mcf2_up_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+#dimensions - number of GO terms
+dim(mcf2_up_ego)
+
+barplot(mcf2_up_ego)
+
+#logFC is optional, but if available will colour-code the nodes
+mcf2_up_logFC <- mcf2_up$log2FoldChange
+#set name of object
+names(mcf2_up_logFC) <- mcf2_up$Entrez.Gene
+head(mcf2_up_logFC)
+cnetplot(mcf2_up_ego, foldChange = mcf2_up_logFC, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+
+
+```
+
+## MCF-7 Clone 2 Downregulated Genes
+```{r}
+
+mcf2_down_geneset <- as.character(mcf2_down$Entrez.Gene)
+
+mcf2_down_ego <- enrichGO(gene = mcf2_down_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+#dimensions - number of GO terms
+dim(mcf2_down_ego)
+
+barplot(mcf2_down_ego)
+
+#logFC is optional, but if available will colour-code the nodes
+mcf2_down_logFC <- mcf2_down$log2FoldChange
+#set name of object
+names(mcf2_down_logFC) <- mcf2_down$Entrez.Gene
+head(mcf2_down_logFC)
+cnetplot(mcf2_down_ego, foldChange = mcf2_down_logFC, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+
+```
+
+
+## SUM159 Clone 1 Upregulated Genes
+```{r}
+
+sum1_up_geneset <- as.character(sum1_up$Entrez.Gene)
+
+sum1_up_ego <- enrichGO(gene = sum1_up_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+#dimensions - number of GO terms
+dim(sum1_up_ego)
+
+barplot(sum1_up_ego)
+
+#logFC is optional, but if available will colour-code the nodes
+sum1_up_logFC <- sum1_up$log2FoldChange
+#set name of object
+names(sum1_up_logFC) <- sum1_up$Entrez.Gene
+head(sum1_up_logFC)
+cnetplot(sum1_up_ego, foldChange = sum1_up_logFC, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+
+```
+
+
+## SUM159 Clone 2 Upregulated Genes
+```{r}
+
+sum2_up_geneset <- as.character(sum2_up$Entrez.Gene)
+
+sum2_up_ego <- enrichGO(gene = sum2_up_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+#dimensions - number of GO terms
+dim(sum2_up_ego)
+
+barplot(sum2_up_ego)
+
+#logFC is optional, but if available will colour-code the nodes
+sum2_up_logFC <- sum2_up$log2FoldChange
+#set name of object
+names(sum2_up_logFC) <- sum2_up$Entrez.Gene
+head(sum2_up_logFC)
+cnetplot(sum2_up_ego, foldChange = sum2_up_logFC, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+
+```
