@@ -119,7 +119,7 @@ Related to the distance matrix is the PCA plot, which shows the samples in the 2
 
 ```{r}
 
-plotPCA(vsd, intgroup=c("Samples","Condition"))
+plotPCA(vsd, intgroup=c("Condition","Samples"))
 
 
 ```
@@ -128,7 +128,7 @@ plotPCA(vsd, intgroup=c("Samples","Condition"))
 
 
 ```{r}
-runPCA <-function (object, intgroup=c("Samples","Condition"), ntop = 500, returnData = FALSE) 
+runPCA <-function (object, intgroup="Condition", ntop = 500, returnData = FALSE) 
 {
     rv <- rowVars(assay(object))
     select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
@@ -153,12 +153,12 @@ runPCA <-function (object, intgroup=c("Samples","Condition"), ntop = 500, return
         return(d)
     }
     ggplot(data = d, aes_string(x = "PC2", y = "PC3", color = "group")) + 
-        geom_point(size = 3) + xlab(paste0("PC2: ", round(percentVar[1] * 
-        100), "% variance")) + ylab(paste0("PC3: ", round(percentVar[2] * 
+        geom_point(size = 3) + xlab(paste0("PC2: ", round(percentVar[2] * 
+        100), "% variance")) + ylab(paste0("PC3: ", round(percentVar[3] * 
         100), "% variance")) + coord_fixed()
 }
 
-PCA <- runPCA(vsd, intgroup=c("Samples","Condition"))
+PCA <- runPCA(vsd, intgroup="Condition")
 
 PCA
 
@@ -195,8 +195,8 @@ runPCA <-function (object, intgroup=c("Samples","Condition"), ntop = 500, return
         return(d)
     }
     ggplot(data = d, aes_string(x = "PC3", y = "PC4", color = "group")) + 
-        geom_point(size = 3) + xlab(paste0("PC3: ", round(percentVar[1] * 
-        100), "% variance")) + ylab(paste0("PC4: ", round(percentVar[2] * 
+        geom_point(size = 3) + xlab(paste0("PC3: ", round(percentVar[3] * 
+        100), "% variance")) + ylab(paste0("PC4: ", round(percentVar[4] * 
         100), "% variance")) + coord_fixed()
 }
 
