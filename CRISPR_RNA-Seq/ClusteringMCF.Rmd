@@ -3,7 +3,7 @@ title: "Clustering - MCF-7"
 output: html_document
 ---
 
-Update: 27th April 2020
+Update: 28th April 2020
 
 # Clustering of all MCF-7 samples
 
@@ -29,6 +29,7 @@ library(statmod)
 library(BiocParallel)
 library(gplots)
 library (limma)
+library(tidyverse)
 library("genefilter")
 ```
 
@@ -120,6 +121,56 @@ Related to the distance matrix is the PCA plot, which shows the samples in the 2
 ```{r}
 
 plotPCA(vsd, intgroup=c("Condition","Samples"))
+
+## select genes that contribute most to variation seen in PC1 and PC2
+
+object = vsd
+ntop = 500
+rv <- rowVars(assay(object))
+
+# select the ntop genes by variance
+select <- order(rv, decreasing=TRUE)[seq_len(min(ntop, length(rv)))]
+
+# perform a PCA on the data in assay(x) for the selected genes
+pca <- prcomp(t(assay(object)[select,]))
+#head(pca)
+#colnames(pca)
+#summary(pca)
+#lapply(pca,head)
+
+# shows values for PC1 - PC9
+pca_sub <- as.data.frame(pca$rotation)
+
+# create a column for Ensembl IDs from rownames (which are Ensembl IDs)
+pca_sub$ensembl <- rownames(pca_sub)
+
+# rearrange columns so Ensembl IDs is first column, then PC1 and PC2.
+pca_sub <- pca_sub %>% dplyr::select(c("ensembl","PC1","PC2")) %>% arrange(desc(abs(PC1)))
+
+# use AnnotationDbi to get gene symbols
+data <- as.vector(pca_sub$ensembl)
+
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBL")
+
+colnames(annots) <- c("ensembl","hgnc")
+
+pca_symbol <- plyr::join(x =pca_sub, y =annots, by = "ensembl", type = "left") 
+
+# for some reason have to do this long winded way, if just do pca_sub$symbol <- AnnotationDbi etc won't do it as will say columns have different numbers of rows
+
+write.csv(pca_symbol, "pca_genes.csv")
+
+# or use Biomart
+library('biomaRt')
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+
+G_list <- getBM(filters = "ensembl_gene_id", 
+                attributes = c("ensembl_gene_id", "hgnc_symbol"),
+                values = pca_sub$ensembl, mart = mart)
+colnames(G_list) <- c("ensembl","hgnc")
+
+joined2 <- plyr::join(pca_sub, G_list, by = "ensembl", type = "left")
 
 
 ```
