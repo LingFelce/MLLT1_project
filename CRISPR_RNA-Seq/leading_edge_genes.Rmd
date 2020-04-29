@@ -1,6 +1,8 @@
 ---
-title: "GO_Analysis"
-output: html_document
+title: "leading_edge_analysis"
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +19,8 @@ library(readr)
 # Downstream Analysis of MLLT1 Knockout RNA-Seq
 
 Update: 27th April 2020
+
+Further analysis of leading edge genes from significant (FDR < 0.05) Hallmark gene sets for MCF-7 clone 2 (up and downregulated gene sets), SUM159 clone 1 and 2 (upregulated)
 
 ## Read in data
 ```{r}
@@ -71,20 +75,33 @@ mcf2_up_ego <- enrichGO(gene = mcf2_up_geneset,
 #dimensions - number of GO terms
 dim(mcf2_up_ego)
 
-barplot(mcf2_up_ego)
+```
+
+```{r, fig.height=4, fig.width=8}
+
+barplot(mcf2_up_ego, showCategory = 10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
 
 #logFC is optional, but if available will colour-code the nodes
 mcf2_up_logFC <- mcf2_up$log2FoldChange
 #set name of object
 names(mcf2_up_logFC) <- mcf2_up$Entrez.Gene
-head(mcf2_up_logFC)
+
 cnetplot(mcf2_up_ego, foldChange = mcf2_up_logFC, showCategory = 5, circular = FALSE)
 #show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 #size = number of genes, fold change = red for upregulated, green for downregulated
 
+```
 
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(mcf2_up_ego, foldChange = mcf2_up_logFC, showCategory=10)
 
 ```
+
 
 ## MCF-7 Clone 2 Downregulated Genes
 ```{r}
@@ -102,17 +119,33 @@ mcf2_down_ego <- enrichGO(gene = mcf2_down_geneset,
 #dimensions - number of GO terms
 dim(mcf2_down_ego)
 
-barplot(mcf2_down_ego)
+
+```
+
+```{r, fig.height= 4, fig.width=8}
+
+barplot(mcf2_down_ego, showCategory = 10)
+
+```
+
+
+```{r, fig.height=6, fig.width=8}
 
 #logFC is optional, but if available will colour-code the nodes
 mcf2_down_logFC <- mcf2_down$log2FoldChange
 #set name of object
 names(mcf2_down_logFC) <- mcf2_down$Entrez.Gene
-head(mcf2_down_logFC)
+
 cnetplot(mcf2_down_ego, foldChange = mcf2_down_logFC, showCategory = 5, circular = FALSE)
 #show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 #size = number of genes, fold change = red for upregulated, green for downregulated
 
+
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(mcf2_down_ego, foldChange = mcf2_down_logFC, showCategory=10)
 
 ```
 
@@ -133,17 +166,30 @@ sum1_up_ego <- enrichGO(gene = sum1_up_geneset,
 #dimensions - number of GO terms
 dim(sum1_up_ego)
 
-barplot(sum1_up_ego)
+```
+
+```{r, fig.height=4, fig.width=8}
+
+barplot(sum1_up_ego, showCategory = 10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
 
 #logFC is optional, but if available will colour-code the nodes
 sum1_up_logFC <- sum1_up$log2FoldChange
 #set name of object
 names(sum1_up_logFC) <- sum1_up$Entrez.Gene
-head(sum1_up_logFC)
 cnetplot(sum1_up_ego, foldChange = sum1_up_logFC, showCategory = 5, circular = FALSE)
 #show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 #size = number of genes, fold change = red for upregulated, green for downregulated
 
+
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(sum1_up_ego, foldChange = sum1_up_logFC, showCategory=10)
 
 ```
 
@@ -164,16 +210,28 @@ sum2_up_ego <- enrichGO(gene = sum2_up_geneset,
 #dimensions - number of GO terms
 dim(sum2_up_ego)
 
-barplot(sum2_up_ego)
+```
+
+```{r, fig.height=4, fig.width=8}
+
+barplot(sum2_up_ego, showCategory = 10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
 
 #logFC is optional, but if available will colour-code the nodes
 sum2_up_logFC <- sum2_up$log2FoldChange
 #set name of object
 names(sum2_up_logFC) <- sum2_up$Entrez.Gene
-head(sum2_up_logFC)
 cnetplot(sum2_up_ego, foldChange = sum2_up_logFC, showCategory = 5, circular = FALSE)
 #show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 #size = number of genes, fold change = red for upregulated, green for downregulated
 
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(sum2_up_ego, foldChange = sum2_up_logFC, showCategory=10)
 
 ```
