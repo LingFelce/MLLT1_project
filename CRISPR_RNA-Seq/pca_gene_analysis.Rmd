@@ -19,7 +19,7 @@ library(tidyverse)
 
 # Downstream Analysis of MLLT1 Knockout RNA-Seq
 
-Update: 28th April 2020
+Update: 29th April 2020
 
 Pulled out list of genes that show most variation associated with PC1 and PC2 (from PCA plot)
 
@@ -27,9 +27,10 @@ Pulled out list of genes that show most variation associated with PC1 and PC2 (f
 
 ### Read in data
 ```{r}
-# Genes from Hallmark gene sets (leading edge genes)
+# Genes contributing to most variation seen in PC1 and PC2
 
-pca_genes <- read.csv("mcf_pca_genes.csv", header=TRUE)
+mcf_pca <- read.csv("mcf_pca_genes.csv", header=TRUE)
+mcf_pca[1] <- NULL
 
 # Differentially expressed genes (all)
 
@@ -37,15 +38,17 @@ mcf1_res <- read.csv("MCF1_res.csv", header=TRUE)
 mcf2_res <- read.csv("MCF2_res.csv", header=TRUE)
 
 
-# Add log2 fold change values
+# Select PCA genes only to get LFC information
 
-pca_mcf1 <- mcf1_res[is.element(mcf1_res$Row.names, pca_genes$ensembl),]
-pca_mcf2 <- mcf2_res[is.element(mcf2_res$Row.names, pca_genes$ensembl),]
+pca_mcf1 <- mcf1_res[is.element(mcf1_res$Row.names, mcf_pca$ensembl),]
+pca_mcf2 <- mcf2_res[is.element(mcf2_res$Row.names, mcf_pca$ensembl),]
 
 
 # Convert gene symbols to Entrez ID
 pca_mcf1$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_mcf1$SYMBOL), keytype="SYMBOL", column="ENTREZID")
 pca_mcf2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_mcf2$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+mcf_pca$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf_pca$hgnc), keytype="SYMBOL", column="ENTREZID")
 
 
 ```
@@ -55,7 +58,7 @@ pca_mcf2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_mcf2$SYMBOL),
 ### MCF-7 Variable Genes
 ```{r}
 
-mcf_geneset <- as.character(pca_mcf1$Entrez.Gene)
+mcf_geneset <- as.character(mcf_pca$Entrez.Gene)
 
 mcf_ego <- enrichGO(gene = mcf_geneset, 
                 universe = NULL, #all available genes in database
@@ -114,9 +117,10 @@ heatplot(mcf_ego, foldChange = mcf2_lfc, showCategory = 4)
 
 ### Read in data
 ```{r}
-# Genes from Hallmark gene sets (leading edge genes)
+# Genes contributing to most variation seen in PC1 and PC2
 
-pca_genes <- read.csv("sum_pca_genes.csv", header=TRUE)
+sum_pca <- read.csv("sum_pca_genes.csv", header=TRUE)
+sum_pca[1] <- NULL
 
 # Differentially expressed genes (all)
 
@@ -124,15 +128,17 @@ sum1_res <- read.csv("SUM1_res.csv", header=TRUE)
 sum2_res <- read.csv("SUM2_res.csv", header=TRUE)
 
 
-# Add log2 fold change values
+# Select PCA genes only to get LFC information
 
-pca_sum1 <- sum1_res[is.element(sum1_res$Row.names, pca_genes$ensembl),]
-pca_sum2 <- sum2_res[is.element(sum2_res$Row.names, pca_genes$ensembl),]
+pca_sum1 <- sum1_res[is.element(sum1_res$Row.names, sum_pca$ensembl),]
+pca_sum2 <- sum2_res[is.element(sum2_res$Row.names, sum_pca$ensembl),]
 
 
 # Convert gene symbols to Entrez ID
 pca_sum1$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_sum1$SYMBOL), keytype="SYMBOL", column="ENTREZID")
 pca_sum2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_sum2$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+sum_pca$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum_pca$hgnc), keytype="SYMBOL", column="ENTREZID")
 
 
 ```
@@ -142,7 +148,7 @@ pca_sum2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(pca_sum2$SYMBOL),
 ### SUM159 Variable Genes
 ```{r}
 
-sum_geneset <- as.character(pca_sum1$Entrez.Gene)
+sum_geneset <- as.character(sum_pca$Entrez.Gene)
 
 sum_ego <- enrichGO(gene = sum_geneset, 
                 universe = NULL, #all available genes in database
