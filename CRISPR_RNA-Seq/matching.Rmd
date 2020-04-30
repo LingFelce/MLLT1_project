@@ -1,0 +1,88 @@
+---
+title: "matching"
+output: html_document
+---
+
+# Comparing leading edge gene lists and highly variable gene lists
+
+To see how many leading edge genes are also highly variable (pulled out from PCA plots PC1 + PC2)
+
+Update: 30th April 2020
+
+Installed python using this tutorial https://support.rstudio.com/hc/en-us/articles/360023654474-Installing-and-Configuring-Python-with-RStudio
+
+However steps 3 and 5 didn't work! 
+
+Gave up with python and reverted to R
+
+```{r}
+mcf_match_up <- intersect(mcf_pca$hgnc, mcf2_up$SYMBOL)
+mcf_match_down <- intersect(mcf_pca$hgnc, mcf2_down$SYMBOL)
+
+sum_match_1 <- intersect(sum_pca$hgnc, sum1_up$SYMBOL)
+sum_match_2 <- intersect(sum_pca$hgnc, sum2_up$SYMBOL)
+
+length(mcf_match_up)
+length(mcf_match_down)
+length(sum_match_1)
+length(sum_match_2)
+
+matching_genes <- c(mcf_match_up, mcf_match_down, sum_match_1, sum_match_2)
+
+matching_genes <- data.frame(matching_genes)
+
+write.csv(matching_genes, "matching_genes.csv")
+
+
+```
+
+
+
+
+
+
+## Python code below (not running properly)
+
+
+### import
+
+import pandas as pd
+import numpy as np
+
+
+### define function to find matching genes
+
+def match(list1, list2):
+    matching_genes = [i for i in list2 if i in list1]
+    return matching_genes
+    
+### read in .csv files (again)
+
+mcf_pca = pd.read_csv("mcf_pca_genes.csv")
+sum_pca = pd.read_csv("sum_pca_genes.csv")
+
+mcf2_up = pd.read_csv("mcf2_up.csv")
+mcf2_down = pd.read_csv("mcf2_down.csv")
+sum1_up = pd.read_csv("sum1_up.csv")
+sum2_up = pd.read_csv("sum2_up.csv")
+    
+### create lists
+
+mcf_pca_list = mcf_pca['hgnc'].to_list()
+sum_pca_list = sum_pca['hgnc'].to_list()
+
+mcf2_up_list = mcf2_up['SYMBOL'].to_list()
+mcf2_down_list = mcf2_down['SYMBOL'].to_list()
+sum1_up_list = sum1_up['SYMBOL'].to_list()
+sum2_up_list = sum2_up['SYMBOL'].to.list()
+
+### run definition for each cell line
+
+mcf_match_up = match(mcf_pca_list, mcf2_up_list)
+mcf_match_down = match(mcf_pca_list, mcf2_down_list)
+
+sum_match_1 = match(sum_pca_list, sum1_up_list)
+sum_match_2 = match(sum_pca_list, sum2_up_list)
+
+
+
