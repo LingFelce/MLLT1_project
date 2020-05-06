@@ -1,0 +1,186 @@
+---
+title: "GO terms from ChIP peaks"
+author: "Ling"
+date: "10/03/2020"
+output: html_document
+---
+
+# GO terms from ChIP peaks
+
+Analysing annotated peak list from MCF-7 MLLT1 ENCODE ChIP using gene ontology analysis
+
+```{r, include=FALSE}
+# load libraries
+
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(pathview)
+library(readr)
+library(tidyverse)
+
+```
+
+## GO terms for all binding sites
+
+
+```{r}
+# read in file
+original_peaks <- read.delim("ENCF686_peaks.annot.txt", header=TRUE)
+
+#Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+original_peaks$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(original_peaks$Nearest.Ensembl), keytype="ENSEMBL", column="ENTREZID")
+
+#Keep only rows from table without NAs
+mod_peaks <- original_peaks[is.na(original_peaks$Entrez.Gene)==FALSE,]
+
+#Remove duplicated entries
+mod_peaks <- mod_peaks[!duplicated(mod_peaks$Entrez.Gene),]
+
+
+# MCF-7 significant genes
+MCF1 <- read.csv("MCF1_res.csv", header=TRUE)
+
+#Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+MCF1$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(MCF1$Row.names), keytype="ENSEMBL", column="ENTREZID")
+
+#Keep only rows from table without NAs
+MCF1 <- MCF1[is.na(MCF1$Entrez.Gene)==FALSE,]
+
+#Remove duplicated entries
+MCF1 <- MCF1[!duplicated(MCF1$Entrez.Gene),]
+
+
+
+```
+```{r}
+
+#Change Entrez IDs from numbers to characters
+geneset <- as.character(mod_peaks$Entrez.Gene)
+
+#This will show Entrez IDs only
+head(geneset)
+
+#This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+#dimensions - number of GO terms
+dim(ego)
+
+
+#Export list of biological processes and genes involved
+peaks_BP <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+write.csv(peaks_BP, file="GO/peaks_BP.csv")
+
+```
+
+```{r,fig.height=6, fig.width=10}
+barplot (ego, showCategory = 10)
+
+dotplot (ego, showCategory=10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
+emapplot(ego, showCategory=10)
+
+```
+
+```{r, fig.height=24, fig.width=26}
+#logFC is optional, but if available will colour-code the nodes
+logFC <- MCF1$log2FoldChange
+#set name of object
+names(logFC) <- MCF1$Entrez.Gene
+head(logFC)
+
+cnetplot(ego, foldChange = logFC, showCategory = 10, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
+
+## GO terms for intergenic binding sites only
+```{r}
+# read in file
+original_peaks <- read.delim("ENCF686_peaks.annot.txt", header=TRUE)
+
+#Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+original_peaks$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(original_peaks$Nearest.Ensembl), keytype="ENSEMBL", column="ENTREZID")
+
+#Keep only rows from table without NAs
+mod_peaks <- original_peaks[is.na(original_peaks$Entrez.Gene)==FALSE,]
+
+#Remove duplicated entries
+mod_peaks <- mod_peaks[!duplicated(mod_peaks$Entrez.Gene),]
+
+# Keep rows with intergenic binding sites only
+intergenic <- mod_peaks[mod_peaks$Annotation == "Intergenic", ]
+
+# MCF-7 significant genes from clone 2
+MCF2 <- read.csv("MCF2_res.csv", header=TRUE)
+
+#Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+MCF2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(MCF2$Row.names), keytype="ENSEMBL", column="ENTREZID")
+
+#Keep only rows from table without NAs
+MCF2 <- MCF2[is.na(MCF2$Entrez.Gene)==FALSE,]
+
+#Remove duplicated entries
+MCF2 <- MCF2[!duplicated(MCF2$Entrez.Gene),]
+
+```
+```{r}
+
+#Change Entrez IDs from numbers to characters
+geneset <- as.character(intergenic$Entrez.Gene)
+
+#This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+#dimensions - number of GO terms
+dim(ego)
+
+
+#Export list of biological processes and genes involved
+intergenic_BP <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+write.csv(intergenic_BP, file="GO/MCF_intergenic_BP.csv")
+
+```
+
+```{r,fig.height=5, fig.width=8}
+barplot (ego, showCategory = 10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
+emapplot(ego, showCategory=10)
+
+```
+
+```{r, fig.height=10, fig.width=12}
+#logFC is optional, but if available will colour-code the nodes
+logFC <- MCF2$log2FoldChange
+#set name of object
+names(logFC) <- MCF2$Entrez.Gene
+
+cnetplot(ego, foldChange = logFC, showCategory = 10, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
