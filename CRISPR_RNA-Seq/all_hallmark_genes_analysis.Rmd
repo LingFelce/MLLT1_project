@@ -1,0 +1,217 @@
+---
+title: "all_hallmark_genes_analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(pathview)
+library(fgsea)
+library(readr)
+library(tidyverse)
+```
+
+# Downstream Analysis of MLLT1 Knockout RNA-Seq
+
+Update: 11th May 2020
+
+Used all genes from each Hallmark gene set that had core enrichment (larger list than just leading edge genes)
+
+## MCF-7 Clone 2
+
+### Read in data
+```{r}
+# All genes from upregulated Hallmark gene sets
+mcf2 <- read.csv("mcf2_all_up_genes.csv", header=TRUE)
+
+# Differentially expressed genes (all) for log2 fold change values later
+mcf2_res <- read.csv("MCF2_res.csv", header=TRUE)
+
+# Convert gene symbols to Entrez ID
+mcf2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf2$symbol), keytype="SYMBOL", column="ENTREZID")
+mcf2_res$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf2_res$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+
+#Remove duplicated entries
+mcf2 <- mcf2[!duplicated(mcf2$Entrez.Gene),]
+mcf2_res <- mcf2_res[!duplicated(mcf2_res$Entrez.Gene),]
+
+```
+
+
+
+### MCF-7 Clone 1 Hallmark Genes GO
+```{r}
+mcf2_geneset <- as.character(mcf2$Entrez.Gene)
+mcf2_ego <- enrichGO(gene = mcf2_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+# dimensions - number of GO terms
+dim(mcf2_ego)
+
+# simplify
+mcf2_ego <- simplify(mcf2_ego)
+
+# export GO information
+mcf2_go <- data.frame(mcf2_ego$ID, mcf2_ego$Description, mcf2_ego$p.adjust, mcf2_ego$geneID)
+write.csv(mcf2_go, file="mcf2_all_hallmark_go_bp.csv")
+
+# plot results
+barplot(mcf2_ego)
+```
+
+```{r, fig.height=10, fig.width=12}
+# MCF-7 Clone 2 log2 fold changes
+mcf2_lfc <- mcf2_res$log2FoldChange
+# set name of object
+names(mcf2_lfc) <- mcf2_res$Entrez.Gene
+
+cnetplot(mcf2_ego, foldChange = mcf2_lfc, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(mcf2_ego, foldChange = mcf2_lfc, showCategory = 5)
+
+```
+
+## SUM159 Clone 1
+
+### Read in data
+```{r}
+# All genes from upregulated Hallmark gene sets
+sum1 <- read.csv("sum1_all_up_genes.csv", header=TRUE)
+
+# Differentially expressed genes (all) for log2 fold change values later
+sum1_res <- read.csv("SUM1_res.csv", header=TRUE)
+
+# Convert gene symbols to Entrez ID
+sum1$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum1$symbol), keytype="SYMBOL", column="ENTREZID")
+sum1_res$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum1_res$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+
+#Remove duplicated entries
+sum1 <- sum1[!duplicated(sum1$Entrez.Gene),]
+sum1_res <- sum1_res[!duplicated(sum1_res$Entrez.Gene),]
+
+```
+
+
+
+### SUM159 Clone 1 Hallmark Genes GO
+```{r}
+sum1_geneset <- as.character(sum1$Entrez.Gene)
+sum1_ego <- enrichGO(gene = sum1_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+# dimensions - number of GO terms
+dim(sum1_ego)
+
+# simplify
+sum1_ego <- simplify(sum1_ego)
+
+# export GO information
+sum1_go <- data.frame(sum1_ego$ID, sum1_ego$Description, sum1_ego$p.adjust, sum1_ego$geneID)
+write.csv(sum1_go, file="sum1_all_hallmark_go_bp.csv")
+
+# plot results
+barplot(sum1_ego)
+```
+
+```{r, fig.height=10, fig.width=12}
+# MCF-7 Clone 2 log2 fold changes
+sum1_lfc <- sum1_res$log2FoldChange
+# set name of object
+names(sum1_lfc) <- sum1_res$Entrez.Gene
+
+cnetplot(sum1_ego, foldChange = sum1_lfc, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(sum1_ego, foldChange = sum1_lfc, showCategory = 5)
+
+```
+
+
+## SUM159 Clone 2
+
+### Read in data
+```{r}
+# All genes from upregulated Hallmark gene sets
+sum2 <- read.csv("sum2_all_up_genes.csv", header=TRUE)
+
+# Differentially expressed genes (all) for log2 fold change values later
+sum2_res <- read.csv("SUM2_res.csv", header=TRUE)
+
+# Convert gene symbols to Entrez ID
+sum2$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum2$symbol), keytype="SYMBOL", column="ENTREZID")
+sum2_res$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum2_res$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+
+#Remove duplicated entries
+sum2 <- sum2[!duplicated(sum2$Entrez.Gene),]
+sum2_res <- sum2_res[!duplicated(sum2_res$Entrez.Gene),]
+
+```
+
+
+
+### SUM159 Clone 2 Hallmark Genes GO
+```{r}
+sum2_geneset <- as.character(sum2$Entrez.Gene)
+sum2_ego <- enrichGO(gene = sum2_geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+# dimensions - number of GO terms
+dim(sum2_ego)
+
+# export GO information
+sum2_go <- data.frame(sum2_ego$ID, sum2_ego$Description, sum2_ego$p.adjust, sum2_ego$geneID)
+write.csv(sum2_go, file="sum2_all_hallmark_go_bp.csv")
+
+# plot results
+barplot(sum2_ego)
+```
+
+```{r, fig.height=10, fig.width=12}
+# MCF-7 Clone 2 log2 fold changes
+sum2_lfc <- sum2_res$log2FoldChange
+# set name of object
+names(sum2_lfc) <- sum2_res$Entrez.Gene
+
+cnetplot(sum2_ego, foldChange = sum2_lfc, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+
+```
+
+```{r, fig.height=3, fig.width=15}
+# heat map 
+heatplot(sum2_ego, foldChange = sum2_lfc, showCategory = 5)
+
+```
