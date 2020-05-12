@@ -1,24 +1,29 @@
 ---
 title: "all_hallmark_genes_analysis"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set
-library(limma)
 library(clusterProfiler)
 library(org.Hs.eg.db)
-library(pathview)
-library(fgsea)
-library(readr)
-library(tidyverse)
+
 ```
 
 # Downstream Analysis of MLLT1 Knockout RNA-Seq
 
-Update: 11th May 2020
+Update: 12th May 2020
 
 Used all genes from each Hallmark gene set that had core enrichment (larger list than just leading edge genes)
+
+Note: simplify function not working! Updated R Studio and R to latest versions, reinstalled packages clusterProfiler and org.Hs.eg.db.
+
+Note: updated everything, simplify function still not working but different reason this time.
+
+
+
 
 ## MCF-7 Clone 2
 
@@ -57,12 +62,21 @@ mcf2_ego <- enrichGO(gene = mcf2_geneset,
 # dimensions - number of GO terms
 dim(mcf2_ego)
 
+# mcf2_ego@result  <-  mcf2_ego@result[mcf2_ego@result$qvalue<=mcf2_ego@qvalueCutoff,]
+# mcf2_ego@geneSets <-  data.frame()
+
 # simplify
-mcf2_ego <- simplify(mcf2_ego)
+# simp_mcf2_ego <- simplify(mcf2_ego)
+
 
 # export GO information
 mcf2_go <- data.frame(mcf2_ego$ID, mcf2_ego$Description, mcf2_ego$p.adjust, mcf2_ego$geneID)
 write.csv(mcf2_go, file="mcf2_all_hallmark_go_bp.csv")
+
+```
+
+``` {r, fig.height=5, fig.width =8}
+
 
 # plot results
 barplot(mcf2_ego)
@@ -124,11 +138,16 @@ sum1_ego <- enrichGO(gene = sum1_geneset,
 dim(sum1_ego)
 
 # simplify
-sum1_ego <- simplify(sum1_ego)
+# simp_sum1_ego <- simplify(sum1_ego)
 
 # export GO information
 sum1_go <- data.frame(sum1_ego$ID, sum1_ego$Description, sum1_ego$p.adjust, sum1_ego$geneID)
 write.csv(sum1_go, file="sum1_all_hallmark_go_bp.csv")
+
+
+```
+
+``` {r, fig.height=5, fig.width =8}
 
 # plot results
 barplot(sum1_ego)
@@ -193,6 +212,11 @@ dim(sum2_ego)
 # export GO information
 sum2_go <- data.frame(sum2_ego$ID, sum2_ego$Description, sum2_ego$p.adjust, sum2_ego$geneID)
 write.csv(sum2_go, file="sum2_all_hallmark_go_bp.csv")
+
+
+```
+
+``` {r, fig.height=5, fig.width =8}
 
 # plot results
 barplot(sum2_ego)
