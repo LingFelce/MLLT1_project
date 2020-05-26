@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+
+# if need to update packages but not sure which ones, update them all > update.packages(checkBuilt=TRUE)
 ```
 
 # Key Hallmark Genes
@@ -39,9 +41,40 @@ write.csv(mcf2, "key_hallmark_genes_lfc/mcf2.csv")
 write.csv(sum1, "key_hallmark_genes_lfc/sum1.csv")
 write.csv(sum2, "key_hallmark_genes_lfc/sum2.csv")
   
-# merge tables
+# select LFC and SYMBOL columns for each clone
 
+mcf1 <- mcf1 %>% 
+  select(SYMBOL, log2FoldChange)
 
+mcf2 <- mcf2 %>% 
+  select(SYMBOL, log2FoldChange)
+
+sum1 <- sum1 %>% 
+  select(SYMBOL, log2FoldChange)
+
+sum2 <- sum2 %>% 
+  select(SYMBOL, log2FoldChange)
+
+# merge mcf lfc and rename columns
+
+mcf <- merge(mcf1, mcf2, by="SYMBOL", all = TRUE)
+
+mcf <- mcf %>% 
+  mutate(mcf1_lfc = log2FoldChange.x, mcf2_lfc = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# merge sum lfc and rename columns
+
+sum <- merge(sum1, sum2, by="SYMBOL", all = TRUE)
+
+sum <- sum %>% 
+  mutate(sum1_lfc = log2FoldChange.x, sum2_lfc = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# export files
+
+write.csv(mcf, "key_hallmark_genes_lfc/mcf_lfc.csv")
+write.csv(sum, "key_hallmark_genes_lfc/sum_lfc.csv")
 
 
 ```
