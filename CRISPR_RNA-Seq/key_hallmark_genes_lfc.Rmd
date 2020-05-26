@@ -1,0 +1,47 @@
+---
+title: "key_hallmark_genes_LFC"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+# Key Hallmark Genes
+
+Based on reading literature around hallmark gene set signatures, picked out interesting genes from papers and look up LFC for each clone.
+
+```{r}
+# read in total results (differentially expressed genes) for each clone
+
+mcf1_res <- read.csv("MCF1_res.csv", header=TRUE)
+mcf2_res <- read.csv("MCF2_res.csv", header=TRUE)
+sum1_res <- read.csv("SUM1_res.csv", header=TRUE)
+sum2_res <- read.csv("SUM2_res.csv", header=TRUE)
+
+# read in list of interesting hallmark genes from literature
+
+genes <- read.csv("hallmark_genes_literature.csv", header=TRUE)
+
+# compare to each clone
+
+mcf1 <- mcf1_res[is.element(mcf1_res$SYMBOL, genes$genes),]
+mcf2 <- mcf2_res[is.element(mcf2_res$SYMBOL, genes$genes),]
+sum1 <- sum1_res[is.element(sum1_res$SYMBOL, genes$genes),]
+sum2 <- sum2_res[is.element(sum2_res$SYMBOL, genes$genes),]
+
+# export lists
+
+write.csv(mcf1, "key_hallmark_genes_lfc/mcf1.csv")
+write.csv(mcf2, "key_hallmark_genes_lfc/mcf2.csv")
+write.csv(sum1, "key_hallmark_genes_lfc/sum1.csv")
+write.csv(sum2, "key_hallmark_genes_lfc/sum2.csv")
+  
+# merge tables
+
+
+
+
+```
