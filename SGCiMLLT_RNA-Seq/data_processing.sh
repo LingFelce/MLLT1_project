@@ -195,3 +195,9 @@ ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/
 ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_3_R1.fastq.gz
 ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/SUM_SGC_7D_3_R2.fastq.gz
 
+# RNA sequencing repeated by Martin 28th May 2020
+# .fast.qz files downloaded from Illumina BaseSpace using BaseSpace Hub Downloader onto Desktop, then transferred to cluster using FileZilla
+# used folder proj033/backup/run_2
+# used existing shell scripts to merge lanes - modified cat_MCF_24H.sh to shorten folder names like other .sh scripts
+# merged files into merge folder
+# generated md5sum file as before, and checked - all ok
