@@ -144,7 +144,7 @@ SUM_SGC_7D_2_R2.fastq.gz: OK
 SUM_SGC_7D_3_R1.fastq.gz: OK
 SUM_SGC_7D_3_R2.fastq.gz: OK
 
-# Create soft links to .fastq.gz files in src folder
+# Create soft links to .fastq.gz files in src folder - link.sh file
 
 ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_1_R1.fastq.gz
 ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/MCF_DMSO_24H_1_R2.fastq.gz
@@ -201,3 +201,4 @@ ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/
 # used existing shell scripts to merge lanes - modified cat_MCF_24H.sh to shorten folder names like other .sh scripts
 # merged files into merge folder
 # generated md5sum file as before, and checked - all ok
+# soft links in src folder - manually typed as didn't realise was saved in link.sh file. Changed MCF_SGC_7D_3 names, as used hyphens instead of underscore
