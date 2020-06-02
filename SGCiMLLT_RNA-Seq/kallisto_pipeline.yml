@@ -5,3 +5,7 @@ index:
 	gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/geneset_all.gtf.gz
 quant:
 	option: 
+	
+trimmomatic:
+	option: MINLEN:38
+	phred: -phred33
