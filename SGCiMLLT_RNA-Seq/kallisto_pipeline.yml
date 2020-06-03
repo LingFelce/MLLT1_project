@@ -1,11 +1,12 @@
 queue: all.q
-threads:12
+threads: 12
 index:
-	fasta: /ifs/mirror/genomes/plain/hg38.fasta
-	gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/geneset_all.gtf.gz
+    fasta: /ifs/mirror/genomes/plain/hg38.fasta
+    gtf: /ifs/mirror/annotations/hg38_ensembl98/ensembl.dir/geneset_all.gtf.gz
 quant:
-	option: 
-	
+    option: 
+
 trimmomatic:
-	option: MINLEN:38
-	phred: -phred33
+    option: CROP:38
+    phred: -phred33
+    
