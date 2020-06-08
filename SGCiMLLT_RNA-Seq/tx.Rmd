@@ -1,0 +1,56 @@
+---
+title: "TX"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tximport)
+library(rhdf5)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
+
+```
+
+## Importing transcript abundance with tximport
+
+Import and summarize transcript-level abundance estimates for transcript- and gene-level analysis with Bioconductor packages, such as edgeR, DESeq2, and limma-voom. The motivation and methods for the functions provided by the tximport package are described in the following article (Soneson, Love, and Robinson 2015)
+
+```{r mcf}
+# direct R Studio to folders where abundance.h5 files are stored
+
+mcf_dir <- c("quant/MCF_DMSO_24H_1/", "quant/MCF_DMSO_24H_2/", "quant/MCF_DMSO_24H_3/", "quant/MCF_DMSO_7D_1/", "quant/MCF_DMSO_7D_2","quant/MCF_DMSO_7D_3/", "quant/MCF_SGC_24H_1/", "quant/MCF_SGC_24H_2/", "quant/MCF_SGC_24H_3/", "quant/MCF_SGC_7D_1/", "quant/MCF_SGC_7D_2/", "quant/MCF_SGC_7D_3/")
+
+mcf_files <- list.files(path=mcf_dir, pattern="*.h5", full.names=TRUE)
+
+# combine into one table
+
+names(mcf_files) <- paste0("MCF", 1:12)
+
+# read in kallisto type (transcript-level information)
+
+txi.mcf_kallisto <- tximport(mcf_files, type = "kallisto", txOut=TRUE)
+head(txi.mcf_kallisto$counts)
+
+```
+
+```{r sum}
+# direct R Studio to folders where abundance.h5 files are stored
+
+sum_dir <- c("quant/SUM_DMSO_24H_1/", "quant/SUM_DMSO_24H_2/", "quant/SUM_DMSO_24H_3/", "quant/SUM_DMSO_7D_1/", "quant/SUM_DMSO_7D_2","quant/SUM_DMSO_7D_3/", "quant/SUM_SGC_24H_1/", "quant/SUM_SGC_24H_2/", "quant/SUM_SGC_24H_3/", "quant/SUM_SGC_7D_1/", "quant/SUM_SGC_7D_2/", "quant/SUM_SGC_7D_3/")
+
+sum_files <- list.files(path=sum_dir, pattern="*.h5", full.names=TRUE)
+
+# combine into one table
+
+names(sum_files) <- paste0("SUM", 1:12)
+
+# read in kallisto type (transcript-level information)
+
+txi.sum_kallisto <- tximport(sum_files, type = "kallisto", txOut=TRUE)
+head(txi.sum_kallisto$counts)
+
+```
