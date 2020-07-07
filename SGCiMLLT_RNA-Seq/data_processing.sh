@@ -202,3 +202,77 @@ ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/
 # merged files into merge folder
 # generated md5sum file as before, and checked - all ok
 # soft links in src folder - manually typed as didn't realise was saved in link.sh file. Changed MCF_SGC_7D_3 names, as used hyphens instead of underscore
+
+# use cat on merged fastq.gz files from both runs to combine reads for each sample
+
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_1_R1.fastq.gz run_2/merge/MCF_DMSO_24H_1_R1.fastq.gz > combined_runs/MCF_DMSO_24H_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_1_R2.fastq.gz run_2/merge/MCF_DMSO_24H_1_R2.fastq.gz > combined_runs/MCF_DMSO_24H_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_2_R1.fastq.gz run_2/merge/MCF_DMSO_24H_2_R1.fastq.gz > combined_runs/MCF_DMSO_24H_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_2_R2.fastq.gz run_2/merge/MCF_DMSO_24H_2_R2.fastq.gz > combined_runs/MCF_DMSO_24H_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_3_R1.fastq.gz run_2/merge/MCF_DMSO_24H_3_R1.fastq.gz > combined_runs/MCF_DMSO_24H_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_24H_3_R2.fastq.gz run_2/merge/MCF_DMSO_24H_3_R2.fastq.gz > combined_runs/MCF_DMSO_24H_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_24H_1_R1.fastq.gz run_2/merge/MCF_SGC_24H_1_R1.fastq.gz > combined_runs/MCF_SGC_24H_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_24H_1_R2.fastq.gz run_2/merge/MCF_SGC_24H_1_R2.fastq.gz > combined_runs/MCF_SGC_24H_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_24H_2_R1.fastq.gz run_2/merge/MCF_SGC_24H_2_R1.fastq.gz > combined_runs/MCF_SGC_24H_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_24H_2_R2.fastq.gz run_2/merge/MCF_SGC_24H_2_R2.fastq.gz > combined_runs/MCF_SGC_24H_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_24H_3_R1.fastq.gz run_2/merge/MCF_SGC_24H_3_R1.fastq.gz > combined_runs/MCF_SGC_24H_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_24H_3_R2.fastq.gz run_2/merge/MCF_SGC_24H_3_R2.fastq.gz > combined_runs/MCF_SGC_24H_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_1_R1.fastq.gz run_2/merge/MCF_DMSO_7D_1_R1.fastq.gz > combined_runs/MCF_DMSO_7D_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_1_R2.fastq.gz run_2/merge/MCF_DMSO_7D_1_R2.fastq.gz > combined_runs/MCF_DMSO_7D_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_2_R1.fastq.gz run_2/merge/MCF_DMSO_7D_2_R1.fastq.gz > combined_runs/MCF_DMSO_7D_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_2_R2.fastq.gz run_2/merge/MCF_DMSO_7D_2_R2.fastq.gz > combined_runs/MCF_DMSO_7D_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_3_R1.fastq.gz run_2/merge/MCF_DMSO_7D_3_R1.fastq.gz > combined_runs/MCF_DMSO_7D_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_DMSO_7D_3_R2.fastq.gz run_2/merge/MCF_DMSO_7D_3_R2.fastq.gz > combined_runs/MCF_DMSO_7D_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_7D_1_R1.fastq.gz run_2/merge/MCF_SGC_7D_1_R1.fastq.gz > combined_runs/MCF_SGC_7D_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_7D_1_R2.fastq.gz run_2/merge/MCF_SGC_7D_1_R2.fastq.gz > combined_runs/MCF_SGC_7D_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_7D_2_R1.fastq.gz run_2/merge/MCF_SGC_7D_2_R1.fastq.gz > combined_runs/MCF_SGC_7D_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_7D_2_R2.fastq.gz run_2/merge/MCF_SGC_7D_2_R2.fastq.gz > combined_runs/MCF_SGC_7D_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/MCF_SGC_7D_3_R1.fastq.gz run_2/merge/MCF_SGC_7D_3_R1.fastq.gz > combined_runs/MCF_SGC_7D_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/MCF_SGC_7D_3_R2.fastq.gz run_2/merge/MCF_SGC_7D_3_R2.fastq.gz > combined_runs/MCF_SGC_7D_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_1_R1.fastq.gz run_2/merge/SUM_DMSO_24H_1_R1.fastq.gz > combined_runs/SUM_DMSO_24H_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_1_R2.fastq.gz run_2/merge/SUM_DMSO_24H_1_R2.fastq.gz > combined_runs/SUM_DMSO_24H_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_2_R1.fastq.gz run_2/merge/SUM_DMSO_24H_2_R1.fastq.gz > combined_runs/SUM_DMSO_24H_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_2_R2.fastq.gz run_2/merge/SUM_DMSO_24H_2_R2.fastq.gz > combined_runs/SUM_DMSO_24H_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_3_R1.fastq.gz run_2/merge/SUM_DMSO_24H_3_R1.fastq.gz > combined_runs/SUM_DMSO_24H_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_24H_3_R2.fastq.gz run_2/merge/SUM_DMSO_24H_3_R2.fastq.gz > combined_runs/SUM_DMSO_24H_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_24H_1_R1.fastq.gz run_2/merge/SUM_SGC_24H_1_R1.fastq.gz > combined_runs/SUM_SGC_24H_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_24H_1_R2.fastq.gz run_2/merge/SUM_SGC_24H_1_R2.fastq.gz > combined_runs/SUM_SGC_24H_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_24H_2_R1.fastq.gz run_2/merge/SUM_SGC_24H_2_R1.fastq.gz > combined_runs/SUM_SGC_24H_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_24H_2_R2.fastq.gz run_2/merge/SUM_SGC_24H_2_R2.fastq.gz > combined_runs/SUM_SGC_24H_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_24H_3_R1.fastq.gz run_2/merge/SUM_SGC_24H_3_R1.fastq.gz > combined_runs/SUM_SGC_24H_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_24H_3_R2.fastq.gz run_2/merge/SUM_SGC_24H_3_R2.fastq.gz > combined_runs/SUM_SGC_24H_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_1_R1.fastq.gz run_2/merge/SUM_DMSO_7D_1_R1.fastq.gz > combined_runs/SUM_DMSO_7D_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_1_R2.fastq.gz run_2/merge/SUM_DMSO_7D_1_R2.fastq.gz > combined_runs/SUM_DMSO_7D_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_2_R1.fastq.gz run_2/merge/SUM_DMSO_7D_2_R1.fastq.gz > combined_runs/SUM_DMSO_7D_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_2_R2.fastq.gz run_2/merge/SUM_DMSO_7D_2_R2.fastq.gz > combined_runs/SUM_DMSO_7D_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_3_R1.fastq.gz run_2/merge/SUM_DMSO_7D_3_R1.fastq.gz > combined_runs/SUM_DMSO_7D_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_DMSO_7D_3_R2.fastq.gz run_2/merge/SUM_DMSO_7D_3_R2.fastq.gz > combined_runs/SUM_DMSO_7D_3_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_7D_1_R1.fastq.gz run_2/merge/SUM_SGC_7D_1_R1.fastq.gz > combined_runs/SUM_SGC_7D_1_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_7D_1_R2.fastq.gz run_2/merge/SUM_SGC_7D_1_R2.fastq.gz > combined_runs/SUM_SGC_7D_1_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_7D_2_R1.fastq.gz run_2/merge/SUM_SGC_7D_2_R1.fastq.gz > combined_runs/SUM_SGC_7D_2_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_7D_2_R2.fastq.gz run_2/merge/SUM_SGC_7D_2_R2.fastq.gz > combined_runs/SUM_SGC_7D_2_R2.fastq.gz
+
+cat basespace_hub_downloader/merge/SUM_SGC_7D_3_R1.fastq.gz run_2/merge/SUM_SGC_7D_3_R1.fastq.gz > combined_runs/SUM_SGC_7D_3_R1.fastq.gz
+cat basespace_hub_downloader/merge/SUM_SGC_7D_3_R2.fastq.gz run_2/merge/SUM_SGC_7D_3_R2.fastq.gz > combined_runs/SUM_SGC_7D_3_R2.fastq.gz
