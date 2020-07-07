@@ -408,6 +408,13 @@ ln -s /ifs/research-groups/botnar/proj033/backup/downsample/SUM_SGC_7D_2_R2.fast
 ln -s /ifs/research-groups/botnar/proj033/backup/downsample/SUM_SGC_7D_3_R1.fastq.gz
 ln -s /ifs/research-groups/botnar/proj033/backup/downsample/SUM_SGC_7D_3_R2.fastq.gz
 
-
 # can use in kallisto pipline
+
+## NOTE - seqtk sample output is .fastq, not .fastq.gz (just added .gz file extension to name but not actually zipped)
+## this explains why pre-downsampled files were smaller than downsampled files, as downsampled files not zipped
+## manually removed .gz extension from each file name and ran gzip
+gzip *fastq # to zip all files in folder with .fastq extension
+
+## next time can add gzip function to downsample.sh script - output as .fastq, then gzip *fastq files
+## need to redo soft links for actual zipped files
 
