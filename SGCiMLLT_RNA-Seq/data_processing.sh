@@ -203,7 +203,8 @@ ln -s /ifs/research-groups/botnar/proj033/backup/basespace_hub_downloader/merge/
 # generated md5sum file as before, and checked - all ok
 # soft links in src folder - manually typed as didn't realise was saved in link.sh file. Changed MCF_SGC_7D_3 names, as used hyphens instead of underscore
 
-# use cat on merged fastq.gz files from both runs to combine reads for each sample
+# 7th July 2020
+# use cat on merged fastq.gz files from both runs to combine reads for each sample, in order to increase read depth
 
 cat basespace_hub_downloader/merge/MCF_DMSO_24H_1_R1.fastq.gz run_2/merge/MCF_DMSO_24H_1_R1.fastq.gz > combined_runs/MCF_DMSO_24H_1_R1.fastq.gz
 cat basespace_hub_downloader/merge/MCF_DMSO_24H_1_R2.fastq.gz run_2/merge/MCF_DMSO_24H_1_R2.fastq.gz > combined_runs/MCF_DMSO_24H_1_R2.fastq.gz
@@ -276,3 +277,82 @@ cat basespace_hub_downloader/merge/SUM_SGC_7D_2_R2.fastq.gz run_2/merge/SUM_SGC_
 
 cat basespace_hub_downloader/merge/SUM_SGC_7D_3_R1.fastq.gz run_2/merge/SUM_SGC_7D_3_R1.fastq.gz > combined_runs/SUM_SGC_7D_3_R1.fastq.gz
 cat basespace_hub_downloader/merge/SUM_SGC_7D_3_R2.fastq.gz run_2/merge/SUM_SGC_7D_3_R2.fastq.gz > combined_runs/SUM_SGC_7D_3_R2.fastq.gz
+
+# checked md5sums
+
+# downsample - as libraries not equimolar when run on sequencer, some samples got more reads than others - 30 - 40 million reads vs under 20 million reads. 
+# therefore use seqtk to randomly sample and select out 14 million reads per sample, save in new folder
+
+# downsample.sh
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_1_R1.fastq.gz 14000000 > downsample/MCF_DMSO_24H_1_R1.fastq.gz 
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_1_R2.fastq.gz 14000000 > downsample/MCF_DMSO_24H_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_2_R1.fastq.gz 14000000 > downsample/MCF_DMSO_24H_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_2_R2.fastq.gz 14000000 > downsample/MCF_DMSO_24H_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_3_R1.fastq.gz 14000000 > downsample/MCF_DMSO_24H_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_DMSO_24H_3_R2.fastq.gz 14000000 > downsample/MCF_DMSO_24H_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_24H_1_R1.fastq.gz 14000000 > downsample/MCF_SGC_24H_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_24H_1_R2.fastq.gz 14000000 > downsample/MCF_SGC_24H_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_24H_2_R1.fastq.gz 14000000 > downsample/MCF_SGC_24H_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_24H_2_R2.fastq.gz 14000000 > downsample/MCF_SGC_24H_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_24H_3_R1.fastq.gz 14000000 > downsample/MCF_SGC_24H_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_24H_3_R2.fastq.gz 14000000 > downsample/MCF_SGC_24H_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_1_R1.fastq.gz 14000000 > downsample/MCF_DMSO_7D_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_1_R2.fastq.gz 14000000 > downsample/MCF_DMSO_7D_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_2_R1.fastq.gz 14000000 > downsample/MCF_DMSO_7D_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_2_R2.fastq.gz 14000000 > downsample/MCF_DMSO_7D_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_3_R1.fastq.gz 14000000 > downsample/MCF_DMSO_7D_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_DMSO_7D_3_R2.fastq.gz 14000000 > downsample/MCF_DMSO_7D_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_7D_1_R1.fastq.gz 14000000 > downsample/MCF_SGC_7D_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_7D_1_R2.fastq.gz 14000000 > downsample/MCF_SGC_7D_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_7D_2_R1.fastq.gz 14000000 > downsample/MCF_SGC_7D_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_7D_2_R2.fastq.gz 14000000 > downsample/MCF_SGC_7D_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/MCF_SGC_7D_3_R1.fastq.gz 14000000 > downsample/MCF_SGC_7D_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/MCF_SGC_7D_3_R2.fastq.gz 14000000 > downsample/MCF_SGC_7D_3_R2.fastq.gz
+
+
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_1_R1.fastq.gz 14000000 > downsample/SUM_DMSO_24H_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_1_R2.fastq.gz 14000000 > downsample/SUM_DMSO_24H_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_2_R1.fastq.gz 14000000 > downsample/SUM_DMSO_24H_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_2_R2.fastq.gz 14000000 > downsample/SUM_DMSO_24H_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_3_R1.fastq.gz 14000000 > downsample/SUM_DMSO_24H_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_24H_3_R2.fastq.gz 14000000 > downsample/SUM_DMSO_24H_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_24H_1_R1.fastq.gz 14000000 > downsample/SUM_SGC_24H_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_24H_1_R2.fastq.gz 14000000 > downsample/SUM_SGC_24H_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_24H_2_R1.fastq.gz 14000000 > downsample/SUM_SGC_24H_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_24H_2_R2.fastq.gz 14000000 > downsample/SUM_SGC_24H_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_24H_3_R1.fastq.gz 14000000 > downsample/SUM_SGC_24H_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_24H_3_R2.fastq.gz 14000000 > downsample/SUM_SGC_24H_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_1_R1.fastq.gz 14000000 > downsample/SUM_DMSO_7D_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_1_R2.fastq.gz 14000000 > downsample/SUM_DMSO_7D_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_2_R1.fastq.gz 14000000 > downsample/SUM_DMSO_7D_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_2_R2.fastq.gz 14000000 > downsample/SUM_DMSO_7D_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_3_R1.fastq.gz 14000000 > downsample/SUM_DMSO_7D_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_DMSO_7D_3_R2.fastq.gz 14000000 > downsample/SUM_DMSO_7D_3_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_7D_1_R1.fastq.gz 14000000 > downsample/SUM_SGC_7D_1_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_7D_1_R2.fastq.gz 14000000 > downsample/SUM_SGC_7D_1_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_7D_2_R1.fastq.gz 14000000 > downsample/SUM_SGC_7D_2_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_7D_2_R2.fastq.gz 14000000 > downsample/SUM_SGC_7D_2_R2.fastq.gz
+
+seqtk sample -s100 combined_runs/SUM_SGC_7D_3_R1.fastq.gz 14000000 > downsample/SUM_SGC_7D_3_R1.fastq.gz
+seqtk sample -s100 combined_runs/SUM_SGC_7D_3_R2.fastq.gz 14000000 > downsample/SUM_SGC_7D_3_R2.fastq.gz
