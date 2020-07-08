@@ -2,7 +2,7 @@
 title: "SUM159 Clustering"
 output: html_document
 ---
-Update: 28th March 2020
+Update: 8th July 2020
 
 # Assessment of data quality and quality control - SUM159
 DESeq2, heatmaps and PCA. Mainly Adam's code 
@@ -33,6 +33,8 @@ library(gplots)
 library (limma)
 library("genefilter")
 require(data.table)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
 ```
 
 
@@ -60,7 +62,7 @@ dds <- DESeqDataSetFromTximport(txi.sum_kallisto, meta_data, ~Condition)
 
 To explore a count matrix, it is often instructive to look at it as a heatmap. Below we show how to produce such a heatmap for various transformations of the data. I have plotted a heatmap of the top 200 highly expressed genes to determine if the samples cluster together by condition.
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 library(pheatmap)
 
 vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
@@ -78,7 +80,7 @@ Another use of the transformed data is sample clustering. Here, we apply the dis
 
 A heatmap of this distance matrix gives us an overview over similarities and dissimilarities between samples. We have to provide a hierarchical clustering hc to the heatmap function based on the sample distances, or else the heatmap function would calculate a clustering based on the distances between the rows/columns of the distance matrix.
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 library(RColorBrewer)
 sampleDists <- dist(t(assay(vsd)))
 samplDistMatrix <- as.matrix(sampleDists)
@@ -96,11 +98,17 @@ pheatmap(samplDistMatrix,
 
 Related to the distance matrix is the PCA plot, which shows the samples in the 2D plane spanned by their first two principal components. This type of plot is useful for visualizing the overall effect of experimental covariates and batch effects.
 
-## PCA - group
 
-```{r}
-plotPCA(vsd, intgroup=c("Samples","Condition"))
+## PCA - by group
 
+```{r, fig.width=8, fig.height=6}
+plotPCA(vsd, intgroup=c("Condition"))
+
+```
+## PCA - by sample
+
+```{r, fig.width=8, fig.height=6}
+plotPCA(vsd, intgroup=c("Condition", "Samples"))
 
 ```
 
@@ -108,7 +116,7 @@ plotPCA(vsd, intgroup=c("Samples","Condition"))
 # Heatmap of gene clustering
 In the sample distance heatmap made previously, the dendrogram at the side shows us a hierarchical clustering of the samples. Such a clustering can also be performed for the genes. Since the clustering is only relevant for genes that actually carry a signal, one usually would only cluster a subset of the most highly variable genes. Here, for demonstration, let us select the 20 genes with the highest variance across samples. We will work with the VST data. The heatmap becomes more interesting if we do not look at absolute expression strength but rather at the amount by which each gene deviates in a specific sample from the gene’s average across all samples. Hence, we center each genes’ values across samples, and plot a heatmap (figure below). We provide a data.frame that instructs the pheatmap function how to label the columns.
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 
 library("genefilter")
 topVarGenes <- head(order(rowVars(assay(vsd)), decreasing = TRUE), 20)
