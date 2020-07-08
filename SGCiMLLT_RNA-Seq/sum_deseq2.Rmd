@@ -6,7 +6,7 @@ output:
 ---
 
 
-Update: 1st April 2020
+Update: 8th July 2020
 
 # Differential gene expression using DESeq2 - SUM159
 Differential gene expression using DESeq2 and visualisation with Venn diagrams. Using Adam's code, some from https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
@@ -46,9 +46,11 @@ all(rownames(meta_data) %in% colnames(txi.sum_kallisto$counts))
 ```{r}
 # set up meta_data 
 
-meta_data_1 <- meta_data %>% 
-  filter(Cell_line == "SUM") %>% 
-  column_to_rownames("Samples")
+#meta_data_1 <- meta_data %>% 
+  #filter(Cell_line == "SUM") %>% 
+  #column_to_rownames("Samples")
+
+# not necessary as separate metadata files for each cell line
 
 ```
 
@@ -74,11 +76,10 @@ deseq2_txi <- function(df_mRNA, meta_data, control="dmso", test="sgc", value){
   return(res)
 }
 
-res_24H <- deseq2_txi(df_mRNA, meta_data_1, control = "DMSO_24H", test="SGC_24H", value="Condition")
+res_24H <- deseq2_txi(df_mRNA, meta_data, control = "DMSO_24H", test="SGC_24H", value="Condition")
 
-res_7D <- deseq2_txi(df_mRNA, meta_data_1, control = "DMSO_7D", test="SGC_7D", value="Condition")
+res_7D <- deseq2_txi(df_mRNA, meta_data, control = "DMSO_7D", test="SGC_7D", value="Condition")
 
-res_sgc <- deseq2_txi(df_mRNA, meta_data_1, control = "SGC_24H", test="SGC_7D", value="Condition")
 
 ```
 
@@ -99,40 +100,33 @@ summary(res_24H, alpha=0.05)
 summary(res_7D, alpha=0.05)
 ```
 
-### SGC 24 hours vs SGC 7 days
 
-```{r}
-summary(res_sgc, alpha=0.05)
-```
 
 ## MA plots 
 
-In DESeq2, the function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized counts for all the samples in the DESeqDataSet. Points will be colored red if the adjusted p value is less than 0.01. Points which fall out of the window are plotted as open triangles pointing either up or down.
+In DESeq2, the function plotMA shows the log2 fold changes attributable to a given variable over the mean of normalized counts for all the samples in the DESeqDataSet. Points will be colored blue if the adjusted p value is less than 0.01. Points which fall out of the window are plotted as open triangles pointing either up or down.
 
 ### DMSO vs SGC at 24 hours
 
-```{r}
+```{r, fig.width=8, fig.height=5}
 DESeq2::plotMA(res_24H)
 ```
 
 ### DMSO vs SGC at 7 days
 
-```{r}
+```{r, fig.width=8, fig.height=5}
 DESeq2::plotMA(res_7D)
 ```
 
 
-### SGC 24 hours vs SGC 7 days
-```{r}
-DESeq2::plotMA(res_sgc)
-```
+
 
 
 ## Volcano plots
 
 ## DMSO vs SGC at 24 hours
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.width=6, fig.height=6}
 
 library("ggplot2") #Best plots
 library("ggrepel") #Avoid overlapping labels
@@ -160,13 +154,13 @@ volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2
 volc
 
 #Save Volcano Plot
-ggsave("volcano/SUM_DMSOvSGC_24H.jpeg", device="jpeg") #In case you want to easily save to disk
+# ggsave("volcano/SUM_DMSOvSGC_24H.jpeg", device="jpeg") #In case you want to easily save to disk
 
 ```
 
 ### DMSO vs SGC at 7 days
 
-```{r, message=FALSE}
+```{r, message=FALSE, fig.width=6, fig.height=6}
 
 library("ggplot2") #Best plots
 library("ggrepel") #Avoid overlapping labels
@@ -195,43 +189,10 @@ volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2
 volc
 
 #Save Volcano Plot
-ggsave("volcano/SUM_DMSOvSGC_7D.jpeg", device="jpeg") #In case you want to easily save to disk
+# ggsave("volcano/SUM_DMSOvSGC_7D.jpeg", device="jpeg") #In case you want to easily save to disk
 
 ```
 
-### SGC at 24 hours vs SGC at 7 days
-
-```{r, message=FALSE}
-
-library("ggplot2") #Best plots
-library("ggrepel") #Avoid overlapping labels
-
-test <- as.data.frame(res_sgc)
-  
-data <- as.vector(rownames(test))
-annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
-                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
-  
-result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
-res <- result %>% 
-    dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
-    na.omit()
-
-mutateddf <- mutate(res, sig=ifelse(res$padj<0.01, "padj<0.01", "Not Sig")) #Will have different colors depending on significance
-input <- cbind(gene=rownames(mutateddf), mutateddf )
-input <- input %>% 
-  arrange(input$padj)
-
-#convert the rownames to a column
-volc = ggplot(input, aes(log2FoldChange, -log10(padj))) + #volcanoplot with log2Foldchange versus pvalue
-    geom_point(aes(col=sig)) + #add points colored by significance
-    ggtitle("SGC 24 hours vs SGC 7 days") #e.g. 'Volcanoplot DESeq2'
-volc
-
-#Save Volcano Plot
-ggsave("volcano/SUM_SGC_24Hv7D.jpeg", device="jpeg") #In case you want to easily save to disk
-
-```
 
 
 
@@ -262,14 +223,7 @@ datatable(dt$sig)
 ```
 
 
-### SGC 24 hours vs 7 days
 
-```{r, message=FALSE}
-dt <- filter_genes(as.data.frame(res_sgc), name="SUM_SGC_24Hv7D")
-
-datatable(dt$sig)
-
-```
 
 
 ## Genes common between 24h and 7d treatments
