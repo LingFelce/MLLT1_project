@@ -1,7 +1,7 @@
 """
 Kallisto Pseudoalignment Pipeline
 
-3rd June 2020
+8th July 2020
 
 """
 
@@ -36,7 +36,7 @@ def trimmomatic(infiles, outfile):
     P.run(statement, job_queue=P.PARAMS['queue'], job_memory ='8G', job_threads=P.PARAMS['threads'])
 
 @follows(mkdir('trimmed_fastqc')) #check trimmed fastq.gz files
-@transform('processed/*.fastq.gz', regex(r'processed/(.*).fastq.gz'),r'trimmed_fastqc/\1_fastqc.html')
+@transform('*.fastq.gz', regex(r'(.*).fastq.gz'),r'trimmed_fastqc/\1_fastqc.html')
 def trimmed_fastqc (infile, outfile):
     statement = '''fastqc -q -t %(threads)s --nogroup %(infile)s --outdir trimmed_fastqc'''
     P.run(statement, job_queue=P.PARAMS['queue'], job_threads=P.PARAMS['threads'])
