@@ -1,6 +1,8 @@
 ---
 title: "SUM159 Clustering"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 Update: 8th July 2020
 
@@ -44,16 +46,16 @@ meta_data <- read.table("sum_metadata.csv", sep=",", header = TRUE)
 
 rownames(meta_data) <- meta_data$Samples
 
-colnames(txi.sum_kallisto$counts) <- rownames(meta_data)
+colnames(txi.sum$counts) <- rownames(meta_data)
 
-all(rownames(meta_data) %in% colnames(txi.sum_kallisto$counts))
+all(rownames(meta_data) %in% colnames(txi.sum$counts))
 
 
 ```
 
 ```{r}
 
-dds <- DESeqDataSetFromTximport(txi.sum_kallisto, meta_data, ~Condition)
+dds <- DESeqDataSetFromTximport(txi.sum, meta_data, ~Condition)
 
 
 ```
