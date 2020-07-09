@@ -49,16 +49,16 @@ meta_data <- read.table("mcf_metadata.csv", sep=",", header = TRUE)
 
 rownames(meta_data) <- meta_data$Samples
 
-colnames(txi.mcf_kallisto$counts) <- rownames(meta_data)
+colnames(txi.mcf$counts) <- rownames(meta_data)
 
-all(rownames(meta_data) %in% colnames(txi.mcf_kallisto$counts))
+all(rownames(meta_data) %in% colnames(txi.mcf$counts))
 
 
 ```
 
 ```{r}
 
-dds <- DESeqDataSetFromTximport(txi.mcf_kallisto, meta_data, ~Condition)
+dds <- DESeqDataSetFromTximport(txi.mcf, meta_data, ~Condition)
 
 
 ```
