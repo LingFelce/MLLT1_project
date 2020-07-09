@@ -17,7 +17,9 @@ library(rhdf5)
 
 ## Test R Markdown
 
-Looking at samples from merged reads that were over 20 million (exluding 2 MCF-7 samples and 3 SUM159 samples) and replotting PCA plots to see if any differences between low/high reads
+Looking at samples from merged reads that were over 20 million (exluding 2 MCF-7 samples and 3 SUM159 samples) and replotting PCA plots to see if any differences between low/high reads.
+
+As don't have non-downsampled merged runs, had to look at run 2 samples.
 
 ### Transcript abundance import
 
