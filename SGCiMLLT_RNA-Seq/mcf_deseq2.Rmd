@@ -6,7 +6,7 @@ output:
   word_document: default
 ---
 
-Update: 8th July 2020
+Update: 9th July 2020
 
 # Differential gene expression using DESeq2 - MCF-7
 
@@ -36,9 +36,9 @@ meta_data <- read.table("mcf_metadata.csv", sep=",", header = TRUE)
 
 rownames(meta_data) <- meta_data$Samples
 
-colnames(txi.mcf_kallisto$counts) <- rownames(meta_data)
+colnames(txi.mcf$counts) <- rownames(meta_data)
 
-all(rownames(meta_data) %in% colnames(txi.mcf_kallisto$counts))
+all(rownames(meta_data) %in% colnames(txi.mcf$counts))
 
 ```
 
@@ -55,11 +55,10 @@ all(rownames(meta_data) %in% colnames(txi.mcf_kallisto$counts))
 
 
 
-
 ```{r, message=FALSE, eval=FALSE}
 ## Set up the DESeq2 object
 
-df_mRNA <-  txi.mcf_kallisto
+df_mRNA <-  txi.mcf
 
 deseq2_txi <- function(df_mRNA, meta_data, control="dmso", test="sgc", value){
 
@@ -132,9 +131,9 @@ test <- as.data.frame(res_24H)
   
 data <- as.vector(rownames(test))
 annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
-                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
+                                   columns="SYMBOL", keytype = "ENSEMBL")
   
-result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBL")
 res <- result %>% 
     dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
     na.omit()
@@ -166,9 +165,9 @@ test <- as.data.frame(res_7D)
   
 data <- as.vector(rownames(test))
 annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
-                                   columns="SYMBOL", keytype = "ENSEMBLTRANS")
+                                   columns="SYMBOL", keytype = "ENSEMBL")
   
-result <- merge(test, annots, by.x="row.names", by.y="ENSEMBLTRANS")
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBL")
 res <- result %>% 
     dplyr::select(log2FoldChange, SYMBOL, baseMean, padj, Row.names) %>% 
     na.omit()
@@ -202,7 +201,7 @@ The folowing results tables show the significant genes (p<0.05). Filtering has b
 
 ```{r, message=FALSE}
 
-# altered filter_genes function to work with Ensembl Transcript IDs
+
 dt <- filter_genes(as.data.frame(res_24H), name="MCF_DMSOvSGC_24H")
 
 datatable(dt$sig)
