@@ -1,0 +1,105 @@
+
+---
+title: "GO"
+output: html_document
+---
+
+# Gene ontology and gene set enrichment analysis
+Pathway analysis using code from Rbio Session 4. Gene ontology, network analysis and gene set enrichment analysis using FGSEA (https://bioconductor.org/packages/release/bioc/vignettes/fgsea/inst/doc/fgsea-tutorial.html) - doesn't produce as nice enrichment plots as GSEA GUI, also have to do individually for each DE gene list.
+
+
+```{r, include=FALSE}
+
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+
+#Go to Rbio.Rmd file to load full list, including installing packages etc. If having trouble, install individual packages using CRAN within R Studio. If still having trouble, then have to search Bioconductor for it.
+
+```
+## MCF-7 DMSO v SGC 7 days
+
+# Filter data (process data)
+The data contains double entries or NA entries. We need to remove these for downstream analysis.
+
+```{r}
+
+library(readr)
+mcf_sig <- read_csv("results/MCF_DMSOvSGC_7D_sig.csv")
+
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+
+mcf_sig$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(mcf_sig$Row.names), keytype="ENSEMBL", column="ENTREZID")
+
+#Keep only rows from table without NAs
+mcf_sig <- mcf_sig[is.na(mcf_sig$Entrez.Gene)==FALSE,]
+
+#Remove duplicated entries
+mcf_sig <- mcf_sig[!duplicated(mcf_sig$Entrez.Gene),]
+
+
+```
+
+# Gene Ontology (GO) over-representation test
+We are going to perform an over-representation test for our genes in GO terms from org.Hs.eg.db
+
+```{r}
+#Change Entrez IDs from numbers to characters
+
+geneset <- as.character(mcf_sig$Entrez.Gene)
+
+#This will show Entrez IDs only
+head(geneset)
+
+#This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+#dimensions - number of GO terms
+dim(ego)
+
+mcf_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+#Copy and paste into Excel
+
+```
+# Showing the ego object in graphical form
+
+```{r,fig.height=4, fig.width=6}
+barplot (ego, showCategory = 10)
+
+dotplot (ego, showCategory=10)
+
+#can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
+
+```
+
+
+We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
+
+```{r, fig.height=8, fig.width=10}
+emapplot(ego)
+
+```
+
+We can use cnetplot() to display the relation of specific genes within the GO terms.
+
+```{r, fig.height=12, fig.width=14}
+#logFC is optional, but if available will colour-code the nodes
+logFC_mcf <- mcf_sig$log2FoldChange
+#set name of object
+names(logFC_mcf) <- mcf_sig$Entrez.Gene
+
+cnetplot(ego, foldChange = logFC_mcf, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+
+```
+
