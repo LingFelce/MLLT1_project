@@ -1,11 +1,14 @@
 
 ---
 title: "GO"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 # Gene ontology and gene set enrichment analysis
-Pathway analysis using code from Rbio Session 4. Gene ontology, network analysis and gene set enrichment analysis using FGSEA (https://bioconductor.org/packages/release/bioc/vignettes/fgsea/inst/doc/fgsea-tutorial.html) - doesn't produce as nice enrichment plots as GSEA GUI, also have to do individually for each DE gene list.
+Pathway analysis using code from Rbio Session 4. Gene ontology using cluster Profiler https://yulab-smu.github.io/clusterProfiler-book/
 
 
 ```{r, include=FALSE}
@@ -20,7 +23,7 @@ library(org.Hs.eg.db)
 ```
 ## MCF-7 DMSO v SGC 7 days
 
-# Filter data (process data)
+### Filter data (process data)
 The data contains double entries or NA entries. We need to remove these for downstream analysis.
 
 ```{r}
@@ -41,7 +44,7 @@ mcf_sig <- mcf_sig[!duplicated(mcf_sig$Entrez.Gene),]
 
 ```
 
-# Gene Ontology (GO) over-representation test
+### Gene Ontology (GO) over-representation test
 We are going to perform an over-representation test for our genes in GO terms from org.Hs.eg.db
 
 ```{r}
@@ -69,7 +72,7 @@ mcf_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
 #Copy and paste into Excel
 
 ```
-# Showing the ego object in graphical form
+### Showing the ego object in graphical form
 
 ```{r,fig.height=4, fig.width=6}
 barplot (ego, showCategory = 10)
