@@ -1,0 +1,84 @@
+---
+title: "TX"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tximport)
+library(rhdf5)
+library(ensembldb)
+library(EnsDb.Hsapiens.v86)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
+
+```
+
+Update 10th July 2020
+
+## Importing transcript abundance with tximport
+
+Import and summarize transcript-level abundance estimates for transcript- and gene-level analysis with Bioconductor packages, such as edgeR, DESeq2, and limma-voom. The motivation and methods for the functions provided by the tximport package are described in the following article (Soneson, Love, and Robinson 2015)
+
+Two step process - get transcript level information first, then gene-level information. This means converting transcript IDs to gene IDs before doing DESeq2.
+From https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html
+"Transcripts need to be associated with gene IDs for gene-level summarization. If that information is present in the files, we can skip this step. For Salmon, Sailfish, and kallisto the files only provide the transcript ID. We first make a data.frame called tx2gene with two columns: 1) transcript ID and 2) gene ID. The column names do not matter but this column order must be used. The transcript ID must be the same one used in the abundance files."
+
+(actually transcript-level info is not required!)
+
+## Comparing transcript counts between Run 1, Run 2 and Merged (downsampled) runs for 3 samples - MCF_DMSO_7D_1, MCF_DMSO_7D_2 and SUM_DMSO_7D_2.
+
+### MCF-7
+
+```{r tx}
+# direct R Studio to folders where abundance.h5 files are stored
+
+dir <- c("quant1/MCF_DMSO_7D_1/", "quant2/MCF_DMSO_7D_1/", "quant3/MCF_DMSO_7D_1/", "quant1/MCF_DMSO_7D_2/", "quant2/MCF_DMSO_7D_2/", "quant3/MCF_DMSO_7D_2/", "quant1/SUM_DMSO_7D_2/", "quant2/SUM_DMSO_7D_2/", "quant3/SUM_DMSO_7D_2/")
+
+files <- list.files(path=dir, pattern="*.h5", full.names=TRUE)
+
+# combine into one table
+
+names(files) <- paste0(1:9)
+
+names(files) <- c("MCF_DMSO_7D_1_run1", "MCF_DMSO_7D_1_run2", "MCF_DMSO_7D_1_merged", "MCF_DMSO_7D_2_run1", "MCF_DMSO_7D_2_run2", "MCF_DMSO_7D_2_merge", "SUM_DMSO_7D_2_run1", "SUM_DMSO_7D_2_run2", "SUM_DMSO_7D_2_merge")
+
+```
+
+```{r gene}
+
+
+edb <- EnsDb.Hsapiens.v86
+k <- keys(edb, keytype = "TXID")
+tx2gene <- select(edb, k, "GENEID", "TXID")
+
+
+txi <- tximport(files, type = "kallisto", tx2gene = tx2gene)
+names(txi)
+head(txi$counts)
+
+```
+
+```{r symbol}
+
+test <- as.data.frame(txi$counts)
+  
+data <- as.vector(rownames(test))
+annots <-  AnnotationDbi::select(org.Hs.eg.db, keys=data,
+                                   columns="SYMBOL", keytype = "ENSEMBL")
+result <- merge(test, annots, by.x="row.names", by.y="ENSEMBL")
+
+names(result)[1] <- "Ensembl_ID"
+
+result <- result[, c(11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)]
+
+write.csv(result, "comparison.csv")
+
+```
+
+
