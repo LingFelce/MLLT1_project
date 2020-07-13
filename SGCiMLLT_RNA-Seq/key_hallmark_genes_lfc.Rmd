@@ -1,0 +1,80 @@
+---
+title: "key_hallmark_genes_LFC"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+# if need to update packages but not sure which ones, update them all > update.packages(checkBuilt=TRUE)
+```
+
+# Key Hallmark Genes
+
+Based on reading literature around hallmark gene set signatures (from CRISPR RNA-Seq), picked out interesting genes from papers and look up LFC for each clone.
+
+```{r}
+# read in total results (differentially expressed genes) for each clone
+
+mcf24_res <- read.csv("results/MCF_DMSOvSGC_24H_res.csv", header=TRUE)
+mcf7_res <- read.csv("results/MCF_DMSOvSGC_7D_res.csv", header=TRUE)
+sum24_res <- read.csv("results/SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+sum7_res <- read.csv("results/SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+
+# read in list of interesting hallmark genes from literature
+
+genes <- read.csv("hallmark_genes_literature.csv", header=TRUE)
+
+# compare to each clone
+
+mcf24 <- mcf24_res[is.element(mcf24_res$SYMBOL, genes$genes),]
+mcf7 <- mcf7_res[is.element(mcf7_res$SYMBOL, genes$genes),]
+sum24 <- sum24_res[is.element(sum24_res$SYMBOL, genes$genes),]
+sum7 <- sum7_res[is.element(sum7_res$SYMBOL, genes$genes),]
+
+# export lists
+
+write.csv(mcf24, "key_hallmark_genes_lfc/mcf24.csv")
+write.csv(mcf7, "key_hallmark_genes_lfc/mcf7.csv")
+write.csv(sum24, "key_hallmark_genes_lfc/sum24.csv")
+write.csv(sum7, "key_hallmark_genes_lfc/sum7.csv")
+  
+# select LFC and SYMBOL columns for each clone
+
+mcf24 <- mcf24 %>% 
+  select(SYMBOL, log2FoldChange)
+
+mcf7 <- mcf7 %>% 
+  select(SYMBOL, log2FoldChange)
+
+sum24 <- sum24 %>% 
+  select(SYMBOL, log2FoldChange)
+
+sum7 <- sum7 %>% 
+  select(SYMBOL, log2FoldChange)
+
+# merge mcf lfc and rename columns
+
+mcf <- merge(mcf24, mcf7, by="SYMBOL", all = TRUE)
+
+mcf <- mcf %>% 
+  mutate(mcf24_lfc = log2FoldChange.x, mcf7_lfc = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# merge sum lfc and rename columns
+
+sum <- merge(sum24, sum7, by="SYMBOL", all = TRUE)
+
+sum <- sum %>% 
+  mutate(sum24_lfc = log2FoldChange.x, sum7_lfc = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# export files
+
+write.csv(mcf, "key_hallmark_genes_lfc/mcf_lfc.csv")
+write.csv(sum, "key_hallmark_genes_lfc/sum_lfc.csv")
+
+
+```
