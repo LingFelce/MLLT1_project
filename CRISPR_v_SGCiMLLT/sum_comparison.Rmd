@@ -1,0 +1,371 @@
+---
+title: "sum_comparison"
+output: html_document
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(limma)
+library(reshape)
+library(reshape2)
+library("RColorBrewer")
+library(wesanderson)
+```
+
+# SUM159 CRISPR v SGC-iMLLT RNA-Seq
+
+Comparison of upregulated and downregulated genes in common (and not in common) between CRISPR and inhibitor treatment in SUM159 cells. 
+
+Have to manually rename output files with appropriate cell name!
+
+.
+
+```{r gene list}
+# read in gene lists (total differentially expressed genes)
+
+crispr_1 <- read.csv("results/SUM/CRISPR_SUM1_res.csv", header=TRUE)
+crispr_2 <- read.csv("results/SUM/CRISPR_SUM2_res.csv", header=TRUE)
+run2_24h <- read.csv("results/SUM/Run2_SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+run2_7d <- read.csv("results/SUM/Run2_SUM_DMSOvSGC_7D_res.csv", header=TRUE)
+merge_24h <- read.csv("results/SUM/Merge_SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+merge_7d <- read.csv("results/SUM/Merge_SUM_DMSOvSGC_7D_res.csv", header=TRUE)
+
+
+```
+
+## SGC-iMLLT RNA-Seq - shared genes between Run 2 and Merged (both up and downregulated)
+
+### 24 hours
+
+```{r, message=FALSE, eval=FALSE}
+
+# select symbol and lfc columns from 24 hour tables
+run2_24h <- run2_24h %>% 
+  select(SYMBOL, log2FoldChange)
+merge_24h <- merge_24h %>% 
+  select(SYMBOL, log2FoldChange)
+
+# combine them by symbol column
+combine <- merge(run2_24h, merge_24h, by="SYMBOL", all = TRUE)
+
+# rename lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_24h_LFC = log2FoldChange.x, merge_24h_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+
+# select just lfc columns for Venn diagram
+run2_24h_venn <- combine$run2_24h_LFC
+merge_24h_venn <- combine$merge_24h_LFC
+
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_24h_venn, merge_24h_venn)
+a <- vennCounts(c2)
+a
+
+c("red", "blue", "darkgreen", "yellow")
+png("venn/SGC_24h_shared_genes.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_24h <- combine[complete.cases(combine),]
+write.csv(combine_24h, file="venn/SGC_24h_shared_genes.csv")
+
+```
+
+![](venn/SGC_24h_shared_genes.png)
+
+### 7 days
+
+```{r, message=FALSE, eval=FALSE}
+
+# select symbol and lfc columns from 24 hour tables
+run2_7d <- run2_7d %>% 
+  select(SYMBOL, log2FoldChange)
+merge_7d <- merge_7d %>% 
+  select(SYMBOL, log2FoldChange)
+
+# combine them by symbol column
+combine <- merge(run2_7d, merge_7d, by="SYMBOL", all = TRUE)
+
+# rename lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_7d_LFC = log2FoldChange.x, merge_7d_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+
+# select just lfc columns for Venn diagram
+run2_7d_venn <- combine$run2_7d_LFC
+merge_7d_venn <- combine$merge_7d_LFC
+
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_7d_venn, merge_7d_venn)
+a <- vennCounts(c2)
+a
+
+c("red", "blue", "darkgreen", "yellow")
+png("venn/SGC_7d_shared_genes.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_7d <- combine[complete.cases(combine),]
+write.csv(combine_7d, file="venn/SGC_7d_shared_genes.csv")
+```
+
+![](venn/SGC_7d_shared_genes.png)
+## CRISPR v SGCiMLLT 
+
+### 24 hours downregulated
+
+```{r}
+# filter lfc < 0 for downregulated
+run2_24h <- run2_24h %>% 
+  filter(log2FoldChange < 0)
+merge_24h <- merge_24h %>%
+  filter(log2FoldChange < 0)
+crispr_1 <- crispr_1 %>% 
+  filter(log2FoldChange < 0)
+crispr_2 <- crispr_2 %>% 
+  filter(log2FoldChange < 0)
+# select symbol and lfc columns from 24 hour tables
+run2_24h <- run2_24h %>% 
+  select(SYMBOL, log2FoldChange)
+merge_24h <- merge_24h %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_1 <- crispr_1 %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_2 <- crispr_2 %>% 
+  select(SYMBOL, log2FoldChange)
+# combine them by symbol column
+combine <- merge(run2_24h, merge_24h, by="SYMBOL", all = TRUE)
+# rename two lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_24h_LFC = log2FoldChange.x, merge_24h_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+# add crispr 1 column
+combine <- merge(combine, crispr_1, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_1_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# add crispr 2 column
+combine <- merge(combine, crispr_2, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_2_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+# select just lfc columns for Venn diagram
+run2_24h_venn <- combine$run2_24h_LFC
+merge_24h_venn <- combine$merge_24h_LFC
+crispr_1_venn <- combine$crispr_1_LFC
+crispr_2_venn <- combine$crispr_2_LFC
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_24h_venn, merge_24h_venn, crispr_1_venn, crispr_2_venn)
+a <- vennCounts(c2)
+a
+c("red", "blue", "darkgreen", "yellow")
+png("venn/CRISPR_SGC_24h_shared_genes_down.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_24h <- combine[complete.cases(combine),]
+write.csv(combine_24h, file="venn/CRISPR_SGC_24h_shared_genes_down.csv")
+# want only genes that are shared in both runs and CRISPR
+# substitute NA for 0, then remove any rows with NA
+combine_24h[combine_24h==0] <- NA
+combine_24h<-combine_24h[complete.cases(combine_24h),]
+write.csv(combine_24h, file="shared_genes_24h_down.csv")
+```
+![](venn/CRISPR_SGC_24h_shared_genes_down.png)
+
+
+
+### 24 hours upregulated
+
+```{r}
+# filter lfc < 0 for downregulated
+run2_24h <- run2_24h %>% 
+  filter(log2FoldChange > 0)
+merge_24h <- merge_24h %>%
+  filter(log2FoldChange > 0)
+crispr_1 <- crispr_1 %>% 
+  filter(log2FoldChange > 0)
+crispr_2 <- crispr_2 %>% 
+  filter(log2FoldChange > 0)
+# select symbol and lfc columns from 24 hour tables
+run2_24h <- run2_24h %>% 
+  select(SYMBOL, log2FoldChange)
+merge_24h <- merge_24h %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_1 <- crispr_1 %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_2 <- crispr_2 %>% 
+  select(SYMBOL, log2FoldChange)
+# combine them by symbol column
+combine <- merge(run2_24h, merge_24h, by="SYMBOL", all = TRUE)
+# rename two lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_24h_LFC = log2FoldChange.x, merge_24h_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+# add crispr 1 column
+combine <- merge(combine, crispr_1, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_1_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# add crispr 2 column
+combine <- merge(combine, crispr_2, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_2_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+# select just lfc columns for Venn diagram
+run2_24h_venn <- combine$run2_24h_LFC
+merge_24h_venn <- combine$merge_24h_LFC
+crispr_1_venn <- combine$crispr_1_LFC
+crispr_2_venn <- combine$crispr_2_LFC
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_24h_venn, merge_24h_venn, crispr_1_venn, crispr_2_venn)
+a <- vennCounts(c2)
+a
+c("red", "blue", "darkgreen", "yellow")
+png("venn/CRISPR_SGC_24h_shared_genes_up.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_24h <- combine[complete.cases(combine),]
+write.csv(combine_24h, file="venn/CRISPR_SGC_24h_shared_genes_up.csv")
+# want only genes that are shared in both runs and CRISPR
+# substitute NA for 0, then remove any rows with NA
+combine_24h[combine_24h==0] <- NA
+combine_24h<-combine_24h[complete.cases(combine_24h),]
+write.csv(combine_24h, file="shared_genes_24h_up.csv")
+```
+
+![](venn/CRISPR_SGC_24h_shared_genes_up.png)
+
+
+### 7 days downregulated
+
+```{r}
+# filter lfc < 0 for downregulated
+run2_7d <- run2_7d %>% 
+  filter(log2FoldChange < 0)
+merge_7d <- merge_7d %>%
+  filter(log2FoldChange < 0)
+crispr_1 <- crispr_1 %>% 
+  filter(log2FoldChange < 0)
+crispr_2 <- crispr_2 %>% 
+  filter(log2FoldChange < 0)
+# select symbol and lfc columns from 24 hour tables
+run2_7d <- run2_7d %>% 
+  select(SYMBOL, log2FoldChange)
+merge_7d <- merge_7d %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_1 <- crispr_1 %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_2 <- crispr_2 %>% 
+  select(SYMBOL, log2FoldChange)
+# combine them by symbol column
+combine <- merge(run2_7d, merge_7d, by="SYMBOL", all = TRUE)
+# rename two lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_7d_LFC = log2FoldChange.x, merge_7d_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+# add crispr 1 column
+combine <- merge(combine, crispr_1, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_1_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# add crispr 2 column
+combine <- merge(combine, crispr_2, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_2_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+# select just lfc columns for Venn diagram
+run2_7d_venn <- combine$run2_7d_LFC
+merge_7d_venn <- combine$merge_7d_LFC
+crispr_1_venn <- combine$crispr_1_LFC
+crispr_2_venn <- combine$crispr_2_LFC
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_7d_venn, merge_7d_venn, crispr_1_venn, crispr_2_venn)
+a <- vennCounts(c2)
+a
+c("red", "blue", "darkgreen", "yellow")
+png("venn/CRISPR_SGC_7d_shared_genes_down.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_7d <- combine[complete.cases(combine),]
+write.csv(combine_7d, file="venn/CRISPR_SGC_7d_shared_genes_down.csv")
+# want only genes that are shared in both runs and CRISPR
+# substitute NA for 0, then remove any rows with NA
+combine_7d[combine_7d==0] <- NA
+combine_7d<-combine_7d[complete.cases(combine_7d),]
+write.csv(combine_7d, file="shared_genes_7d_down.csv")
+```
+![](venn/CRISPR_SGC_7d_shared_genes_down.png)
+
+
+
+### 7 days upregulated
+
+```{r}
+# filter lfc < 0 for downregulated
+run2_7d <- run2_7d %>% 
+  filter(log2FoldChange > 0)
+merge_7d <- merge_7d %>%
+  filter(log2FoldChange > 0)
+crispr_1 <- crispr_1 %>% 
+  filter(log2FoldChange > 0)
+crispr_2 <- crispr_2 %>% 
+  filter(log2FoldChange > 0)
+# select symbol and lfc columns from 24 hour tables
+run2_7d <- run2_7d %>% 
+  select(SYMBOL, log2FoldChange)
+merge_7d <- merge_7d %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_1 <- crispr_1 %>% 
+  select(SYMBOL, log2FoldChange)
+crispr_2 <- crispr_2 %>% 
+  select(SYMBOL, log2FoldChange)
+# combine them by symbol column
+combine <- merge(run2_7d, merge_7d, by="SYMBOL", all = TRUE)
+# rename two lfc columns with specific names
+combine <- combine %>% 
+  mutate(run2_7d_LFC = log2FoldChange.x, merge_7d_LFC = log2FoldChange.y) %>% 
+  select(-log2FoldChange.x, -log2FoldChange.y)
+# add crispr 1 column
+combine <- merge(combine, crispr_1, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_1_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# add crispr 2 column
+combine <- merge(combine, crispr_2, by="SYMBOL", all = TRUE)
+combine <- combine %>% 
+  mutate(crispr_2_LFC = log2FoldChange) %>% 
+  select(-log2FoldChange)
+# remove any rows that have NA
+combine[is.na(combine)] <- 0
+# select just lfc columns for Venn diagram
+run2_7d_venn <- combine$run2_7d_LFC
+merge_7d_venn <- combine$merge_7d_LFC
+crispr_1_venn <- combine$crispr_1_LFC
+crispr_2_venn <- combine$crispr_2_LFC
+# combine into single object and generate Venn diagram
+c2 <- cbind(run2_7d_venn, merge_7d_venn, crispr_1_venn, crispr_2_venn)
+a <- vennCounts(c2)
+a
+c("red", "blue", "darkgreen", "yellow")
+png("venn/CRISPR_SGC_7d_shared_genes_up.png")
+vennDiagram(a, circle.col = wes_palette("Darjeeling1"))
+combine_7d <- combine[complete.cases(combine),]
+write.csv(combine_7d, file="venn/CRISPR_SGC_7d_shared_genes_up.csv")
+# want only genes that are shared in both runs and CRISPR
+# substitute NA for 0, then remove any rows with NA
+combine_7d[combine_7d==0] <- NA
+combine_7d<-combine_7d[complete.cases(combine_7d),]
+write.csv(combine_7d, file="shared_genes_7d_up.csv")
+```
+
+![](venn/CRISPR_SGC_7d_shared_genes_up.png)
