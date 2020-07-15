@@ -1,0 +1,249 @@
+---
+title: "mcf_go"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+# Gene ontology and gene set enrichment analysis for shared MCF-7 genes between CRISPR and SGC-iMLLT RNA-Seq
+Pathway analysis using code from Rbio Session 4. Gene ontology using cluster Profiler https://yulab-smu.github.io/clusterProfiler-book/
+
+
+```{r, include=FALSE}
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+#Go to Rbio.Rmd file to load full list, including installing packages etc. If having trouble, install individual packages using CRAN within R Studio. If still having trouble, then have to search Bioconductor for it.
+```
+
+## 24 hours downregulated
+
+```{r}
+library(readr)
+genes_24h <- read_csv("mcf_shared_genes_24h_down.csv")
+genes_24h[1] <- NULL
+
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+genes_24h$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(genes_24h$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+# Keep only rows from table without NAs
+genes_24h <- genes_24h[is.na(genes_24h$Entrez.Gene)==FALSE,]
+
+# Remove duplicated entries
+genes_24h <- genes_24h[!duplicated(genes_24h$Entrez.Gene),]
+
+# Filter genes with -0.5 log2 fold change
+genes_24h_filter <- genes_24h %>%
+  filter(crispr_1_LFC < -0.5)
+  filter(crispr_2_LFC < -0.5)
+  filter(run2_24h_LFC < -0.5)
+  filter(merge_24h_1_LFC < -0.5)
+  
+
+
+```
+
+
+```{r}
+# Change Entrez IDs from numbers to characters
+geneset <- as.character(genes_24h_filter$Entrez.Gene)
+
+# This will show Entrez IDs only
+head(geneset)
+
+# This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+# dimensions - number of GO terms
+dim(ego)
+
+genes_24h_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+# Copy and paste into Excel
+```
+
+
+```{r,fig.height=3, fig.width=8}
+barplot (ego, showCategory = 10)
+dotplot (ego, showCategory=10)
+# can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
+```
+
+We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
+
+```{r, fig.height=12, fig.width=14}
+emapplot(ego)
+```
+
+We can use cnetplot() to display the relation of specific genes within the GO terms.
+
+```{r, fig.height=12, fig.width=14}
+# logFC is optional, but if available will colour-code the nodes
+logFC <- genes_24h_filter$crispr_1_LFC
+# set name of object
+names(logFC) <- genes_24h_filter$Entrez.Gene
+cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+```
+
+
+## 24 hours upregulated
+
+```{r}
+library(readr)
+genes_24h <- read_csv("mcf_shared_genes_24h_up.csv")
+genes_24h[1] <- NULL
+
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+genes_24h$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(genes_24h$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+# Keep only rows from table without NAs
+genes_24h <- genes_24h[is.na(genes_24h$Entrez.Gene)==FALSE,]
+
+# Remove duplicated entries
+genes_24h <- genes_24h[!duplicated(genes_24h$Entrez.Gene),]
+
+# Filter genes with 0.5 log2 fold change
+genes_24h_filter <- genes_24h %>%
+  filter(crispr_1_LFC > 0.5)
+  filter(crispr_2_LFC > 0.5)
+  filter(run2_24h_LFC > 0.5)
+  filter(merge_24h_1_LFC > 0.5)
+  
+```
+
+
+```{r}
+# Change Entrez IDs from numbers to characters
+geneset <- as.character(genes_24h_filter$Entrez.Gene)
+
+# This will show Entrez IDs only
+head(geneset)
+
+# This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+# dimensions - number of GO terms
+dim(ego)
+
+genes_24h_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+# Copy and paste into Excel
+```
+
+
+```{r,fig.height=3, fig.width=8}
+barplot (ego, showCategory = 10)
+dotplot (ego, showCategory=10)
+# can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
+```
+
+We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
+
+```{r, fig.height=12, fig.width=14}
+emapplot(ego)
+```
+
+We can use cnetplot() to display the relation of specific genes within the GO terms.
+
+```{r, fig.height=12, fig.width=14}
+# logFC is optional, but if available will colour-code the nodes
+logFC <- genes_24h_filter$crispr_1_LFC
+# set name of object
+names(logFC) <- genes_24h_filter$Entrez.Gene
+cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+```
+
+
+## 7 days
+
+```{r}
+library(readr)
+genes_24h <- read_csv("mcf_shared_genes_7d_down.csv")
+genes_24h[1] <- NULL
+
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+genes_24h$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(genes_24h$SYMBOL), keytype="SYMBOL", column="ENTREZID")
+
+# Keep only rows from table without NAs
+genes_24h <- genes_24h[is.na(genes_24h$Entrez.Gene)==FALSE,]
+
+# Remove duplicated entries
+genes_24h <- genes_24h[!duplicated(genes_24h$Entrez.Gene),]
+
+# Filter genes with -0.5 log2 fold change
+genes_24h_filter <- genes_24h %>%
+  filter(crispr_1_LFC < -0.5)
+  filter(crispr_2_LFC < -0.5)
+  filter(run2_24h_LFC < -0.5)
+  filter(merge_24h_1_LFC < -0.5)
+  
+
+
+```
+
+
+```{r}
+# Change Entrez IDs from numbers to characters
+geneset <- as.character(genes_24h_filter$Entrez.Gene)
+
+# This will show Entrez IDs only
+head(geneset)
+
+# This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+# dimensions - number of GO terms
+dim(ego)
+
+genes_24h_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+# Copy and paste into Excel
+```
+
+
+```{r,fig.height=3, fig.width=8}
+barplot (ego, showCategory = 10)
+dotplot (ego, showCategory=10)
+# can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
+```
+
+We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
+
+```{r, fig.height=12, fig.width=14}
+emapplot(ego)
+```
+
+We can use cnetplot() to display the relation of specific genes within the GO terms.
+
+```{r, fig.height=12, fig.width=14}
+# logFC is optional, but if available will colour-code the nodes
+logFC <- genes_24h_filter$crispr_1_LFC
+# set name of object
+names(logFC) <- genes_24h_filter$Entrez.Gene
+cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
+# show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+# size = number of genes, fold change = red for upregulated, green for downregulated
+```
