@@ -21,7 +21,7 @@ Based on reading literature around hallmark gene set signatures (from CRISPR RNA
 mcf24_res <- read.csv("results/MCF_DMSOvSGC_24H_res.csv", header=TRUE)
 mcf7_res <- read.csv("results/MCF_DMSOvSGC_7D_res.csv", header=TRUE)
 sum24_res <- read.csv("results/SUM_DMSOvSGC_24H_res.csv", header=TRUE)
-sum7_res <- read.csv("results/SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+sum7_res <- read.csv("results/SUM_DMSOvSGC_7D_res.csv", header=TRUE)
 
 # read in list of interesting hallmark genes from literature
 
