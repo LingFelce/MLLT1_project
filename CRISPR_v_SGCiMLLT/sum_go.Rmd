@@ -9,6 +9,9 @@ output:
 # Gene ontology and gene set enrichment analysis for shared SUM159 genes between CRISPR and SGC-iMLLT RNA-Seq
 Pathway analysis using code from Rbio Session 4. Gene ontology using cluster Profiler https://yulab-smu.github.io/clusterProfiler-book/
 
+Repeated 27th July 2020 using DEG from merged SGC-iMLLT RNA-Seq
+
+No log fold change cut off, use simplify() function to remove redundant terms - seems to be working again.
 
 ```{r, include=FALSE}
 library(limma)
@@ -23,7 +26,7 @@ Genes filtered so only do GO analysis for those with log fold change less than -
 
 ```{r}
 library(readr)
-genes_24h <- read_csv("sum_shared_genes_24h_down.csv")
+genes_24h <- read_csv("go2/sum_shared_genes_24h_down.csv")
 genes_24h[1] <- NULL
 
 # Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
@@ -35,23 +38,12 @@ genes_24h <- genes_24h[is.na(genes_24h$Entrez.Gene)==FALSE,]
 # Remove duplicated entries
 genes_24h <- genes_24h[!duplicated(genes_24h$Entrez.Gene),]
 
-# Filter genes with -0.05 log2 fold change
-genes_24h_filter <- genes_24h %>%
-  filter(crispr_1_LFC < -0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(crispr_2_LFC < -0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(run2_24h_LFC < -0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(merge_24h_LFC < -0.05)
-
-
 ```
 
 
 ```{r}
 # Change Entrez IDs from numbers to characters
-geneset <- as.character(genes_24h_filter$Entrez.Gene)
+geneset <- as.character(genes_24h$Entrez.Gene)
 
 # This will take a little while to run
 ego <- enrichGO(gene = geneset, 
@@ -66,31 +58,35 @@ ego <- enrichGO(gene = geneset,
 # dimensions - number of GO terms
 dim(ego)
 
-genes_24h_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+simp <- simplify(ego)
+
+dim(simp)
+
+genes_24h_go <- data.frame(simp$ID, simp$Description, simp$p.adjust, simp$geneID)
 # Copy and paste into Excel
 ```
 
 
-```{r,fig.height=3, fig.width=8}
-barplot (ego, showCategory = 10)
-dotplot (ego, showCategory=10)
+```{r,fig.height=5, fig.width=8}
+barplot (simp, showCategory = 15)
+dotplot (simp, showCategory=15)
 # can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
 ```
 
 We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
 
 ```{r, fig.height=14, fig.width=16}
-emapplot(ego)
+emapplot(simp)
 ```
 
 We can use cnetplot() to display the relation of specific genes within the GO terms.
 
 ```{r, fig.height=12, fig.width=14}
 # logFC is optional, but if available will colour-code the nodes
-logFC <- genes_24h_filter$crispr_1_LFC
+logFC <- genes_24h$crispr_1_LFC
 # set name of object
-names(logFC) <- genes_24h_filter$Entrez.Gene
-cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
+names(logFC) <- genes_24h$Entrez.Gene
+cnetplot(simp, foldChange = logFC, showCategory = 5, circular = FALSE)
 # show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 # size = number of genes, fold change = red for upregulated, green for downregulated
 ```
@@ -100,7 +96,7 @@ cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 
 ```{r}
 library(readr)
-genes_24h <- read_csv("sum_shared_genes_24h_up.csv")
+genes_24h <- read_csv("go2/sum_shared_genes_24h_up.csv")
 genes_24h[1] <- NULL
 
 # Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
@@ -112,23 +108,12 @@ genes_24h <- genes_24h[is.na(genes_24h$Entrez.Gene)==FALSE,]
 # Remove duplicated entries
 genes_24h <- genes_24h[!duplicated(genes_24h$Entrez.Gene),]
 
-# Filter genes with 0.05 log2 fold change
-genes_24h_filter <- genes_24h %>%
-  filter(crispr_1_LFC > 0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(crispr_2_LFC > 0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(run2_24h_LFC > 0.05)
-genes_24h_filter <- genes_24h_filter %>%
-  filter(merge_24h_LFC > 0.05)
-
-
 ```
 
 
 ```{r}
 # Change Entrez IDs from numbers to characters
-geneset <- as.character(genes_24h_filter$Entrez.Gene)
+geneset <- as.character(genes_24h$Entrez.Gene)
 
 
 # This will take a little while to run
@@ -144,12 +129,13 @@ ego <- enrichGO(gene = geneset,
 # dimensions - number of GO terms
 dim(ego)
 
+
 genes_24h_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
 # Copy and paste into Excel
 ```
 
 
-```{r,fig.height=3, fig.width=6}
+```{r,fig.height=4, fig.width=10}
 barplot (ego, showCategory = 10)
 dotplot (ego, showCategory=10)
 # can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
@@ -157,7 +143,7 @@ dotplot (ego, showCategory=10)
 
 We can look into the relation of the enriched GO terms using the `emapplot()` function. You will need to increase the height and width of the image so that the terms don't overlap.  
 
-```{r, fig.height=4, fig.width=6}
+```{r, fig.height=8, fig.width=10}
 emapplot(ego)
 ```
 
@@ -165,9 +151,9 @@ We can use cnetplot() to display the relation of specific genes within the GO te
 
 ```{r, fig.height=12, fig.width=14}
 # logFC is optional, but if available will colour-code the nodes
-logFC <- genes_24h_filter$crispr_1_LFC
+logFC <- genes_24h$crispr_1_LFC
 # set name of object
-names(logFC) <- genes_24h_filter$Entrez.Gene
+names(logFC) <- genes_24h$Entrez.Gene
 cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 # show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 # size = number of genes, fold change = red for upregulated, green for downregulated
@@ -178,7 +164,7 @@ cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 
 ```{r}
 library(readr)
-genes_7d <- read_csv("sum_shared_genes_7d_down.csv")
+genes_7d <- read_csv("go2/sum_shared_genes_7d_down.csv")
 genes_7d[1] <- NULL
 
 # Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
@@ -217,9 +203,9 @@ genes_7d_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
 ```
 
 
-```{r,fig.height=3, fig.width=8}
-barplot (ego, showCategory = 10)
-dotplot (ego, showCategory=10)
+```{r,fig.height=5, fig.width=8}
+barplot (ego, showCategory = 15)
+dotplot (ego, showCategory=15)
 # can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
 ```
 
@@ -233,9 +219,9 @@ We can use cnetplot() to display the relation of specific genes within the GO te
 
 ```{r, fig.height=12, fig.width=14}
 # logFC is optional, but if available will colour-code the nodes
-logFC <- genes_7d_filter$crispr_1_LFC
+logFC <- genes_7d$crispr_1_LFC
 # set name of object
-names(logFC) <- genes_7d_filter$Entrez.Gene
+names(logFC) <- genes_7d$Entrez.Gene
 cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 # show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 # size = number of genes, fold change = red for upregulated, green for downregulated
@@ -245,7 +231,7 @@ cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 
 ```{r}
 library(readr)
-genes_7d <- read_csv("sum_shared_genes_7d_up.csv")
+genes_7d <- read_csv("go2/sum_shared_genes_7d_up.csv")
 genes_7d[1] <- NULL
 
 # Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
@@ -257,23 +243,12 @@ genes_7d <- genes_7d[is.na(genes_7d$Entrez.Gene)==FALSE,]
 # Remove duplicated entries
 genes_7d <- genes_7d[!duplicated(genes_7d$Entrez.Gene),]
 
-# Filter genes with 0.1 log2 fold change
-genes_7d_filter <- genes_7d %>%
-  filter(crispr_1_LFC > 0.1)
-genes_7d_filter <- genes_7d_filter %>%
-  filter(merge_7d_LFC > 0.1)
-genes_7d_filter <- genes_7d_filter %>%
-  filter(crispr_2_LFC > 0.1)
-genes_7d_filter <- genes_7d_filter %>%
-  filter(run2_7d_LFC > 0.1)
-
-
 ```
 
 
 ```{r}
 # Change Entrez IDs from numbers to characters
-geneset <- as.character(genes_7d_filter$Entrez.Gene)
+geneset <- as.character(genes_7d$Entrez.Gene)
 
 
 # This will take a little while to run
@@ -289,14 +264,18 @@ ego <- enrichGO(gene = geneset,
 # dimensions - number of GO terms
 dim(ego)
 
-genes_7d_go <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+simp <- simplify(ego)
+
+dim(simp)
+
+genes_7d_go <- data.frame(simp$ID, simp$Description, simp$p.adjust, simp$geneID)
 # Copy and paste into Excel
 ```
 
 
-```{r,fig.height=3, fig.width=8}
-barplot (ego, showCategory = 10)
-dotplot (ego, showCategory=10)
+```{r,fig.height=5, fig.width=8}
+barplot (simp, showCategory = 15)
+dotplot (simp, showCategory=15)
 # can use simplify() to remove redundant terms, but can be slow eg barplot(simplify(ego))
 ```
 
@@ -310,9 +289,9 @@ We can use cnetplot() to display the relation of specific genes within the GO te
 
 ```{r, fig.height=8, fig.width=14}
 # logFC is optional, but if available will colour-code the nodes
-logFC <- genes_7d_filter$crispr_1_LFC
+logFC <- genes_7d$crispr_1_LFC
 # set name of object
-names(logFC) <- genes_7d_filter$Entrez.Gene
+names(logFC) <- genes_7d$Entrez.Gene
 cnetplot(ego, foldChange = logFC, showCategory = 5, circular = FALSE)
 # show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
 # size = number of genes, fold change = red for upregulated, green for downregulated
