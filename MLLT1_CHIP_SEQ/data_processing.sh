@@ -120,3 +120,24 @@ ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D
 ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R1.fastq.gz
 ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R2.fastq.gz
 
+# testing output of stderr to get alignment summary from bowtie2
+# will look something like this
+10000 reads; of these:
+  10000 (100.00%) were paired; of these:
+    650 (6.50%) aligned concordantly 0 times
+    8823 (88.23%) aligned concordantly exactly 1 time
+    527 (5.27%) aligned concordantly >1 times
+    ----
+    650 pairs aligned concordantly 0 times; of these:
+      34 (5.23%) aligned discordantly 1 time
+    ----
+    616 pairs aligned 0 times concordantly or discordantly; of these:
+      1232 mates make up the pairs; of these:
+        660 (53.57%) aligned 0 times
+        571 (46.35%) aligned exactly 1 time
+        1 (0.08%) aligned >1 times
+96.70% overall alignment rate
+
+(bowtie2 --threads "$THREADS" --local -x "$tmpGenome" -q -1 "$tmp_fastq1" -2 "$tmp_fastq2" --met-file bowtie2_alignment-metrics.txt) 2>stats.txt # needs -S for .sam?
+
+qsub -e <error.file> # redirect standard error to a file
