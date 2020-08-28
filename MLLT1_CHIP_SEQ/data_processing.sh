@@ -48,5 +48,75 @@ cat SGC_24H_IP_R1.fastq.gz MCF_SGC_24H_IP_R1.fastq.gz > mcf_merge/MCF_SGC_24H_IP
 cat SGC_7D_INPUT_R1.fastq.gz MCF_SGC_7D_INPUT_R1.fastq.gz > mcf_merge/MCF_SGC_7D_INPUT_R1.fastq.gz | cat SGC_7D_INPUT_R2.fastq.gz MCF_SGC_7D_INPUT_R2.fastq.gz > mcf_merge/MCF_SGC_7D_INPUT_R2.fastq.gz
 cat SGC_7D_IP_R1.fastq.gz MCF_SGC_7D_IP_R1.fastq.gz > mcf_merge/MCF_SGC_7D_IP_R1.fastq.gz | cat SGC_7D_IP_R2.fastq.gz MCF_SGC_7D_IP_R2.fastq.gz > mcf_merge/MCF_SGC_7D_IP_R2.fastq.gz
 
-## soft links
+## checked md5sum - used output to type up soft links
+md5sum *fastq.gz > md5sum.txt
+md5sum -c md5sum.txt
+
+MCF_DMSO_24H_INPUT_R1.fastq.gz: OK
+MCF_DMSO_24H_INPUT_R2.fastq.gz: OK
+MCF_DMSO_24H_IP_R1.fastq.gz: OK
+MCF_DMSO_24H_IP_R2.fastq.gz: OK
+MCF_DMSO_7D_INPUT_R1.fastq.gz: OK
+MCF_DMSO_7D_INPUT_R2.fastq.gz: OK
+MCF_DMSO_7D_IP_R1.fastq.gz: OK
+MCF_DMSO_7D_IP_R2.fastq.gz: OK
+MCF_SGC_24H_INPUT_R1.fastq.gz: OK
+MCF_SGC_24H_INPUT_R2.fastq.gz: OK
+MCF_SGC_24H_IP_R1.fastq.gz: OK
+MCF_SGC_24H_IP_R2.fastq.gz: OK
+MCF_SGC_7D_INPUT_R1.fastq.gz: OK
+MCF_SGC_7D_INPUT_R2.fastq.gz: OK
+MCF_SGC_7D_IP_R1.fastq.gz: OK
+MCF_SGC_7D_IP_R2.fastq.gz: OK
+SUM_DMSO_24H_INPUT_R1.fastq.gz: OK
+SUM_DMSO_24H_INPUT_R2.fastq.gz: OK
+SUM_DMSO_24H_IP_R1.fastq.gz: OK
+SUM_DMSO_24H_IP_R2.fastq.gz: OK
+SUM_DMSO_7D_INPUT_R1.fastq.gz: OK
+SUM_DMSO_7D_INPUT_R2.fastq.gz: OK
+SUM_DMSO_7D_IP_R1.fastq.gz: OK
+SUM_DMSO_7D_IP_R2.fastq.gz: OK
+SUM_SGC_24H_INPUT_R1.fastq.gz: OK
+SUM_SGC_24H_INPUT_R2.fastq.gz: OK
+SUM_SGC_24H_IP_R1.fastq.gz: OK
+SUM_SGC_24H_IP_R2.fastq.gz: OK
+SUM_SGC_7D_INPUT_R1.fastq.gz: OK
+SUM_SGC_7D_INPUT_R2.fastq.gz: OK
+SUM_SGC_7D_IP_R1.fastq.gz: OK
+SUM_SGC_7D_IP_R2.fastq.gz: OK
+
+
+## create soft links in src folder
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_24H_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_24H_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_24H_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_24H_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_7D_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_7D_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_7D_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_DMSO_7D_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_24H_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_24H_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_24H_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_24H_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_7D_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_7D_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_7D_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/MCF_SGC_7D_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_24H_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_24H_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_24H_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_24H_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_7D_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_7D_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_7D_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_DMSO_7D_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_24H_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_24H_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_24H_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_24H_IP_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_INPUT_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_INPUT_R2.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R1.fastq.gz
+ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R2.fastq.gz
 
