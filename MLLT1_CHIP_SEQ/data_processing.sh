@@ -120,7 +120,7 @@ ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D
 ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R1.fastq.gz
 ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D_IP_R2.fastq.gz
 
-# testing output of stderr to get alignment summary from bowtie2
+## testing output of stderr to get alignment summary from bowtie2
 # will look something like this
 10000 reads; of these:
   10000 (100.00%) were paired; of these:
@@ -141,3 +141,5 @@ ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D
 (bowtie2 --threads "$THREADS" --local -x "$tmpGenome" -q -1 "$tmp_fastq1" -2 "$tmp_fastq2" --met-file bowtie2_alignment-metrics.txt) 2>stats.txt # needs -S for .sam?
 
 qsub -e <error.file> # redirect standard error to a file
+
+## will test on 2 pairs of files to see if bowtie2 alignment summary works, need to get for calculating normalisation factor.
