@@ -143,3 +143,13 @@ ln -s /ifs/research-groups/botnar/proj013/backup/MLLT1_CHIP_SEQ/merge/SUM_SGC_7D
 qsub -e <error.file> # redirect standard error to a file
 
 ## will test on 2 pairs of files to see if bowtie2 alignment summary works, need to get for calculating normalisation factor.
+
+## still not able to get stderr bowtie2 alignment statistics - try several different options in command line to see if they work
+## (should normally be printed to console)
+## use smallest MCF-7 file for alignment, otherwise will take too long!
+
+bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz -S MCF_SGC_24H_IP.sam
+
+bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz --met-file test.txt -S MCF_SGC_24H_IP.sam
+
+(bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz --met-file test.txt -S MCF_SGC_24H_IP.sam) 2>stats.txt
