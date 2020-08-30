@@ -148,6 +148,8 @@ qsub -e <error.file> # redirect standard error to a file
 ## (should normally be printed to console)
 ## use smallest MCF-7 file for alignment, otherwise will take too long!
 
+## still takes too long in command line - maybe make new python function in pipeline and run in test folder?
+
 bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz -S MCF_SGC_24H_IP.sam
 
 bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz --met-file test.txt -S MCF_SGC_24H_IP.sam
