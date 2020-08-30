@@ -1,0 +1,8 @@
+queue: all.q
+threads: 12
+memory: 8G
+bowtie2:
+    options: test_stats.txt
+    ref: /ifs/mirror/genomes/bowtie/hg38
+picard:
+    ref: /ifs/mirror/genomes/plain/hg38.fasta
