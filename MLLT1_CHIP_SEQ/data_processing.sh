@@ -164,3 +164,18 @@ bowtie2-build dm3.fa dm3
 
 bowtie2 -x /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/test/dm3 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz -S MCF_SGC_24H_IP.sam
 
+7278440 reads; of these:
+  7278440 (100.00%) were paired; of these:
+    7179961 (98.65%) aligned concordantly 0 times
+    60754 (0.83%) aligned concordantly exactly 1 time
+    37725 (0.52%) aligned concordantly >1 times
+    ----
+    7179961 pairs aligned concordantly 0 times; of these:
+      4653 (0.06%) aligned discordantly 1 time
+    ----
+    7175308 pairs aligned 0 times concordantly or discordantly; of these:
+      14350616 mates make up the pairs; of these:
+        13792452 (96.11%) aligned 0 times
+        211569 (1.47%) aligned exactly 1 time
+        346595 (2.42%) aligned >1 times
+5.25% overall alignment rate
