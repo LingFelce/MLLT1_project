@@ -179,3 +179,20 @@ bowtie2 -x /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/test/dm3 -1 MC
         211569 (1.47%) aligned exactly 1 time
         346595 (2.42%) aligned >1 times
 5.25% overall alignment rate
+
+## this function in python pipeline allows read data to be saved in file called test_stats.txt
+
+@collate('*.fastq.gz', regex(r'(.*)_R[1-2].fastq.gz'), r'\1.sam')
+def test(infiles, outfile):  
+       
+    fq1, fq2 = infiles   
+    options = ''
+        
+    if P.PARAMS['bowtie2_options']:
+        options = P.PARAMS['bowtie2_options']
+    
+    cmd = '''(bowtie2 -x %(bowtie2_ref)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s -S %(outfile)s) 2>test_stats.txt'''
+
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'])
