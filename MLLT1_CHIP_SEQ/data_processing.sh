@@ -155,3 +155,12 @@ bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_
 bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz --met-file test.txt -S MCF_SGC_24H_IP.sam
 
 (bowtie2 -x /ifs/mirror/genomes/bowtie/hg38 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz --met-file test.txt -S MCF_SGC_24H_IP.sam) 2>stats.txt
+
+## for drosophila genome, need reference index with file extensions .bt2 - only have .ebwt for dm3, which is for original bowtie not bowtie2. 
+## use dm3.fa (soft link from genomes/bowtie folder) to create .bt2 indexes in MLLT1_CHIP_SEQ folder
+bowtie2-build dm3.fa dm3
+
+# then can test bowtie2 alignment output using drosophila genome, should be much quicker in command line
+
+bowtie2 -x /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/test/dm3 -1 MCF_SGC_24H_IP_R1.fastq.gz -2 MCF_SGC_24H_IP_R2.fastq.gz -S MCF_SGC_24H_IP.sam
+
