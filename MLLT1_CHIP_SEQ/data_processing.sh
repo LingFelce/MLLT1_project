@@ -196,3 +196,30 @@ def test(infiles, outfile):
     P.run(cmd, 
           job_queue=P.PARAMS['queue'], 
           job_threads=P.PARAMS['threads'])
+          
+## now check it works on .fastq -> .bam code - this seems to work but not sure what order alignment summaries are in?
+
+#use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
+
+@follows(mkdir('bam'))
+@collate('*.fastq.gz', regex(r'(.*)_R[1-2].fastq.gz'), r'bam/\1.bam')
+def align_reads2(infiles, outfile):
+    
+    ''' Aligns fq files using bowtie2 before conversion to bam file using
+        Samtools view. Bam file is then sorted and the unsorted bam file is replaced'''
+    
+    fq1, fq2 = infiles   
+    sorted_bam = outfile.replace('.bam', '_sorted.bam')
+    options = ''
+        
+    if P.PARAMS['bowtie2_options']:
+        options = P.PARAMS['bowtie2_options']
+    
+    cmd = '''(bowtie2 -x %(bowtie2_ref)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s) 2>> test_stats.txt  |
+             samtools view -b - > %(outfile)s &&
+             samtools sort -@ %(threads)s -m 5G -o %(sorted_bam)s %(outfile)s &&
+             mv %(sorted_bam)s %(outfile)s'''
+
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'])
