@@ -34,6 +34,7 @@ def qc_reads(infile, outfile):
 #use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
 #will also output bowtie2 alignment statistics into separate file called stats.txt
 #however if run multiple samples, not sure which one matches up with which sample?
+## therefore run each pair separately using pipeline!
 @follows(mkdir('bam'))
 @collate('*.fastq.gz', regex(r'(.*)_R[1-2].fastq.gz'), r'bam/\1.bam')
 def align_reads2(infiles, outfile):
