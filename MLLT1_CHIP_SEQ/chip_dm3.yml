@@ -1,0 +1,8 @@
+queue: all.q
+threads: 12
+memory: 8G
+bowtie2:
+    options: 
+    ref: /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/test/dm3
+picard:
+    ref: /ifs/mirror/genomes/plain/hg38.fasta
