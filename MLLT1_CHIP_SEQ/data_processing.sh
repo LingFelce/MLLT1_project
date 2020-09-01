@@ -197,7 +197,7 @@ def test(infiles, outfile):
           job_queue=P.PARAMS['queue'], 
           job_threads=P.PARAMS['threads'])
           
-## now check it works on .fastq -> .bam code - this seems to work but not sure what order alignment summaries are in?
+## now check it works on .fastq -> .bam code - this seems to work but not sure what order alignment summaries are in? RUN EACH FILE SEPARATELY!
 
 #use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
 
