@@ -32,6 +32,8 @@ def qc_reads(infile, outfile):
 """ START HERE """
     
 #use this to combine aligning reads and sorting, so go straight from .fastq.gz to .bam
+#will also output bowtie2 alignment statistics into separate file called stats.txt
+#however if run multiple samples, not sure which one matches up with which sample?
 @follows(mkdir('bam'))
 @collate('*.fastq.gz', regex(r'(.*)_R[1-2].fastq.gz'), r'bam/\1.bam')
 def align_reads2(infiles, outfile):
@@ -46,7 +48,7 @@ def align_reads2(infiles, outfile):
     if P.PARAMS['bowtie2_options']:
         options = P.PARAMS['bowtie2_options']
     
-    cmd = '''bowtie2 -x %(bowtie2_ref)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s --met-file %(bowtie2_options)s |
+    cmd = '''(bowtie2 -x %(bowtie2_ref)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s) 2>> stats.txt  |
              samtools view -b - > %(outfile)s &&
              samtools sort -@ %(threads)s -m 5G -o %(sorted_bam)s %(outfile)s &&
              mv %(sorted_bam)s %(outfile)s'''
@@ -85,7 +87,24 @@ def remove_duplicates(infile, outfile):
 
 """
 After removing duplicates from .bam files, use Homer in command line to do peak calling and peak annotation.
-"""          
+"""       
+
+# testing bowtie2 alignment statistics - output to .txt file
+
+@collate('*.fastq.gz', regex(r'(.*)_R[1-2].fastq.gz'), r'\1.sam')
+def test(infiles, outfile):  
+       
+    fq1, fq2 = infiles   
+    options = ''
+        
+    if P.PARAMS['bowtie2_options']:
+        options = P.PARAMS['bowtie2_options']
+    
+    cmd = '''(bowtie2 -x %(bowtie2_ref)s -1 %(fq1)s -2 %(fq2)s -p %(threads)s -S %(outfile)s) 2>test_stats.txt'''
+
+    P.run(cmd, 
+          job_queue=P.PARAMS['queue'], 
+          job_threads=P.PARAMS['threads'])   
      
 if __name__ == "__main__":
     sys.exit( P.main(sys.argv) )
