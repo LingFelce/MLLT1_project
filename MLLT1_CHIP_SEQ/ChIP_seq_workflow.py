@@ -11,6 +11,10 @@ This is a pipeline to process ChIP sequencing.
 
 Run each part of pipeline separately
 
+Have to run each pair of sample separately for align_reads2 to make sure know which alignment summary matches up with which sample (as output doesn't list names)
+
+Create separate pipelines for aligning to hg38 (chip_hg38.py and chip_hg38.yml) and dm3 (chip_dm3.py and chip_dm3.yml) so can run both at same time for same pair
+
 """
 import sys
 import gzip
