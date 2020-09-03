@@ -1,14 +1,22 @@
 ## Using Homer for peak calling
-## see Nick's email for more detailed explanations (or Homer website)
-# http://homer.ucsd.edu/homer/ngs/tagDir.html
-# http://homer.ucsd.edu/homer/ngs/ucsc.html
-# http://homer.ucsd.edu/homer/ngs/peaks.html
-# http://homer.ucsd.edu/homer/ngs/annotation.html
-# currently only have input and MLLT1 IP (2 replicates for each)
+
 
 # create tag directory for each bam file (all on one line)
-makeTagDirectory tag_input/ /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/input_1.bam /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/input_2.bam
-makeTagDirectory tag_IP/ /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/IP_1.bam /ifs/research-groups/botnar/proj013/src/ENCODE_MLLT1_K562/deduplicated/IP_2.bam
+makeTagDirectory tag_MCF_DMSO_24h_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24h_input.bam
+makeTagDirectory tag_MCF_DMSO_24h_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24h_IP.bam
+
+makeTagDirectory tag_MCF_SGC_24h_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24h_input.bam
+makeTagDirectory tag_MCF_SGC_24h_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24h_IP.bam
+
+makeTagDirectory tag_MCF_DMSO_7d_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7d_input.bam
+makeTagDirectory tag_MCF_DMSO_7d_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7d_IP.bam
+
+makeTagDirectory tag_MCF_SGC_7d_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7d_input.bam
+makeTagDirectory tag_MCF_SGC_7d_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7d_IP.bam
+
+
+
+### old code from here ###
 
 # download bedGraphtoBigWig programme first from UCSC http://hgdownload.cse.ucsc.edu/admin/exe/
 wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64.v385/bedGraphToBigWig
