@@ -1,5 +1,9 @@
 ## Using Homer for peak calling
 
+# loading IGV genome browser
+module load bio/IGV
+igv.sh
+
 # create tag directory for each bam file (all on one line)
 makeTagDirectory tag_MCF_DMSO_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24H_INPUT.bam
 
@@ -150,25 +154,38 @@ tag_MCF_DMSO_24H_INPUT  tag_MCF_DMSO_24H_IP  tag_MCF_DMSO_7D_INPUT  tag_MCF_DMSO
 
 # make BigWig file to view in genome browser (one line)
 # Homer will put a text file in the tag directory that you can use to link to the bigwig in UCSC (just paste the contents of the file into the ‘add custom track’ box on UCSC). 
-makeBigWig.pl tag_MCF_DMSO_24H_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
+makeBigWig.pl tag_MCF_DMSO_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
-makeBigWig.pl tag_MCF_DMSO_24H_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+Visualization fragment length = 113
 
+makeBigWig.pl tag_MCF_DMSO_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
-makeBigWig.pl tag_MCF_DMSO_7D_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+Visualization fragment length = 178
 
+makeBigWig.pl tag_MCF_DMSO_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
-makeBigWig.pl tag_MCF_DMSO_7D_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+Visualization fragment length = 144
 
+makeBigWig.pl tag_MCF_DMSO_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
+Visualization fragment length = 139
 
+makeBigWig.pl tag_MCF_SGC_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
 
+Visualization fragment length = 117
 
-makeBigWig.pl tag_MCF_SGC_24H_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-makeBigWig.pl tag_MCF_SGC_24H_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-makeBigWig.pl tag_MCF_SGC_7D_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-makeBigWig.pl tag_MCF_SGC_7D_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+makeBigWig.pl tag_MCF_SGC_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+Visualization fragment length = 159
+
+makeBigWig.pl tag_MCF_SGC_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+Visualization fragment length = 121
+
+makeBigWig.pl tag_MCF_SGC_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+Visualization fragment length = 159
 
 ### old code from here ###
 
