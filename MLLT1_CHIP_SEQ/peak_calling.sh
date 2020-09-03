@@ -1,6 +1,5 @@
 ## Using Homer for peak calling
 
-
 # create tag directory for each bam file (all on one line)
 makeTagDirectory tag_MCF_DMSO_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24H_INPUT.bam
 
@@ -40,6 +39,21 @@ Estimated genome size = 1890236023
 
 makeTagDirectory tag_MCF_SGC_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24H_INPUT.bam
 
+Estimated genome size = 3015947285
+	Estimated average read density = 0.002396 per bp
+	Total Tags = 7226251.0
+	Total Positions = 14284001
+	Average tag length = 41.7
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.014
+	Fragment Length Estimate: 117
+	Peak Width Estimate: 308
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.3
+		Diff strand fold enrichment: 1.4
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
 
 makeTagDirectory tag_MCF_SGC_24H_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24H_IP.bam
 
@@ -60,27 +74,103 @@ Estimated genome size = 3086917295
 		Guessing sample is ChIP-Seq or unstranded RNA-Seq - autocorrelation looks good.
 
 makeTagDirectory tag_MCF_DMSO_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7D_INPUT.bam
+
+Estimated genome size = 3086997000
+	Estimated average read density = 0.001154 per bp
+	Total Tags = 3560899.0
+	Total Positions = 7077989
+	Average tag length = 40.4
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.005
+	Fragment Length Estimate: 144
+	Peak Width Estimate: 245
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.3
+		Diff strand fold enrichment: 1.5
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
+
 makeTagDirectory tag_MCF_DMSO_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7D_IP.bam
 
+Estimated genome size = 3087013732
+	Estimated average read density = 0.001150 per bp
+	Total Tags = 3550679.5
+	Total Positions = 6990096
+	Average tag length = 40.2
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.014
+	Fragment Length Estimate: 139
+	Peak Width Estimate: 434
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.9
+		Diff strand fold enrichment: 2.0
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq or unstranded RNA-Seq - autocorrelation looks good.
+
 makeTagDirectory tag_MCF_SGC_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7D_INPUT.bam
+
+Estimated genome size = 3086967446
+	Estimated average read density = 0.001884 per bp
+	Total Tags = 5815631.5
+	Total Positions = 11508446
+	Average tag length = 40.5
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.008
+	Fragment Length Estimate: 121
+	Peak Width Estimate: 255
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.2
+		Diff strand fold enrichment: 1.4
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
+
 makeTagDirectory tag_MCF_SGC_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7D_IP.bam
 
+Estimated genome size = 3086797212
+	Estimated average read density = 0.001029 per bp
+	Total Tags = 3176761.0
+	Total Positions = 6242138
+	Average tag length = 40.3
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.015
+	Fragment Length Estimate: 159
+	Peak Width Estimate: 441
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.9
+		Diff strand fold enrichment: 2.0
+		Same / Diff fold enrichment: 0.9
 
+		Guessing sample is ChIP-Seq or unstranded RNA-Seq - autocorrelation looks good.
 
-### old code from here ###
-
-# download bedGraphtoBigWig programme first from UCSC http://hgdownload.cse.ucsc.edu/admin/exe/
-wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64.v385/bedGraphToBigWig
-
-# put in src/homer/bin folder and change permission to make utility executable - afterwards can see file name is in green, can run
-chmod +x /ifs/research-groups/botnar/proj013/src/homer/bin/bedGraphToBigWig
-
-# or use conda to install bedGraphToBigWig
-conda install -c bioconda ucsc-bedgraphtobigwig
+# tag directories (x8)
+tag_MCF_DMSO_24H_INPUT  tag_MCF_DMSO_24H_IP  tag_MCF_DMSO_7D_INPUT  tag_MCF_DMSO_7D_IP  tag_MCF_SGC_24H_INPUT  tag_MCF_SGC_24H_IP  tag_MCF_SGC_7D_INPUT  tag_MCF_SGC_7D_IP
 
 # make BigWig file to view in genome browser (one line)
 # Homer will put a text file in the tag directory that you can use to link to the bigwig in UCSC (just paste the contents of the file into the ‘add custom track’ box on UCSC). 
-makeBigWig.pl tag_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+makeBigWig.pl tag_MCF_DMSO_24H_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+
+makeBigWig.pl tag_MCF_DMSO_24H_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+
+makeBigWig.pl tag_MCF_DMSO_7D_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+
+makeBigWig.pl tag_MCF_DMSO_7D_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+
+
+
+
+makeBigWig.pl tag_MCF_SGC_24H_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+makeBigWig.pl tag_MCF_SGC_24H_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+makeBigWig.pl tag_MCF_SGC_7D_INPUT/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+makeBigWig.pl tag_MCF_SGC_7D_IP/ hg19 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
+
+### old code from here ###
 
 # call peaks from tag directory (filtering based on input)
 findPeaks tag_IP/ -style factor -i tag_input/ > IP_peaks.txt
