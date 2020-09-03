@@ -2,17 +2,68 @@
 
 
 # create tag directory for each bam file (all on one line)
-makeTagDirectory tag_MCF_DMSO_24h_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24h_input.bam
-makeTagDirectory tag_MCF_DMSO_24h_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24h_IP.bam
+makeTagDirectory tag_MCF_DMSO_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24H_INPUT.bam
 
-makeTagDirectory tag_MCF_SGC_24h_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24h_input.bam
-makeTagDirectory tag_MCF_SGC_24h_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24h_IP.bam
+Estimated genome size = 3087094256
+	Estimated average read density = 0.002417 per bp
+	Total Tags = 7460563.5
+	Total Positions = 14768948
+	Average tag length = 40.3
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.008
+	Fragment Length Estimate: 113
+	Peak Width Estimate: 284
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.2
+		Diff strand fold enrichment: 1.3
+		Same / Diff fold enrichment: 0.9
 
-makeTagDirectory tag_MCF_DMSO_7d_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7d_input.bam
-makeTagDirectory tag_MCF_DMSO_7d_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7d_IP.bam
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
 
-makeTagDirectory tag_MCF_SGC_7d_input /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7d_input.bam
-makeTagDirectory tag_MCF_SGC_7d_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7d_IP.bam
+makeTagDirectory tag_MCF_DMSO_24H_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24H_IP.bam
+
+Estimated genome size = 1890236023
+	Estimated average read density = 0.001877 per bp
+	Total Tags = 3548164.5
+	Total Positions = 6901688
+	Average tag length = 40.6
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.022
+	Fragment Length Estimate: 178
+	Peak Width Estimate: 493
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.2
+		Diff strand fold enrichment: 1.4
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
+
+makeTagDirectory tag_MCF_SGC_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24H_INPUT.bam
+
+
+makeTagDirectory tag_MCF_SGC_24H_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_24H_IP.bam
+
+Estimated genome size = 3086917295
+	Estimated average read density = 0.000901 per bp
+	Total Tags = 2782430.5
+	Total Positions = 5454093
+	Average tag length = 40.5
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.017
+	Fragment Length Estimate: 159
+	Peak Width Estimate: 504
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.7
+		Diff strand fold enrichment: 1.8
+		Same / Diff fold enrichment: 0.9
+
+		Guessing sample is ChIP-Seq or unstranded RNA-Seq - autocorrelation looks good.
+
+makeTagDirectory tag_MCF_DMSO_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7D_INPUT.bam
+makeTagDirectory tag_MCF_DMSO_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_7D_IP.bam
+
+makeTagDirectory tag_MCF_SGC_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7D_INPUT.bam
+makeTagDirectory tag_MCF_SGC_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_SGC_7D_IP.bam
 
 
 
