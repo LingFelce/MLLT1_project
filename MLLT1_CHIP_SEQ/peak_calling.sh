@@ -152,45 +152,49 @@ Estimated genome size = 3086797212
 # tag directories (x8)
 tag_MCF_DMSO_24H_INPUT  tag_MCF_DMSO_24H_IP  tag_MCF_DMSO_7D_INPUT  tag_MCF_DMSO_7D_IP  tag_MCF_SGC_24H_INPUT  tag_MCF_SGC_24H_IP  tag_MCF_SGC_7D_INPUT  tag_MCF_SGC_7D_IP
 
+# remove _tag names
+MCF_DMSO_24H_INPUT  MCF_DMSO_7D_INPUT  MCF_SGC_24H_INPUT  MCF_SGC_7D_INPUT
+MCF_DMSO_24H_IP     MCF_DMSO_7D_IP     MCF_SGC_24H_IP     MCF_SGC_7D_IP
+
+# make genome browser file - create bedGraph file
+makeUCSCfile MCF_DMSO_24H_INPUT -o auto
+makeUCSCfile MCF_DMSO_24H_IP -o auto
+makeUCSCfile MCF_DMSO_7D_INPUT -o auto
+makeUCSCfile MCF_DMSO_7D_IP -o auto
+makeUCSCfile MCF_SGC_24H_INPUT -o auto
+makeUCSCfile MCF_SGC_24H_IP -o auto
+makeUCSCfile MCF_SGC_7D_INPUT -o auto
+makeUCSCfile MCF_SGC_7D_IP -o auto
+
+# open UCSC genome browser in NoMachine Firefox > select hg38 genome > add custom track > upload zipped file
+
+# actually realised probably didn't need to create bedGraph, spotted my mistake in BigWig code - forgot to put / at end of -url!
+
 # make BigWig file to view in genome browser (one line)
 # Homer will put a text file in the tag directory that you can use to link to the bigwig in UCSC (just paste the contents of the file into the ‘add custom track’ box on UCSC). 
 
-makeBigWig.pl tag_MCF_DMSO_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 113
-
-makeBigWig.pl tag_MCF_DMSO_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 178
-
-makeBigWig.pl tag_MCF_DMSO_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 144
-
-makeBigWig.pl tag_MCF_DMSO_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 139
-
-makeBigWig.pl tag_MCF_SGC_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 117
-
-makeBigWig.pl tag_MCF_SGC_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 159
-
-makeBigWig.pl tag_MCF_SGC_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 121
-
-makeBigWig.pl tag_MCF_SGC_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs
-
-Visualization fragment length = 159
-
-### old code from here ###
+makeBigWig.pl MCF_DMSO_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_DMSO_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_DMSO_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_DMSO_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_SGC_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_SGC_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_SGC_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl MCF_SGC_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
 
 # call peaks from tag directory (filtering based on input)
-findPeaks tag_IP/ -style factor -i tag_input/ > IP_peaks.txt
+findPeaks MCF_DMSO_24H_IP/ -style factor -i MCF_DMSO_24H_INPUT/ > MLLT1_DMSO_24H_FACTOR.txt
+findPeaks MCF_DMSO_24H_IP/ -style histone -i MCF_DMSO_24H_INPUT/ > MLLT1_DMSO_24H_HISTONE.txt
+findPeaks MCF_DMSO_7D_IP/ -style factor -i MCF_DMSO_7D_INPUT/ > MLLT1_DMSO_24H_FACTOR.txt
+findPeaks MCF_DMSO_7D_IP/ -style histone -i MCF_DMSO_7D_INPUT/ > MLLT1_DMSO_24H_HISTONE.txt
+
+# annotate peak file with number of reads under peak in each tag directory (-d)
+annotatePeaks.pl MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_SGC_24H_IP/ > MLLT1_PEAKS_24H_FACTOR.quant.txt
+annotatePeaks.pl MLLT1_DMSO_24H_HISTONE.txt hg38 -d MCF_SGC_24H_IP/ > MLLT1_PEAKS_24H_HISTONE.quant.txt
+annotatePeaks.pl MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_SGC_7D_IP/ > MLLT1_PEAKS_24H_FACTOR.quant.txt
+annotatePeaks.pl MLLT1_DMSO_7D_HISTONE.txt hg38 -d MCF_SGC_7D_IP/ > MLLT1_PEAKS_24H_HISTONE.quant.txt
+
+### old code from here ###
 
 # convert peak text file to bed file format
 pos2bed.pl IP_peaks.txt > IP_peaks.bed
@@ -203,7 +207,7 @@ mergePeaks -d given IP_peaks.txt <otherfile.bed> -venn overlap.venn.txt > overla
 # annotate peak file with nearest gene and distance to TSS
 annotatePeaks.pl IP_peaks.txt hg19 -annStats IP_peaks.stats.txt > IP_peaks.ann.txt
 
-# annote peak file with number of reads under peak in each tag directory (-d)
+# annotate peak file with number of reads under peak in each tag directory (-d)
 annotePeaks.pl IP_peaks.txt hg19 -d tag_IP/ <other tag folders eg DMSO and SGC> > IP_peaks.quant.txt
 
 ## double check - download bed narrowPeak file (optimal IDR thresholded peaks, replicates 1, 2 mapping assembly hg19)
