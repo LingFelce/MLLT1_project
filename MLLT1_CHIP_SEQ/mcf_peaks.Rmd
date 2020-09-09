@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(stringr)
+library(org.Hs.eg.db)
+library(clusterProfiler)
 ```
 
 ## MLLT1 ChIP-Seq: MCF-7
@@ -128,3 +130,54 @@ peaks_24h_histone<-peaks_24h_histone[!(peaks_24h_histone$Gene.Type=="pseudo"),]
 write.csv(peaks_24h_histone, "peaks_24h_histone.csv")
 
 ```
+
+```{r GO}
+entrez_id <- all_data_7d_factor[,c(6, 8, 12, 16:20)]
+entrez_id <- subset(entrez_id, select=c(4, 3, 1, 8, 2, 5, 6, 7))
+names(entrez_id)[names(entrez_id) == "Peak.Score"] <- "DMSO.Peak.Score"
+names(entrez_id)[names(entrez_id) == "MCF_SGC_7D_IP..Tag.Count.in.given.bp..3176761.0.Total..normalization.factor...3.15..effective.total...10000000."] <- "SGC.Peak.Score"
+
+entrez_id$DMSO.Peak.Score <- entrez_id$DMSO.Peak.Score + 1
+entrez_id$SGC.Peak.Score <- entrez_id$SGC.Peak.Score + 1
+
+entrez_id$LFC <- entrez_id$SGC.Peak.Score/entrez_id$DMSO.Peak.Score
+entrez_id <- subset(entrez_id, select=c(1:4, 9, 5:8))
+entrez_id$LFC <- log2(entrez_id$LFC)
+
+# select only protein-coding genes
+
+entrez_id<-entrez_id[!(entrez_id$Gene.Type=="ncRNA"),]
+entrez_id<-entrez_id[!(entrez_id$Gene.Type=="pseudo"),]
+
+# Keep only rows from table without NAs
+entrez_id <- entrez_id[is.na(entrez_id$Entrez.ID)==FALSE,]
+# Remove duplicated entries
+entrez_id <- entrez_id[!duplicated(entrez_id$Entrez.ID),]
+
+
+# Change Entrez IDs from numbers to characters
+geneset <- as.character(entrez_id$Entrez.ID)
+
+# This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+
+# dimensions - number of GO terms
+dim(ego)
+
+simp_ego <- simplify(ego)
+
+dim(simp_ego)
+
+# copy and paste table into Excel
+mcf_7d_GOgenes <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
+
+```
+
+
