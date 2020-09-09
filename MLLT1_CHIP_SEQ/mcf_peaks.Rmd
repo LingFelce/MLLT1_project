@@ -13,7 +13,7 @@ library(stringr)
 
 Previously - aligned .fastq files to .bam, removed duplicates. Used Homer to find peaks in DMSO samples, then annotate peaks using DMSO + SGC files. Used factor style and histone style to find peaks.
 
-```{r}
+```{r 7 days}
 # read in files
 all_data_7d_factor <- read.delim("MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt", header = TRUE, sep = "\t")
 all_data_7d_histone <- read.delim("MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt", header = TRUE, sep = "\t")
@@ -71,3 +71,60 @@ write.csv(peaks_7d_histone, "peaks_7d_histone.csv")
 
 ```
 
+```{r 24 hours}
+# read in files
+all_data_24h_factor <- read.delim("MCF_MLLT1_PEAKS_24H_FACTOR.quant.txt", header = TRUE, sep = "\t")
+all_data_24h_histone <- read.delim("MCF_MLLT1_PEAKS_24H_HISTONE.quant.txt", header = TRUE, sep = "\t")
+
+# select specific columns and rearrange
+
+peaks_24h_factor <- all_data_24h_factor[,c(6, 8, 16:20)]
+peaks_24h_factor <- subset(peaks_24h_factor, select=c(3, 1, 7, 2, 4, 5, 6))
+names(peaks_24h_factor)[names(peaks_24h_factor) == "Peak.Score"] <- "DMSO.Peak.Score"
+names(peaks_24h_factor)[names(peaks_24h_factor) == "MCF_SGC_24H_IP..Tag.Count.in.given.bp..2782430.5.Total..normalization.factor...3.59..effective.total...10000000."] <- "SGC.Peak.Score"
+
+peaks_24h_histone <- all_data_24h_histone[,c(6, 8, 16:20)]
+peaks_24h_histone <- subset(peaks_24h_histone, select=c(3, 1, 7, 2, 4, 5, 6))
+names(peaks_24h_histone)[names(peaks_24h_histone) == "Peak.Score"] <- "DMSO.Peak.Score"
+names(peaks_24h_histone)[names(peaks_24h_histone) == "MCF_SGC_24H_IP..Tag.Count.in.given.bp..2782430.5.Total..normalization.factor...3.59..effective.total...10000000."] <- "SGC.Peak.Score"
+
+
+# style factor: calculating fold change then log2 transform
+
+peaks_24h_factor$DMSO.Peak.Score <- peaks_24h_factor$DMSO.Peak.Score + 1
+peaks_24h_factor$SGC.Peak.Score <- peaks_24h_factor$SGC.Peak.Score + 1
+
+peaks_24h_factor$LFC <- peaks_24h_factor$SGC.Peak.Score/peaks_24h_factor$DMSO.Peak.Score
+peaks_24h_factor <- subset(peaks_24h_factor, select=c(1:3, 8, 4:7))
+peaks_24h_factor$LFC <- log2(peaks_24h_factor$LFC)
+
+# select only protein-coding genes
+
+peaks_24h_factor<-peaks_24h_factor[!(peaks_24h_factor$Gene.Type=="ncRNA"),]
+peaks_24h_factor<-peaks_24h_factor[!(peaks_24h_factor$Gene.Type=="pseudo"),]
+
+# select only promoter binding regions
+# peaks_24h_factor <- peaks_24h_factor[str_detect(peaks_24h_factor$Annotation, "promoter"), ]
+
+write.csv(peaks_24h_factor, "peaks_24h_factor.csv")
+
+
+# style histone: calculating fold change then log2 transform
+
+peaks_24h_histone$DMSO.Peak.Score <- peaks_24h_histone$DMSO.Peak.Score + 1
+peaks_24h_histone$SGC.Peak.Score <- peaks_24h_histone$SGC.Peak.Score + 1
+
+peaks_24h_histone$LFC <- peaks_24h_histone$SGC.Peak.Score/peaks_24h_histone$DMSO.Peak.Score
+peaks_24h_histone <- subset(peaks_24h_histone, select=c(1:3, 8, 4:7))
+peaks_24h_histone$LFC <- log2(peaks_24h_histone$LFC)
+
+# select only protein-coding genes
+peaks_24h_histone<-peaks_24h_histone[!(peaks_24h_histone$Gene.Type=="ncRNA"),]
+peaks_24h_histone<-peaks_24h_histone[!(peaks_24h_histone$Gene.Type=="pseudo"),]
+
+# select only promoter binding regions
+# peaks_24h_histone <- peaks_24h_histone[str_detect(peaks_24h_histone$Annotation, "promoter"), ]
+
+write.csv(peaks_24h_histone, "peaks_24h_histone.csv")
+
+```
