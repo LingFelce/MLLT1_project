@@ -154,9 +154,12 @@ entrez_id <- entrez_id[is.na(entrez_id$Entrez.ID)==FALSE,]
 # Remove duplicated entries
 entrez_id <- entrez_id[!duplicated(entrez_id$Entrez.ID),]
 
+# select only peaks that decrease upon addition of inhibitor
+decrease <- entrez_id[(entrez_id$LFC < 0),]
+
 
 # Change Entrez IDs from numbers to characters
-geneset <- as.character(entrez_id$Entrez.ID)
+geneset <- as.character(decrease$Entrez.ID)
 
 # This will take a little while to run
 ego <- enrichGO(gene = geneset, 
@@ -177,6 +180,9 @@ dim(simp_ego)
 
 # copy and paste table into Excel
 mcf_7d_GOgenes <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
+
+# select only peaks that increase upon addition of inhibitor
+increase <- entrez_id[(entrez_id$LFC > 0),]
 
 ```
 
