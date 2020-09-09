@@ -1,0 +1,73 @@
+---
+title: "MCF_Peaks"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(stringr)
+```
+
+## MLLT1 ChIP-Seq: MCF-7
+
+Previously - aligned .fastq files to .bam, removed duplicates. Used Homer to find peaks in DMSO samples, then annotate peaks using DMSO + SGC files. Used factor style and histone style to find peaks.
+
+```{r}
+# read in files
+all_data_7d_factor <- read.delim("MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt", header = TRUE, sep = "\t")
+all_data_7d_histone <- read.delim("MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt", header = TRUE, sep = "\t")
+
+# select specific columns and rearrange
+
+peaks_7d_factor <- all_data_7d_factor[,c(6, 8, 16:20)]
+peaks_7d_factor <- subset(peaks_7d_factor, select=c(3, 1, 7, 2, 4, 5, 6))
+names(peaks_7d_factor)[names(peaks_7d_factor) == "Peak.Score"] <- "DMSO.Peak.Score"
+names(peaks_7d_factor)[names(peaks_7d_factor) == "MCF_SGC_7D_IP..Tag.Count.in.given.bp..3176761.0.Total..normalization.factor...3.15..effective.total...10000000."] <- "SGC.Peak.Score"
+
+peaks_7d_histone <- all_data_7d_histone[,c(6, 8, 16:20)]
+peaks_7d_histone <- subset(peaks_7d_histone, select=c(3, 1, 7, 2, 4, 5, 6))
+names(peaks_7d_histone)[names(peaks_7d_histone) == "Peak.Score"] <- "DMSO.Peak.Score"
+names(peaks_7d_histone)[names(peaks_7d_histone) == "MCF_SGC_7D_IP..Tag.Count.in.given.bp..3176761.0.Total..normalization.factor...3.15..effective.total...10000000."] <- "SGC.Peak.Score"
+
+
+# style factor: calculating fold change then log2 transform
+
+peaks_7d_factor$DMSO.Peak.Score <- peaks_7d_factor$DMSO.Peak.Score + 1
+peaks_7d_factor$SGC.Peak.Score <- peaks_7d_factor$SGC.Peak.Score + 1
+
+peaks_7d_factor$LFC <- peaks_7d_factor$SGC.Peak.Score/peaks_7d_factor$DMSO.Peak.Score
+peaks_7d_factor <- subset(peaks_7d_factor, select=c(1:3, 8, 4:7))
+peaks_7d_factor$LFC <- log2(peaks_7d_factor$LFC)
+
+# select only protein-coding genes
+
+peaks_7d_factor<-peaks_7d_factor[!(peaks_7d_factor$Gene.Type=="ncRNA"),]
+peaks_7d_factor<-peaks_7d_factor[!(peaks_7d_factor$Gene.Type=="pseudo"),]
+
+# select only promoter binding regions
+# peaks_7d_factor <- peaks_7d_factor[str_detect(peaks_7d_factor$Annotation, "promoter"), ]
+
+write.csv(peaks_7d_factor, "peaks_7d_factor.csv")
+
+
+# style histone: calculating fold change then log2 transform
+
+peaks_7d_histone$DMSO.Peak.Score <- peaks_7d_histone$DMSO.Peak.Score + 1
+peaks_7d_histone$SGC.Peak.Score <- peaks_7d_histone$SGC.Peak.Score + 1
+
+peaks_7d_histone$LFC <- peaks_7d_histone$SGC.Peak.Score/peaks_7d_histone$DMSO.Peak.Score
+peaks_7d_histone <- subset(peaks_7d_histone, select=c(1:3, 8, 4:7))
+peaks_7d_histone$LFC <- log2(peaks_7d_histone$LFC)
+
+# select only protein-coding genes
+peaks_7d_histone<-peaks_7d_histone[!(peaks_7d_histone$Gene.Type=="ncRNA"),]
+peaks_7d_histone<-peaks_7d_histone[!(peaks_7d_histone$Gene.Type=="pseudo"),]
+
+# select only promoter binding regions
+# peaks_7d_histone <- peaks_7d_histone[str_detect(peaks_7d_histone$Annotation, "promoter"), ]
+
+write.csv(peaks_7d_histone, "peaks_7d_histone.csv")
+
+```
+
