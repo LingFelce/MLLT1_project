@@ -13,7 +13,7 @@ library(clusterProfiler)
 
 ## MLLT1 ChIP-Seq: MCF-7
 
-Previously - aligned .fastq files to .bam, removed duplicates. Used Homer to find peaks in DMSO samples, then annotate peaks using DMSO + SGC files. Analyse factor style peaks only. Redid annotatePeaks function to have two columns for DMSO and SGC-iMLLT Tag Densities
+Previously - aligned .fastq files to .bam, removed duplicates. Used Homer to find peaks in DMSO samples, then annotate peaks using DMSO + SGC files. Analyse factor style peaks only
 
 ```{r 7 days}
 # read in files
@@ -94,7 +94,7 @@ peaks_7d_decrease <- peaks_7d_go[(peaks_7d_go$LFC < 0),]
 
 
 # Change Entrez IDs from numbers to characters
-geneset <- as.character(peaks_7d_decrease$Entrez.ID)
+geneset <- as.character(peaks_7d_go$Entrez.ID)
 
 # This will take a little while to run
 ego <- enrichGO(gene = geneset, 
@@ -116,8 +116,6 @@ dim(simp_ego)
 # copy and paste table into Excel
 mcf_7d_GOgenes <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjust, simp_ego$geneID)
 
-# select only peaks that increase upon addition of inhibitor
-increase <- entrez_id[(entrez_id$LFC > 0),]
 
 ```
 
