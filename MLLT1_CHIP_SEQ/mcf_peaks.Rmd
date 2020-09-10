@@ -121,14 +121,14 @@ mcf_7d_GOgenes <- data.frame(simp_ego$ID, simp_ego$Description, simp_ego$p.adjus
 
 ```{r negative regulators}
 
-# negative regulators of interferon gamma, alpha and type I
+# negative regulators of interferon response and antigen presentation & processing
 
-neg_reg <- read.csv("negative_regulators.csv", header=FALSE)
-names(neg_reg)[names(neg_reg) == "V1"] <- "Gene"
+neg_reg <- read.csv("negative_regulators.csv", header=TRUE)
 
 # compare to each clone
 peaks_neg_reg <- peaks_7d[is.element(peaks_7d$Gene.Name, neg_reg$Gene),]
-  
 
+
+write.csv(peaks_neg_reg, "mcf_negative_regulators_peaks.csv")
 
 ```
