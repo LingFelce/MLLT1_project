@@ -184,15 +184,15 @@ makeBigWig.pl MCF_SGC_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/we
 
 # call peaks from tag directory (filtering based on input)
 findPeaks MCF_DMSO_24H_IP/ -style factor -i MCF_DMSO_24H_INPUT/ > MCF_MLLT1_DMSO_24H_FACTOR.txt
-findPeaks MCF_DMSO_24H_IP/ -style histone -i MCF_DMSO_24H_INPUT/ > MCF_MCF_MCF_MCF_MCF_MCF_MCF_MLLT1_DMSO_24H_HISTONE.txt
-findPeaks MCF_DMSO_7D_IP/ -style factor -i MCF_DMSO_7D_INPUT/ > MCF_MCF_MCF_MCF_MCF_MCF_MLLT1_DMSO_7D_FACTOR.txt
-findPeaks MCF_DMSO_7D_IP/ -style histone -i MCF_DMSO_7D_INPUT/ > MCF_MCF_MCF_MCF_MCF_MLLT1_DMSO_7D_HISTONE.txt
+findPeaks MCF_DMSO_24H_IP/ -style histone -i MCF_DMSO_24H_INPUT/ > MCF_MLLT1_DMSO_24H_HISTONE.txt
+findPeaks MCF_DMSO_7D_IP/ -style factor -i MCF_DMSO_7D_INPUT/ > MCF_MLLT1_DMSO_7D_FACTOR.txt
+findPeaks MCF_DMSO_7D_IP/ -style histone -i MCF_DMSO_7D_INPUT/ > MCF_MLLT1_DMSO_7D_HISTONE.txt
 
 # annotate peak file with number of reads under peak in each tag directory (-d)
-annotatePeaks.pl MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_SGC_24H_IP/ > MCF_MCF_MCF_MCF_MLLT1_PEAKS_24H_FACTOR.quant.txt
-annotatePeaks.pl MLLT1_DMSO_24H_HISTONE.txt hg38 -d MCF_SGC_24H_IP/ > MCF_MCF_MCF_MLLT1_PEAKS_24H_HISTONE.quant.txt
-annotatePeaks.pl MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_SGC_7D_IP/ > MCF_MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt
-annotatePeaks.pl MLLT1_DMSO_7D_HISTONE.txt hg38 -d MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt
+annotatePeaks.pl MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_24H_IP/ > MCF_MLLT1_PEAKS_24H_FACTOR.quant.txt
+annotatePeaks.pl MLLT1_DMSO_24H_HISTONE.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_24H_IP/ > MCF_MCF_MCF_MLLT1_PEAKS_24H_HISTONE.quant.txt
+annotatePeaks.pl MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt
+annotatePeaks.pl MLLT1_DMSO_7D_HISTONE.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt
 
 ### old code from here ###
 
