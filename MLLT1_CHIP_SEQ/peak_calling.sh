@@ -4,6 +4,8 @@
 module load bio/IGV
 igv.sh
 
+## MCF-7 
+
 # create tag directory for each bam file (all on one line)
 makeTagDirectory tag_MCF_DMSO_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/MCF_DMSO_24H_INPUT.bam
 
@@ -194,38 +196,15 @@ annotatePeaks.pl MCF_MLLT1_DMSO_24H_HISTONE.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC
 annotatePeaks.pl MCF_MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt
 annotatePeaks.pl MCF_MLLT1_DMSO_7D_HISTONE.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt
 
-### old code from here ###
+## SUM159
 
-# convert peak text file to bed file format
-pos2bed.pl IP_peaks.txt > IP_peaks.bed
+makeTagDirectory SUM_DMSO_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_DMSO_24H_INPUT.bam
+makeTagDirectory SUM_DMSO_24H_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_DMSO_24H_IP.bam
+makeTagDirectory SUM_SGC_24H_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_24H_INPUT.bam
+makeTagDirectory SUM_SGC_24H_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_24H_IP.bam
 
-# have to manually delete header and column names - use nano. Saved as IP_peaks_edit.bed
+makeTagDirectory SUM_DMSO_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_DMSO_7D_INPUT.bam
+makeTagDirectory SUM_DMSO_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_DMSO_7D_IP.bam
+makeTagDirectory SUM_SGC_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_7D_INPUT.bam
+makeTagDirectory SUM_SGC_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_7D_IP.bam
 
-# overlap peaks to generate Venn diagram - currently don't have any, but will do DMSO v SGC
-mergePeaks -d given IP_peaks.txt <otherfile.bed> -venn overlap.venn.txt > overlap.peak.txt
-
-# annotate peak file with nearest gene and distance to TSS
-annotatePeaks.pl IP_peaks.txt hg19 -annStats IP_peaks.stats.txt > IP_peaks.ann.txt
-
-# annotate peak file with number of reads under peak in each tag directory (-d)
-annotePeaks.pl IP_peaks.txt hg19 -d tag_IP/ <other tag folders eg DMSO and SGC> > IP_peaks.quant.txt
-
-## double check - download bed narrowPeak file (optimal IDR thresholded peaks, replicates 1, 2 mapping assembly hg19)
-wget https://www.encodeproject.org/files/ENCFF197OGH/@@download/ENCFF197OGH.bed.gz
-
-gunzip ENCFF197OGH.bed.gz
-
-# annotate peak file
-annotatePeaks.pl ENCFF197OGH.bed hg19 -annStats ENCFF197OGH.stats.txt > ENCFF197OGH.ann.txt
-
-# didn't seem to have many peaks with -style factor, so try histone instead
-# call peaks from tag directory (filtering based on input)
-findPeaks tag_IP/ -style histone -i tag_input/ > IP_peaks_2.txt
-
-# convert peak text file to bed file format
-pos2bed.pl IP_peaks_2.txt > IP_peaks_2.bed
-
-# have to manually delete header and column names - use nano. Saved as IP_peaks_edit_2.bed
-
-# annotate peak file with nearest gene and distance to TSS
-annotatePeaks.pl IP_peaks_2.txt hg19 -annStats IP_peaks_2.stats.txt > IP_peaks_2.ann.txt
