@@ -208,3 +208,34 @@ makeTagDirectory SUM_DMSO_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CH
 makeTagDirectory SUM_SGC_7D_INPUT /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_7D_INPUT.bam
 makeTagDirectory SUM_SGC_7D_IP /ifs/research-groups/botnar/proj013/src/MLLT1_CHIP_SEQ/deduplicated/SUM_SGC_7D_IP.bam
 
+# make BigWig file to view in genome browser (one line)
+# Homer will put a text file in the tag directory that you can use to link to the bigwig in UCSC (just paste the contents of the file into the ‘add custom track’ box on UCSC). 
+# use -norm for SGC IP samples only (previously calculated from Drosophila ratio)
+
+makeBigWig.pl SUM_DMSO_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_DMSO_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_DMSO_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_DMSO_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_SGC_24H_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_SGC_24H_IP/ hg38 -norm 6672871.029 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_SGC_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+makeBigWig.pl SUM_SGC_7D_IP/ hg38 -norm 7550759.462 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
+
+# call peaks from tag directory (filtering based on input)
+findPeaks SUM_DMSO_24H_IP/ -style factor -i SUM_DMSO_24H_INPUT/ > SUM_MLLT1_DMSO_24H_FACTOR.txt
+findPeaks SUM_DMSO_24H_IP/ -style histone -i SUM_DMSO_24H_INPUT/ > SUM_MLLT1_DMSO_24H_HISTONE.txt
+findPeaks SUM_DMSO_7D_IP/ -style factor -i SUM_DMSO_7D_INPUT/ >SUM_MLLT1_DMSO_7D_FACTOR.txt
+findPeaks SUM_DMSO_7D_IP/ -style histone -i SUM_DMSO_7D_INPUT/ > SUM_MLLT1_DMSO_7D_HISTONE.txt
+
+# annotate peak file with number of reads under peak in each tag directory (-d)
+annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ > SUM_MLLT1_PEAKS_24H_FACTOR.quant.txt
+annotatePeaks.pl SUM_MLLT1_DMSO_24H_HISTONE.txt hg38 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ > SUM_MLLT1_PEAKS_24H_HISTONE.quant.txt
+annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ > SUM_MLLT1_PEAKS_7D_FACTOR.quant.txt
+annotatePeaks.pl SUM_MLLT1_DMSO_7D_HISTONE.txt hg38 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ > SUM_MLLT1_PEAKS_7D_HISTONE.quant.txt
+
+# or if have to do separately with differently normalisation factors
+annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ > SUM_MLLT1_PEAKS_24H_FACTOR_NORM.quant.txt
+annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ > SUM_MLLT1_PEAKS_7D_FACTOR_NORM.quant.txt
+
+
+
