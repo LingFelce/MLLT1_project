@@ -152,3 +152,12 @@ neg_reg <- read.csv("negative_regulators.csv", header=TRUE)
 peaks_neg_reg <- peaks_7d[is.element(peaks_7d$Gene.Name, neg_reg$Gene),]
 write.csv(peaks_neg_reg, "sum_negative_regulators_peaks.csv")
 ```
+
+```{r interleukin-1}
+# interleukin-1 related genes
+il1 <- read.csv("interleukin1.csv", header=TRUE)
+
+# compare to each clone
+peaks_il1 <- peaks_7d[is.element(peaks_7d$Gene.Name, il1$Gene),]
+write.csv(peaks_il1, "sum_interleukin1_peaks.csv")
+```
