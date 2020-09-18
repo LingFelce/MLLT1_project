@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(stringr)
 library(org.Hs.eg.db)
 library(clusterProfiler)
+library(tidyverse)
 ```
 
 ## MLLT1 ChIP-Seq: SUM159
@@ -160,4 +161,57 @@ il1 <- read.csv("interleukin1.csv", header=TRUE)
 # compare to each clone
 peaks_il1 <- peaks_7d[is.element(peaks_7d$Gene.Name, il1$Gene),]
 write.csv(peaks_il1, "sum_interleukin1_peaks.csv")
+
+# pull out LFC values from RNA-Seq data
+
+rnaseq_crispr1 <- read.csv("SUM1_res.csv", header=TRUE)
+rnaseq_crispr2 <- read.csv("SUM2_res.csv", header=TRUE)
+rnaseq_24h <- read.csv("SUM_DMSOvSGC_24H_res.csv", header=TRUE)
+rnaseq_7d <- read.csv("SUM_DMSOvSGC_7D_res.csv", header=TRUE)
+
+# SUM1 - pull out peaks from IL1 list, make gene names row names
+rnaseq1 <- rnaseq_crispr1[is.element(rnaseq_crispr1$SYMBOL, peaks_il1$Gene.Name),]
+rnaseq1 <- rnaseq1[c(1, 2)]
+rownames(rnaseq1) <- rnaseq1$SYMBOL
+rnaseq1[2] <- NULL
+
+# merge table by rownames from SUM1 and 1st column in peaks table
+peaks_lfc_il1 <- merge(rnaseq1, peaks_il1, by.x = 0, by.y = 1, all=TRUE)
+
+# rename columns
+names(peaks_lfc_il1)[names(peaks_lfc_il1) == "log2FoldChange"] <- "SUM1_LFC"
+
+# SUM2 - pull out peaks from IL1 list, make gene names row names
+rnaseq2 <- rnaseq_crispr2[is.element(rnaseq_crispr2$SYMBOL, peaks_il1$Gene.Name),]
+rnaseq2 <- rnaseq2[c(1, 2)]
+
+# merge table by rownames from SUM1 and 1st column in peaks table
+peaks_lfc_il1 <- merge(rnaseq2, peaks_lfc_il1, by.x = 2, by.y = 1, all=TRUE)
+
+# rename columns
+names(peaks_lfc_il1)[names(peaks_lfc_il1) == "log2FoldChange"] <- "SUM2_LFC"
+
+# SUM 24H - pull out peaks from IL1 list, make gene names row names
+rnaseq3 <- rnaseq_24h[is.element(rnaseq_24h$SYMBOL, peaks_il1$Gene.Name),]
+rnaseq3 <- rnaseq3[c(1, 2)]
+
+# merge table by rownames from SUM1 and 1st column in peaks table
+peaks_lfc_il1 <- merge(rnaseq3, peaks_lfc_il1, by.x = 2, by.y = 1, all=TRUE)
+
+# rename columns
+names(peaks_lfc_il1)[names(peaks_lfc_il1) == "log2FoldChange"] <- "SUM24H_LFC"
+
+# SUM 7D - pull out peaks from IL1 list, make gene names row names
+rnaseq4 <- rnaseq_7d[is.element(rnaseq_7d$SYMBOL, peaks_il1$Gene.Name),]
+rnaseq4 <- rnaseq4[c(1, 2)]
+
+# merge table by rownames from SUM1 and 1st column in peaks table
+peaks_lfc_il1 <- merge(rnaseq4, peaks_lfc_il1, by.x = 2, by.y = 1, all=TRUE)
+
+# rename columns
+names(peaks_lfc_il1)[names(peaks_lfc_il1) == "log2FoldChange"] <- "SUM7D_LFC"
+
+write.csv(peaks_lfc_il1, "sum_peaks_lfc_il1.csv")
+
+
 ```
