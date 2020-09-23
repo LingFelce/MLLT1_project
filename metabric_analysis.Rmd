@@ -6,6 +6,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(imsig)
+library(dplyr)
+library(tidyverse)
 
 ```
 
@@ -21,13 +23,11 @@ Should be able to download METABRIC dataset from European Genome-Phenome Archive
 
 Managed to download from cBioPortal
 
-ImSig documentation https://github.com/ajitjohnson/imsig
-
 ```{r read in files}
 
 clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
 
-clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE)
+clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
 
 expression_median <- read.delim("data_expression_median.txt", header=TRUE)
 
@@ -52,6 +52,10 @@ exp <- mrna_median_all_sample_zscores
 # remove EntrezID
 exp[2] <- NULL
 
+# change . in patient IDs to - to match clinical data patient IDs
+
+names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
+
 # preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
 
 cli <- clinical_patient[,c(1, 13, 14)]
@@ -63,7 +67,6 @@ cli <- cli[-c(1,2,3, 4),]
 # change column headings
 
 names(cli)[names(cli) == "Overall.Survival..Months."] <- "time"
-
 names(cli)[names(cli) == "Overall.Survival.Status"] <- "status"
 
 # make patient IDs row names and remove column
@@ -71,6 +74,16 @@ names(cli)[names(cli) == "Overall.Survival.Status"] <- "status"
 rownames(cli) <- cli[,1]
 
 cli[1] <- NULL
+
+# remove row with no survival data (NA)
+cli <-  cli %>% na.omit()
+
+# change status to 0 and 1
+
+cli$status[cli$status =="0:LIVING"] <- 0
+
+cli$status[cli$status =="1:DECEASED"] <- 1
+
 
 ```
 
