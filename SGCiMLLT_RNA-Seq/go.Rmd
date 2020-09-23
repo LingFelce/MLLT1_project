@@ -106,3 +106,54 @@ cnetplot(ego, foldChange = logFC_mcf, showCategory = 5, circular = FALSE)
 
 ```
 
+```{r}
+sum_sig <- read_csv("results/SUM_DMSOvSGC_7D_sig.csv")
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+sum_sig$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sum_sig$Row.names), keytype="ENSEMBL", column="ENTREZID")
+#Keep only rows from table without NAs
+sum_sig <- sum_sig[is.na(sum_sig$Entrez.Gene)==FALSE,]
+#Remove duplicated entries
+sum_sig <- sum_sig[!duplicated(sum_sig$Entrez.Gene),]
+
+#Change Entrez IDs from numbers to characters
+geneset <- as.character(sum_sig$Entrez.Gene)
+#This will show Entrez IDs only
+head(geneset)
+#This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  #q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+#dimensions - number of GO terms
+dim(ego)
+
+sum_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+```
+
+```{r,fig.height=3, fig.width=9}
+barplot (ego, showCategory = 10)
+
+```
+
+```{r, fig.height=6, fig.width=8}
+emapplot(ego)
+
+```
+
+```{r, fig.height=12, fig.width=14}
+#logFC is optional, but if available will colour-code the nodes
+logFC_sum <- sum_sig$log2FoldChange
+#set name of object
+names(logFC_sum) <- sum_sig$Entrez.Gene
+
+cnetplot(ego, foldChange = logFC_sum, showCategory = 5, circular = FALSE)
+#show 5 GO terms, if set circular to TRUE then GO terms won't be in middle, will be on edge of circle
+#size = number of genes, fold change = red for upregulated, green for downregulated
+
+# only one gene - MMP13 for all terms?
+```
