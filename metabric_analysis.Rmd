@@ -29,7 +29,7 @@ clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
 
 clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
 
-expression_median <- read.delim("data_expression_median.txt", header=TRUE)
+expression_median <- read.delim("data_expression_median.txt", header=TRUE, na.strings = c("", "NA"))
 
 gene_matrix <-  read.delim("data_gene_matrix.txt", header=TRUE)
 
@@ -37,7 +37,7 @@ mrna_median_all_sample_zscores <- read.delim("data_mRNA_median_all_sample_Zscore
 
 mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 
-## important ones to use: clinical_patient for survival information and mrna_median_all_sample_zscores for gene matrix ##
+## important ones to use: clinical_patient for survival information and expression_median for gene expression matrix (ImSig uses TPM/FPKM not Z-scores) ##
 
 
 ```
@@ -47,7 +47,7 @@ mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 
 # preparing expression data for ImSig
 
-exp <- mrna_median_all_sample_zscores
+exp <- expression_median
 
 # remove EntrezID
 exp[2] <- NULL
@@ -55,6 +55,17 @@ exp[2] <- NULL
 # change . in patient IDs to - to match clinical data patient IDs
 
 names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
+
+# remove any NA
+
+exp <-  exp %>% na.omit()
+
+# make gene symbols row names, and remove 1st column
+
+rownames(exp) <- exp[,1]
+
+exp[1] <- NULL
+
 
 # preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
 
@@ -86,4 +97,14 @@ cli$status[cli$status =="1:DECEASED"] <- 1
 
 
 ```
+
+```{r running ImSig}
+# table of stats on data
+stats <-  gene_stat(exp = exp, r = 0.7)
+
+
+
+
+```
+
 
