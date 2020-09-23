@@ -215,3 +215,19 @@ write.csv(peaks_lfc_il1, "sum_peaks_lfc_il1.csv")
 
 
 ```
+
+```{r interferon alpha and interferon gamma}
+# see if peak list for interleukin-1 response genes overlap with genes found in Hallmark gene sets interferon alpha and interferon gamma response (downregulated in SGC-iMLLT RNA-Seq)
+
+# interferon alpha and interferon gamma core enriched genes
+ifna_ifng <- read.csv("ifna_ifng.csv", header=TRUE)
+
+
+ifn_response <- intersect(ifna_ifng$Genes, il1$Gene)
+
+# only 8 genes in common PSMB8, PSMB10, NFKBIA, HIF1A, MAP3K8, HAS2, CXCL8, SRC
+
+different <- setdiff(ifna_ifng$Genes, il1$Gene)
+
+
+```
