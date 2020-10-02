@@ -5,11 +5,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(imsig)
+# library(imsig)
 library(dplyr)
 library(tidyverse)
 library(gplots)
 library(RColorBrewer)
+library(pheatmap)
+library(DESeq2)
+library(pheatmap)
+library(ggplot2)
+library (stringi)
+library(AnnotationDbi)
+library(edgeR)
+library(DEFormats)
+library(statmod)
+library(BiocParallel)
+library (limma)
+library("genefilter")
 ```
 
 Update 2nd October 2020
@@ -121,25 +133,57 @@ ifn_exp <-  ifn_exp %>% na.omit()
 # sort patients by MLLT1 expression low to high
 sorted_ifn_exp <- ifn_exp[order(ifn_exp["MLLT1",]), drop=FALSE]
 
-# creating the heatmap colours
-my_palette <- colorRampPalette(c("green", "black", "red"))(n = 299)
 
-col_breaks = c(seq(-1,-0.1,length=100), # for red
-seq(0,0.1,length=100),  # for yellow
-seq(0.2,1,length=100)) # for green
+```
 
-mat_data <- data.matrix(sorted_ifn_exp)
+```{r fig.width=12, fig.height=20 }
 
-heatmap.2(mat_data,
-  cellnote = mat_data,  # same data set for cell labels
-  main = "Correlation", # heat map title
-  notecol="black",      # change font color of cell labels to black
-  density.info="none",  # turns off density plot inside color legend
-  trace="none",         # turns off trace lines inside the heat map
-  margins =c(12,9),     # widens margins around plot
-  col=my_palette,       # use on color palette defined earlier
-  breaks=col_breaks,    # enable color transition at specified limits
-  dendrogram="row",     # only draw a row dendrogram
-  Colv="NA")            # turn off column clustering
+# Generate heatmap - all patients
+
+mat <- data.matrix(sorted_ifn_exp)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="row", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
+
+# heat map only shows 400+ patients? Why? Does show all genes though
+
+
+```
+
+```{r fig.width=12, fig.height=20 }
+
+# Generate heatmap - just low and high expressing patients (from cBioPortal EXP>1 and EXP<-1)
+
+# read in patient IDs
+
+high_ids <- read.csv("high_patient_ids.csv", header=TRUE)
+
+low_ids <- read.csv("low_patient_ids.csv", header=TRUE)
+
+# convert to character by removing duplicates, then remove brca_metabric from each name
+
+high_ids <-  high_ids[!duplicated(high_ids), ]
+
+high_ids <- high_ids %>% str_replace("brca_metabric:", "")
+
+low_ids <-  low_ids[!duplicated(low_ids), ]
+
+low_ids <- low_ids %>% str_replace("brca_metabric:", "")
+
+
+# select specific just high and low patient ids
+select_ifn_exp <- sorted_ifn_exp[c(high_ids, low_ids)]
+
+# sort by MLLT1 expression 
+
+sorted_select_ifn_exp <- select_ifn_exp[order(select_ifn_exp["MLLT1",]), drop=FALSE]
+
+mat <- data.matrix(sorted_select_ifn_exp)
+
+col.pan <- colorpanel(50, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
+
 
 ```
