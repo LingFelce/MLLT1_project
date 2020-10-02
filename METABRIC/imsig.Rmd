@@ -1,0 +1,66 @@
+---
+title: "imsig"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Update 2nd October 2020
+
+# ImgSig package to interrogate METABRIC dataset
+
+Immune cell signature signatures for profiling the microenvironment of solid tumours https://cancerimmunolres.aacrjournals.org/content/6/11/1388
+
+The genomic and transcriptomic architecture of 2,000 breast tumours reveals novel subgroups (METABRIC) https://www.nature.com/articles/nature10983
+
+Should be able to download METABRIC dataset from European Genome-Phenome Archive (http://www.ebi.ac.uk/ega/) EGAS00000000083, but site seems to be down for now.
+
+Managed to download from cBioPortal
+
+Keep separate from general METABRIC dataset analysis
+
+```{r preparing files for imsig}
+# preparing expression data for ImSig
+exp <- expression_median
+
+# remove EntrezID
+exp[2] <- NULL
+
+# change . in patient IDs to - to match clinical data patient IDs
+names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
+
+# remove any NA
+exp <-  exp %>% na.omit()
+
+# make gene symbols row names, and remove 1st column
+rownames(exp) <- exp[,1]
+exp[1] <- NULL
+
+# preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
+cli <- clinical_patient[,c(1, 13, 14)]
+
+# remove top 4 rows (descriptive)
+cli <- cli[-c(1,2,3, 4),]
+
+# change column headings
+names(cli)[names(cli) == "Overall.Survival..Months."] <- "time"
+names(cli)[names(cli) == "Overall.Survival.Status"] <- "status"
+
+# make patient IDs row names and remove column
+rownames(cli) <- cli[,1]
+cli[1] <- NULL
+
+# remove row with no survival data (NA)
+cli <-  cli %>% na.omit()
+
+# change status to 0 and 1
+cli$status[cli$status =="0:LIVING"] <- 0
+cli$status[cli$status =="1:DECEASED"] <- 1
+```
+
+```{r running ImSig}
+# table of stats on data
+stats <-  gene_stat(exp = exp, r = 0.7)
+```
