@@ -8,10 +8,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(imsig)
 library(dplyr)
 library(tidyverse)
-
+library(gplots)
+library(RColorBrewer)
 ```
 
-Update 4th August 2020
+Update 2nd October 2020
 
 # ImgSig package to interrogate METABRIC dataset
 
@@ -24,7 +25,6 @@ Should be able to download METABRIC dataset from European Genome-Phenome Archive
 Managed to download from cBioPortal
 
 ```{r read in files}
-
 clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
 
 clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
@@ -36,124 +36,110 @@ gene_matrix <-  read.delim("data_gene_matrix.txt", header=TRUE)
 mrna_median_all_sample_zscores <- read.delim("data_mRNA_median_all_sample_Zscores.txt", header=TRUE)
 
 mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
-
 ## important ones to use: clinical_patient for survival information and expression_median for gene expression matrix (ImSig uses TPM/FPKM not Z-scores) ##
-
-
 ```
 
 
 ```{r preparing files for imsig}
-
 # preparing expression data for ImSig
-
 exp <- expression_median
 
 # remove EntrezID
 exp[2] <- NULL
 
 # change . in patient IDs to - to match clinical data patient IDs
-
 names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
 
 # remove any NA
-
 exp <-  exp %>% na.omit()
 
 # make gene symbols row names, and remove 1st column
-
 rownames(exp) <- exp[,1]
-
 exp[1] <- NULL
 
-
 # preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
-
 cli <- clinical_patient[,c(1, 13, 14)]
 
 # remove top 4 rows (descriptive)
-
 cli <- cli[-c(1,2,3, 4),]
 
 # change column headings
-
 names(cli)[names(cli) == "Overall.Survival..Months."] <- "time"
 names(cli)[names(cli) == "Overall.Survival.Status"] <- "status"
 
 # make patient IDs row names and remove column
-
 rownames(cli) <- cli[,1]
-
 cli[1] <- NULL
 
 # remove row with no survival data (NA)
 cli <-  cli %>% na.omit()
 
 # change status to 0 and 1
-
 cli$status[cli$status =="0:LIVING"] <- 0
-
 cli$status[cli$status =="1:DECEASED"] <- 1
-
-
 ```
 
 ```{r running ImSig}
 # table of stats on data
 stats <-  gene_stat(exp = exp, r = 0.7)
-
-
 ```
 
 ```{r heatmap}
 # heatmap of interferon alpha and interferon gamma gene expression from Hallmark gene sets compared with MLLT1 expression
+
 # want patient MLLT1 expressing low to high on x axis, y axis different genes from ifn a and ifn g
 
 # read in gene list - 298 (including MLLT1)
-
 ifn_genes <- read.csv("ifna_ifng_hallmark.csv", header=TRUE)
 
-# remove duplicated rows - 225 genes
-
+# remove duplicated rows - 225 genes (also converts to character from vector?)
 ifn_genes <-  ifn_genes[!duplicated(ifn_genes), ]
 
 # want to use z-scores for simplicity
-
 exp <- mrna_median_all_sample_zscores
 
 # remove EntrezID
 exp[2] <- NULL
 
 # change . in patient IDs to - to match clinical data patient IDs
-
 names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
 
 # remove any NA
-
 exp <-  exp %>% na.omit()
 
 # make gene symbols row names, and remove 1st column
-
 rownames(exp) <- exp[,1]
-
 exp[1] <- NULL
 
-ifn_gene_list <- as.character(ifn_genes)
-
-paste(a,collapse=" ")
 
 # select specific rows from expression matrix
-
 ifn_exp <- exp[c(ifn_genes),]
 
 # remove NA - 204 rows
-
 ifn_exp <-  ifn_exp %>% na.omit()
 
-# sort patients by MLLT1 expression
+# sort patients by MLLT1 expression low to high
+sorted_ifn_exp <- ifn_exp[order(ifn_exp["MLLT1",]), drop=FALSE]
 
-sorted_ifn_exp <- ifn_exp[order(ifn_exp["MLLT1",]),]
+# creating the heatmap colours
+my_palette <- colorRampPalette(c("green", "black", "red"))(n = 299)
 
-mrna_median_all_samples_zscores[c("MLLT1"),]
+col_breaks = c(seq(-1,-0.1,length=100), # for red
+seq(0,0.1,length=100),  # for yellow
+seq(0.2,1,length=100)) # for green
+
+mat_data <- data.matrix(sorted_ifn_exp)
+
+heatmap.2(mat_data,
+  cellnote = mat_data,  # same data set for cell labels
+  main = "Correlation", # heat map title
+  notecol="black",      # change font color of cell labels to black
+  density.info="none",  # turns off density plot inside color legend
+  trace="none",         # turns off trace lines inside the heat map
+  margins =c(12,9),     # widens margins around plot
+  col=my_palette,       # use on color palette defined earlier
+  breaks=col_breaks,    # enable color transition at specified limits
+  dendrogram="row",     # only draw a row dendrogram
+  Colv="NA")            # turn off column clustering
 
 ```
