@@ -26,15 +26,16 @@ library("genefilter")
 
 Update 2nd October 2020
 
-# ImgSig package to interrogate METABRIC dataset
+# METABRIC dataset analysis
 
-Immune cell signature signatures for profiling the microenvironment of solid tumours https://cancerimmunolres.aacrjournals.org/content/6/11/1388
 
 The genomic and transcriptomic architecture of 2,000 breast tumours reveals novel subgroups (METABRIC) https://www.nature.com/articles/nature10983
 
 Should be able to download METABRIC dataset from European Genome-Phenome Archive (http://www.ebi.ac.uk/ega/) EGAS00000000083, but site seems to be down for now.
 
 Managed to download from cBioPortal
+
+Trying to look at high and low MLLT1 expression and see if immune gene signatures correlate with expression.
 
 ```{r read in files}
 clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
@@ -52,59 +53,17 @@ mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 ```
 
 
-```{r preparing files for imsig}
-# preparing expression data for ImSig
-exp <- expression_median
-
-# remove EntrezID
-exp[2] <- NULL
-
-# change . in patient IDs to - to match clinical data patient IDs
-names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
-
-# remove any NA
-exp <-  exp %>% na.omit()
-
-# make gene symbols row names, and remove 1st column
-rownames(exp) <- exp[,1]
-exp[1] <- NULL
-
-# preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
-cli <- clinical_patient[,c(1, 13, 14)]
-
-# remove top 4 rows (descriptive)
-cli <- cli[-c(1,2,3, 4),]
-
-# change column headings
-names(cli)[names(cli) == "Overall.Survival..Months."] <- "time"
-names(cli)[names(cli) == "Overall.Survival.Status"] <- "status"
-
-# make patient IDs row names and remove column
-rownames(cli) <- cli[,1]
-cli[1] <- NULL
-
-# remove row with no survival data (NA)
-cli <-  cli %>% na.omit()
-
-# change status to 0 and 1
-cli$status[cli$status =="0:LIVING"] <- 0
-cli$status[cli$status =="1:DECEASED"] <- 1
-```
-
-```{r running ImSig}
-# table of stats on data
-stats <-  gene_stat(exp = exp, r = 0.7)
-```
-
 ```{r heatmap}
 # heatmap of interferon alpha and interferon gamma gene expression from Hallmark gene sets compared with MLLT1 expression
 
 # want patient MLLT1 expressing low to high on x axis, y axis different genes from ifn a and ifn g
 
-# read in gene list - 298 (including MLLT1)
+# upregulated core enriched genes only from Hallmark gene sets interferon alpha and interferon gamma response, inflammatory response
+
+# read in gene list - 266 (including MLLT1)
 ifn_genes <- read.csv("ifna_ifng_hallmark.csv", header=TRUE)
 
-# remove duplicated rows - 225 genes (also converts to character from vector?)
+# remove duplicated rows - 145 genes (also converts to character from vector?)
 ifn_genes <-  ifn_genes[!duplicated(ifn_genes), ]
 
 # want to use z-scores for simplicity
@@ -127,7 +86,7 @@ exp[1] <- NULL
 # select specific rows from expression matrix
 ifn_exp <- exp[c(ifn_genes),]
 
-# remove NA - 204 rows
+# remove NA - 128 rows
 ifn_exp <-  ifn_exp %>% na.omit()
 
 # sort patients by MLLT1 expression low to high
@@ -144,9 +103,9 @@ mat <- data.matrix(sorted_ifn_exp)
 
 col.pan <- colorpanel(100, "green", "black", "red")
 
-heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="row", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
 
-# heat map only shows 400+ patients? Why? Does show all genes though
+# heat map only shows 476 patients? Why? Does show all genes though
 
 
 ```
@@ -181,9 +140,23 @@ sorted_select_ifn_exp <- select_ifn_exp[order(select_ifn_exp["MLLT1",]), drop=FA
 
 mat <- data.matrix(sorted_select_ifn_exp)
 
-col.pan <- colorpanel(50, "green", "black", "red")
+col.pan <- colorpanel(100, "green", "black", "red")
 
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
+
+```
+
+```{r}
+# looking at select genes to do with antigen presentation and processing (favourite genes)
+
+ag_exp <- sorted_select_ifn_exp[c("HLA-A", "HLA-B", "HLA-C", "TAP1", "MLLT1"),]
+
+mat <- data.matrix(ag_exp)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=1, cexCol=0.1, density.info="none")
+
 
 
 ```
