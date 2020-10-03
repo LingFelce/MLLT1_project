@@ -158,5 +158,29 @@ col.pan <- colorpanel(100, "green", "black", "red")
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=1, cexCol=0.1, density.info="none")
 
 
+```
+
+```{r}
+# look at MYC and genes to be tested in ChIP-Seq in high and low MLLT1 expressing patients (all subtypes)
+
+# select specific patients (columns)
+
+mllt1_exp <- exp[c(high_ids, low_ids)]
+
+# select specific rows (10 genes)
+
+select_exp <- exp[c("MYC", "CACTIN", "OTUD5", "TTLL12", "NLRX1", "HAS2", "SRC", "HIF1A", "CXCL8", "MLLT1"),]
+
+# CACTIN and CXCL8 not present
+select_exp <-  select_exp %>% na.omit()
+
+# sort by MLLT1 expression
+sorted_select_exp <- select_exp[order(select_exp["MLLT1",]), drop=FALSE]
+
+mat <- data.matrix(sorted_select_exp)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
 
 ```
