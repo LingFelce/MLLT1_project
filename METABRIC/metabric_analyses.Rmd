@@ -184,3 +184,32 @@ col.pan <- colorpanel(100, "green", "black", "red")
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
 
 ```
+
+```{r}
+# looking at ER positive patients only - 455 patients with high or low MLLT1 expression only (can't seem to do it with all 1825 patients as some patients don't have expression data available)
+
+er_ids <- read.csv("er_patient_ids.csv", header=TRUE)
+
+# convert to character by removing duplicates, then remove brca_metabric from each name
+
+er_ids <-  er_ids[!duplicated(er_ids), ]
+
+er_ids <- er_ids %>% str_replace("brca_metabric:", "")
+
+# select specific columns
+er_exp <- exp[er_ids]
+
+# select specific rows
+hla_er_exp <- er_exp[c("HLA-A", "HLA-B", "HLA-C", "TAP1", "MYC", "MLLT1"),]
+
+# sort by MLLT1 expression
+sorted_hla_er_exp <- hla_er_exp[order(hla_er_exp["MLLT1",]), drop=FALSE]
+
+# heatmap
+mat <- data.matrix(sorted_hla_er_exp)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
+
+```
