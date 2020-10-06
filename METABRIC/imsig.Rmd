@@ -5,6 +5,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(imsig)
+library(dplyr)
+library(tidyverse)
+library(gplots)
+library(RColorBrewer)
+library(pheatmap)
+library(DESeq2)
+library(pheatmap)
+library(ggplot2)
+library (stringi)
+library(AnnotationDbi)
+library(edgeR)
+library(DEFormats)
+library(statmod)
+library(BiocParallel)
+library (limma)
+library("genefilter")
 ```
 
 Update 2nd October 2020
@@ -20,6 +37,29 @@ Should be able to download METABRIC dataset from European Genome-Phenome Archive
 Managed to download from cBioPortal
 
 Keep separate from general METABRIC dataset analysis
+
+```{r read in files}
+clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
+
+expression_median <- read.delim("data_expression_median.txt", header=TRUE, na.strings = c("", "NA"))
+
+# read in patient IDs
+
+high_ids <- read.csv("high_patient_ids.csv", header=TRUE)
+
+low_ids <- read.csv("low_patient_ids.csv", header=TRUE)
+
+# convert to character by removing duplicates, then remove brca_metabric from each name
+
+high_ids <-  high_ids[!duplicated(high_ids), ]
+
+high_ids <- high_ids %>% str_replace("brca_metabric:", "")
+
+low_ids <-  low_ids[!duplicated(low_ids), ]
+
+low_ids <- low_ids %>% str_replace("brca_metabric:", "")
+
+```
 
 ```{r preparing files for imsig}
 # preparing expression data for ImSig
@@ -37,6 +77,9 @@ exp <-  exp %>% na.omit()
 # make gene symbols row names, and remove 1st column
 rownames(exp) <- exp[,1]
 exp[1] <- NULL
+
+# only use high and low expressing MLLT1
+mllt1_exp <- exp[c(high_ids, low_ids)]
 
 # preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
 cli <- clinical_patient[,c(1, 13, 14)]
@@ -61,6 +104,7 @@ cli$status[cli$status =="1:DECEASED"] <- 1
 ```
 
 ```{r running ImSig}
+
 # table of stats on data
-stats <-  gene_stat(exp = exp, r = 0.7)
+stats <-  gene_stat(exp = mllt1_exp, r = 0.7)
 ```
