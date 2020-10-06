@@ -4,6 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+# need to install a bunch of these packages!
 knitr::opts_chunk$set(echo = TRUE)
 library(imsig)
 library(dplyr)
