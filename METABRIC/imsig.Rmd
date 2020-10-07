@@ -4,7 +4,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# need to install a bunch of these packages!
 knitr::opts_chunk$set(echo = TRUE)
 library(imsig)
 library(dplyr)
@@ -13,7 +12,6 @@ library(gplots)
 library(RColorBrewer)
 library(pheatmap)
 library(DESeq2)
-library(pheatmap)
 library(ggplot2)
 library (stringi)
 library(AnnotationDbi)
@@ -25,7 +23,7 @@ library (limma)
 library("genefilter")
 ```
 
-Update 2nd October 2020
+Update 7th October 2020
 
 # ImgSig package to interrogate METABRIC dataset
 
@@ -79,8 +77,11 @@ exp <-  exp %>% na.omit()
 rownames(exp) <- exp[,1]
 exp[1] <- NULL
 
-# only use high and low expressing MLLT1
-mllt1_exp <- exp[c(high_ids, low_ids)]
+# high MLLT1 patients
+high_exp <- exp[high_ids]
+
+# low MLLT1 patients
+low_exp <- exp[low_ids]
 
 # preparing clinical data - keep only patient ID, overall survival in months and status (live/dead)
 cli <- clinical_patient[,c(1, 13, 14)]
@@ -104,8 +105,100 @@ cli$status[cli$status =="0:LIVING"] <- 0
 cli$status[cli$status =="1:DECEASED"] <- 1
 ```
 
-```{r running ImSig}
+```{r running ImSig functions}
 
 # table of stats on data
-stats <-  gene_stat(exp = mllt1_exp, r = 0.7)
+# high_stats <-  gene_stat(exp = high_exp, r = 0.7)
+
+# run imsig algorithm
+# cell_abundance <- imsig (exp = high_exp, r=0.6)
+
+
+# Mean Expression Function
+
+imsig <- function(exp,sig){
+  # Subset genes that are present in the sig
+  exp <- exp[row.names(exp) %in% sig$gene,]
+  sig <- sig[sig$gene %in% row.names(exp),]
+  # Loop to calculate the average expression of each cell type
+  cc <- data.frame(matrix(nrow = ncol(exp)))
+  cc <- cc[,-1]
+  for (i in unique(sig$cell)){
+    s <- sig[sig$cell %in% i,]
+    e <- exp[as.character(s$gene),]
+    e_avg <- data.frame(colMeans(e, na.rm = TRUE))
+    colnames(e_avg) <- i
+    cc <- cbind(cc, e_avg)
+  }
+  return(cc)
+}
+
+# Plotting Function
+
+plot_abundance <- function(proportion){
+  require(ggplot2)
+  require(gridExtra)
+  cell <- proportion
+  cell$samples <- row.names(cell)
+  cell$samples <- factor(cell$samples, levels = cell$samples)
+  plots = lapply(1:(ncol(cell)-1), function(x) ggplot(cell, aes(x = cell$samples, y = cell[,x]))
+                 + geom_bar(stat = "identity") + theme_classic() +
+                   theme(axis.title.x=element_blank(), axis.text.x = element_text(angle = 90, hjust = 1), axis.title.y=element_blank())+
+                   ggtitle(colnames(cell)[x]))
+  do.call(grid.arrange,  plots)
+}
+
+
+```
+
+```{r high MLLT1}
+# high MLLT1
+
+# Load the dataset
+exp  <- high_exp
+sig <- sig
+
+
+# Run the function
+
+high_proportion <- imsig(exp,sig)
+
+plot_abundance (high_proportion)
+
+# heatmap
+
+high_proportion_transposed = t(high_proportion)
+
+mat <- data.matrix(high_proportion_transposed)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
+
+```
+
+```{r low MLLT1}
+# low MLLT1
+
+# Load the dataset
+exp  <- low_exp
+sig <- sig
+
+
+# Run the function
+
+low_proportion <- imsig(exp,sig)
+
+plot_abundance (low_proportion)
+
+# heatmap
+
+low_proportion_transposed = t(low_proportion)
+
+mat <- data.matrix(low_proportion_transposed)
+
+col.pan <- colorpanel(100, "green", "black", "red")
+
+heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
+
 ```
