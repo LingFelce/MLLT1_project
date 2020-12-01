@@ -184,7 +184,7 @@ makeBigWig.pl MCF_SGC_24H_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/w
 makeBigWig.pl MCF_SGC_7D_INPUT/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
 makeBigWig.pl MCF_SGC_7D_IP/ hg38 -webdir /ifs/research-groups/botnar/proj013/web/public/bigwigs/ -url http://cgat.org/downloads/botnar/proj013/public/bigwigs/
 
-# call peaks from tag directory (filtering based on input)
+# call DMSO peaks from tag directory (filtering based on input)
 findPeaks MCF_DMSO_24H_IP/ -style factor -i MCF_DMSO_24H_INPUT/ > MCF_MLLT1_DMSO_24H_FACTOR.txt
 findPeaks MCF_DMSO_24H_IP/ -style histone -i MCF_DMSO_24H_INPUT/ > MCF_MLLT1_DMSO_24H_HISTONE.txt
 findPeaks MCF_DMSO_7D_IP/ -style factor -i MCF_DMSO_7D_INPUT/ > MCF_MLLT1_DMSO_7D_FACTOR.txt
@@ -195,6 +195,15 @@ annotatePeaks.pl MCF_MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_
 annotatePeaks.pl MCF_MLLT1_DMSO_24H_HISTONE.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_24H_IP/ > MCF_MLLT1_PEAKS_24H_HISTONE.quant.txt
 annotatePeaks.pl MCF_MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt
 annotatePeaks.pl MCF_MLLT1_DMSO_7D_HISTONE.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ > MCF_MLLT1_PEAKS_7D_HISTONE.quant.txt
+
+# peak calling for SGC peaks
+findPeaks MCF_SGC_24H_IP/ -style factor -i MCF_SGC_24H_INPUT/ > MCF_MLLT1_SGC_24H_FACTOR.txt
+findPeaks MCF_SGC_7D_IP/ -style factor -i MCF_SGC_7D_INPUT/ > MCF_MLLT1_SGC_7D_FACTOR.txt
+
+# annotate peak file with number of reads under peak in each tag directory
+annotatePeaks.pl MCF_MLLT1_SGC_24H_FACTOR.txt hg38 -d MCF_SGC_24H_IP/ MCF_DMSO_24H_IP/ > MCF_MLLT1_SGC_PEAKS_24H_FACTOR.quant.txt
+annotatePeaks.pl MCF_MLLT1_SGC_7D_FACTOR.txt hg38 -d MCF_SGC_7D_IP/ MCF_DMSO_7D_IP/ > MCF_MLLT1_SGC_PEAKS_7D_FACTOR.quant.txt
+
 
 ## SUM159
 
@@ -237,5 +246,11 @@ annotatePeaks.pl SUM_MLLT1_DMSO_7D_HISTONE.txt hg38 -d SUM_DMSO_7D_IP/ SUM_SGC_7
 annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ > SUM_MLLT1_PEAKS_24H_FACTOR_NORM.quant.txt
 annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ > SUM_MLLT1_PEAKS_7D_FACTOR_NORM.quant.txt
 
+# call SGC peaks
+findPeaks SUM_SGC_24H_IP/ -style factor -i SUM_SGC_24H_INPUT/ > SUM_MLLT1_SGC_24H_FACTOR.txt
+findPeaks SUM_SGC_7D_IP/ -style factor -i SUM_SGC_7D_INPUT/ >SUM_MLLT1_SGC_7D_FACTOR.txt
 
+# annotate SGC peaks
+annotatePeaks.pl SUM_MLLT1_SGC_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_SGC_24H_IP/ SUM_DMSO_24H_IP/ > SUM_MLLT1_SGC_PEAKS_24H_FACTOR_NORM.quant.txt
+annotatePeaks.pl SUM_MLLT1_SGC_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_SGC_7D_IP/ SUM_DMSO_7D_IP/ > SUM_MLLT1_SGC_PEAKS_7D_FACTOR_NORM.quant.txt
 
