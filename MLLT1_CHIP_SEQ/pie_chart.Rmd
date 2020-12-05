@@ -7,6 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(stringr)
 library(tidyverse)
+library(cowplot)
 ```
 
 # Pie Charts to compare MLLT1 binding with treatment
@@ -23,8 +24,11 @@ sgc_24h <- read.delim("MCF_MLLT1_SGC_PEAKS_24H_FACTOR.quant.txt", header = TRUE,
 ```
 
 ### DMSO 7d v SGC 7d
-```{r, fig.height=6, fig.width=12}
+```{r, fig.height=4, fig.width=8}
+# create counts object
 dmso_7d_counts <- NULL
+
+# count number of occurrences of string in each row and sum, add to new column in counts object
 dmso_7d_counts$exon <- sum(str_count(dmso_7d$Annotation, "exon"))
 dmso_7d_counts <- as.data.frame(dmso_7d_counts)
 dmso_7d_counts$intron <- sum(str_count(dmso_7d$Annotation, "intron"))
@@ -35,12 +39,20 @@ dmso_7d_counts$intergenic <- sum(str_count(dmso_7d$Annotation, "Intergenic"))
 dmso_7d_counts$fiveutr <- sum(str_count(dmso_7d$Annotation, "5' UTR"))
 dmso_7d_counts$tss <- sum(str_count(dmso_7d$Annotation, "TSS"))
 
+#convert to data frame and transpose so that columns become rows
 dmso_7d_counts <- as.data.frame(t(dmso_7d_counts))
+
+# convert row names to a column called Annotation
 dmso_7d_counts <- tibble::rownames_to_column(dmso_7d_counts, "Annotation")
+
+# calculate percentage of each row
 dmso_7d_counts$percentage <- (dmso_7d_counts$V1/sum(dmso_7d_counts$V1))*100
+
+# rename values in rows
 dmso_7d_counts[4,1] <- "3' UTR"
 dmso_7d_counts[6,1] <- "5' UTR"
 
+# plot pie chart
 dmso_7d_pie <- ggplot(dmso_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
   geom_bar(stat="identity", width=1, color="white") +
   coord_polar("y", start=0) +
@@ -71,13 +83,13 @@ sgc_7d_pie <- ggplot(sgc_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
   
   theme_void()
 
-dmso_7d_pie
-sgc_7d_pie
+# plot pie charts side by side
+plot_grid(dmso_7d_pie, sgc_7d_pie, labels = c("DMSO 7 days", "SGC-iMLLT 7 days"), label_size = 12, hjust=-1) 
 
 ```
 
 ### DMSO 24h v SGC 24h
-```{r, fig.height=6, fig.width=12}
+```{r, fig.height=4, fig.width=8}
 dmso_24h_counts <- NULL
 dmso_24h_counts$exon <- sum(str_count(dmso_24h$Annotation, "exon"))
 dmso_24h_counts <- as.data.frame(dmso_24h_counts)
@@ -125,6 +137,12 @@ sgc_24h_pie <- ggplot(sgc_24h_counts, aes(x="", y=percentage, fill=Annotation)) 
   
   theme_void()
 
-dmso_24h_pie
-sgc_24h_pie
+plot_grid(dmso_24h_pie, sgc_24h_pie, labels = c("DMSO 24 hours", "SGC-iMLLT 24 hours"), label_size = 12, hjust=-1)
+```
+
+### 24 hours v 7 days
+
+```{r, fig.height= 5, fig.width= 10}
+plot_grid(dmso_24h_pie, dmso_7d_pie, sgc_24h_pie, sgc_7d_pie, labels = c("DMSO 24 hours", "DMSO 7 days", "SGC-iMLLT 24 hours", "SGC-iMLLT 7 days"), label_size = 10, hjust=-1)
+
 ```
