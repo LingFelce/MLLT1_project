@@ -8,6 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(stringr)
 library(tidyverse)
 library(cowplot)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
 ```
 
 # Pie Charts to compare MLLT1 binding with treatment
@@ -24,7 +26,7 @@ sgc_24h <- read.delim("MCF_MLLT1_SGC_PEAKS_24H_FACTOR.quant.txt", header = TRUE,
 ```
 
 ### DMSO 7d v SGC 7d
-```{r, fig.height=4, fig.width=8}
+```{r, fig.height=4, fig.width=10}
 # create counts object
 dmso_7d_counts <- NULL
 
@@ -32,7 +34,7 @@ dmso_7d_counts <- NULL
 dmso_7d_counts$exon <- sum(str_count(dmso_7d$Annotation, "exon"))
 dmso_7d_counts <- as.data.frame(dmso_7d_counts)
 dmso_7d_counts$intron <- sum(str_count(dmso_7d$Annotation, "intron"))
-dmso_7d_counts$non-coding <- sum(str_count(dmso_7d$Annotation, "non-coding"))
+dmso_7d_counts$noncoding <- sum(str_count(dmso_7d$Annotation, "non-coding"))
 dmso_7d_counts$promoter <- sum(str_count(dmso_7d$Annotation, "promoter"))
 dmso_7d_counts$threeutr <- sum(str_count(dmso_7d$Annotation, "3' UTR"))
 dmso_7d_counts$intergenic <- sum(str_count(dmso_7d$Annotation, "Intergenic"))
@@ -49,8 +51,8 @@ dmso_7d_counts <- tibble::rownames_to_column(dmso_7d_counts, "Annotation")
 dmso_7d_counts$percentage <- (dmso_7d_counts$V1/sum(dmso_7d_counts$V1))*100
 
 # rename values in rows
-dmso_7d_counts[4,1] <- "3' UTR"
-dmso_7d_counts[6,1] <- "5' UTR"
+dmso_7d_counts[5,1] <- "3' UTR"
+dmso_7d_counts[7,1] <- "5' UTR"
 
 # plot pie chart
 dmso_7d_pie <- ggplot(dmso_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
@@ -64,7 +66,7 @@ sgc_7d_counts <- NULL
 sgc_7d_counts$exon <- sum(str_count(sgc_7d$Annotation, "exon"))
 sgc_7d_counts <- as.data.frame(sgc_7d_counts)
 sgc_7d_counts$intron <- sum(str_count(sgc_7d$Annotation, "intron"))
-sgc_7d_counts$non-coding <- sum(str_count(sgc_7d$Annotation, "non-coding"))
+sgc_7d_counts$noncoding <- sum(str_count(sgc_7d$Annotation, "non-coding"))
 sgc_7d_counts$promoter <- sum(str_count(sgc_7d$Annotation, "promoter"))
 sgc_7d_counts$threeutr <- sum(str_count(sgc_7d$Annotation, "3' UTR"))
 sgc_7d_counts$intergenic <- sum(str_count(sgc_7d$Annotation, "Intergenic"))
@@ -74,8 +76,8 @@ sgc_7d_counts$tss <- sum(str_count(sgc_7d$Annotation, "TSS"))
 sgc_7d_counts <- as.data.frame(t(sgc_7d_counts))
 sgc_7d_counts <- tibble::rownames_to_column(sgc_7d_counts, "Annotation")
 sgc_7d_counts$percentage <- (sgc_7d_counts$V1/sum(sgc_7d_counts$V1))*100
-sgc_7d_counts[4,1] <- "3' UTR"
-sgc_7d_counts[6,1] <- "5' UTR"
+sgc_7d_counts[5,1] <- "3' UTR"
+sgc_7d_counts[7,1] <- "5' UTR"
 
 sgc_7d_pie <- ggplot(sgc_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
   geom_bar(stat="identity", width=1, color="white") +
@@ -89,12 +91,12 @@ plot_grid(dmso_7d_pie, sgc_7d_pie, labels = c("DMSO 7 days", "SGC-iMLLT 7 days")
 ```
 
 ### DMSO 24h v SGC 24h
-```{r, fig.height=4, fig.width=8}
+```{r, fig.height=4, fig.width=10}
 dmso_24h_counts <- NULL
 dmso_24h_counts$exon <- sum(str_count(dmso_24h$Annotation, "exon"))
 dmso_24h_counts <- as.data.frame(dmso_24h_counts)
 dmso_24h_counts$intron <- sum(str_count(dmso_24h$Annotation, "intron"))
-dmso_24h_counts$non-coding <- sum(str_count(dmso_24h$Annotation, "non-coding"))
+dmso_24h_counts$noncoding <- sum(str_count(dmso_24h$Annotation, "non-coding"))
 dmso_24h_counts$promoter <- sum(str_count(dmso_24h$Annotation, "promoter"))
 dmso_24h_counts$threeutr <- sum(str_count(dmso_24h$Annotation, "3' UTR"))
 dmso_24h_counts$intergenic <- sum(str_count(dmso_24h$Annotation, "Intergenic"))
@@ -104,8 +106,8 @@ dmso_24h_counts$tss <- sum(str_count(dmso_24h$Annotation, "TSS"))
 dmso_24h_counts <- as.data.frame(t(dmso_24h_counts))
 dmso_24h_counts <- tibble::rownames_to_column(dmso_24h_counts, "Annotation")
 dmso_24h_counts$percentage <- (dmso_24h_counts$V1/sum(dmso_24h_counts$V1))*100
-dmso_24h_counts[4,1] <- "3' UTR"
-dmso_24h_counts[6,1] <- "5' UTR"
+dmso_24h_counts[5,1] <- "3' UTR"
+dmso_24h_counts[7,1] <- "5' UTR"
 
 dmso_24h_pie <- ggplot(dmso_24h_counts, aes(x="", y=percentage, fill=Annotation)) +
   geom_bar(stat="identity", width=1, color="white") +
@@ -118,7 +120,7 @@ sgc_24h_counts <- NULL
 sgc_24h_counts$exon <- sum(str_count(sgc_24h$Annotation, "exon"))
 sgc_24h_counts <- as.data.frame(sgc_24h_counts)
 sgc_24h_counts$intron <- sum(str_count(sgc_24h$Annotation, "intron"))
-sgc_24h_counts$non-coding <- sum(str_count(sgc_24h$Annotation, "non-coding"))
+sgc_24h_counts$noncoding <- sum(str_count(sgc_24h$Annotation, "non-coding"))
 sgc_24h_counts$promoter <- sum(str_count(sgc_24h$Annotation, "promoter"))
 sgc_24h_counts$threeutr <- sum(str_count(sgc_24h$Annotation, "3' UTR"))
 sgc_24h_counts$intergenic <- sum(str_count(sgc_24h$Annotation, "Intergenic"))
@@ -128,8 +130,8 @@ sgc_24h_counts$tss <- sum(str_count(sgc_24h$Annotation, "TSS"))
 sgc_24h_counts <- as.data.frame(t(sgc_24h_counts))
 sgc_24h_counts <- tibble::rownames_to_column(sgc_24h_counts, "Annotation")
 sgc_24h_counts$percentage <- (sgc_24h_counts$V1/sum(sgc_24h_counts$V1))*100
-sgc_24h_counts[4,1] <- "3' UTR"
-sgc_24h_counts[6,1] <- "5' UTR"
+sgc_24h_counts[5,1] <- "3' UTR"
+sgc_24h_counts[7,1] <- "5' UTR"
 
 sgc_24h_pie <- ggplot(sgc_24h_counts, aes(x="", y=percentage, fill=Annotation)) +
   geom_bar(stat="identity", width=1, color="white") +
@@ -144,5 +146,153 @@ plot_grid(dmso_24h_pie, sgc_24h_pie, labels = c("DMSO 24 hours", "SGC-iMLLT 24 h
 
 ```{r, fig.height= 5, fig.width= 10}
 plot_grid(dmso_24h_pie, dmso_7d_pie, sgc_24h_pie, sgc_7d_pie, labels = c("DMSO 24 hours", "DMSO 7 days", "SGC-iMLLT 24 hours", "SGC-iMLLT 7 days"), label_size = 10, hjust=-1)
+
+```
+```{r}
+
+mcf_dmso_counts <- cbind (dmso_7d_counts, sgc_7d_counts, dmso_24h_counts, sgc_24h_counts)
+colnames(mcf_dmso_counts) <- c("DMSO 7d Annotation", "DMSO 7d Counts", "DMSO 7d Percentage", "SGC 7d Annotation", "SGC 7d Counts", "SGC 7d Percentage",
+                           "DMSO 24h Annotation", "DMSO 24h Counts", "DMSO 24h Percentage","SGC 24h Annotation", "SGC 24h Counts", "SGC 24h Percentage")
+
+```
+
+
+## SUM159
+```{r}
+# read in files
+dmso_7d <- read.delim("SUM_MLLT1_PEAKS_7D_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+dmso_24h <- read.delim("SUM_MLLT1_PEAKS_24H_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+sgc_7d <- read.delim("SUM_MLLT1_SGC_PEAKS_7D_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+sgc_24h <- read.delim("SUM_MLLT1_SGC_PEAKS_24H_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+```
+
+### DMSO 7d v SGC 7d
+```{r, fig.height=4, fig.width=10}
+# create counts object
+dmso_7d_counts <- NULL
+
+# count number of occurrences of string in each row and sum, add to new column in counts object
+dmso_7d_counts$exon <- sum(str_count(dmso_7d$Annotation, "exon"))
+dmso_7d_counts <- as.data.frame(dmso_7d_counts)
+dmso_7d_counts$intron <- sum(str_count(dmso_7d$Annotation, "intron"))
+dmso_7d_counts$noncoding <- sum(str_count(dmso_7d$Annotation, "non-coding"))
+dmso_7d_counts$promoter <- sum(str_count(dmso_7d$Annotation, "promoter"))
+dmso_7d_counts$threeutr <- sum(str_count(dmso_7d$Annotation, "3' UTR"))
+dmso_7d_counts$intergenic <- sum(str_count(dmso_7d$Annotation, "Intergenic"))
+dmso_7d_counts$fiveutr <- sum(str_count(dmso_7d$Annotation, "5' UTR"))
+dmso_7d_counts$tss <- sum(str_count(dmso_7d$Annotation, "TSS"))
+
+#convert to data frame and transpose so that columns become rows
+dmso_7d_counts <- as.data.frame(t(dmso_7d_counts))
+
+# convert row names to a column called Annotation
+dmso_7d_counts <- tibble::rownames_to_column(dmso_7d_counts, "Annotation")
+
+# calculate percentage of each row
+dmso_7d_counts$percentage <- (dmso_7d_counts$V1/sum(dmso_7d_counts$V1))*100
+
+# rename values in rows
+dmso_7d_counts[5,1] <- "3' UTR"
+dmso_7d_counts[7,1] <- "5' UTR"
+
+# plot pie chart
+dmso_7d_pie <- ggplot(dmso_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  
+  theme_void()
+
+
+sgc_7d_counts <- NULL
+sgc_7d_counts$exon <- sum(str_count(sgc_7d$Annotation, "exon"))
+sgc_7d_counts <- as.data.frame(sgc_7d_counts)
+sgc_7d_counts$intron <- sum(str_count(sgc_7d$Annotation, "intron"))
+sgc_7d_counts$noncoding <- sum(str_count(sgc_7d$Annotation, "non-coding"))
+sgc_7d_counts$promoter <- sum(str_count(sgc_7d$Annotation, "promoter"))
+sgc_7d_counts$threeutr <- sum(str_count(sgc_7d$Annotation, "3' UTR"))
+sgc_7d_counts$intergenic <- sum(str_count(sgc_7d$Annotation, "Intergenic"))
+sgc_7d_counts$fiveutr <- sum(str_count(sgc_7d$Annotation, "5' UTR"))
+sgc_7d_counts$tss <- sum(str_count(sgc_7d$Annotation, "TSS"))
+
+sgc_7d_counts <- as.data.frame(t(sgc_7d_counts))
+sgc_7d_counts <- tibble::rownames_to_column(sgc_7d_counts, "Annotation")
+sgc_7d_counts$percentage <- (sgc_7d_counts$V1/sum(sgc_7d_counts$V1))*100
+sgc_7d_counts[5,1] <- "3' UTR"
+sgc_7d_counts[7,1] <- "5' UTR"
+
+sgc_7d_pie <- ggplot(sgc_7d_counts, aes(x="", y=percentage, fill=Annotation)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  
+  theme_void()
+
+# plot pie charts side by side
+plot_grid(dmso_7d_pie, sgc_7d_pie, labels = c("DMSO 7 days", "SGC-iMLLT 7 days"), label_size = 12, hjust=-1) 
+
+```
+
+### DMSO 24h v SGC 24h
+```{r, fig.height=4, fig.width=10}
+dmso_24h_counts <- NULL
+dmso_24h_counts$exon <- sum(str_count(dmso_24h$Annotation, "exon"))
+dmso_24h_counts <- as.data.frame(dmso_24h_counts)
+dmso_24h_counts$intron <- sum(str_count(dmso_24h$Annotation, "intron"))
+dmso_24h_counts$noncoding <- sum(str_count(dmso_24h$Annotation, "non-coding"))
+dmso_24h_counts$promoter <- sum(str_count(dmso_24h$Annotation, "promoter"))
+dmso_24h_counts$threeutr <- sum(str_count(dmso_24h$Annotation, "3' UTR"))
+dmso_24h_counts$intergenic <- sum(str_count(dmso_24h$Annotation, "Intergenic"))
+dmso_24h_counts$fiveutr <- sum(str_count(dmso_24h$Annotation, "5' UTR"))
+dmso_24h_counts$tss <- sum(str_count(dmso_24h$Annotation, "TSS"))
+
+dmso_24h_counts <- as.data.frame(t(dmso_24h_counts))
+dmso_24h_counts <- tibble::rownames_to_column(dmso_24h_counts, "Annotation")
+dmso_24h_counts$percentage <- (dmso_24h_counts$V1/sum(dmso_24h_counts$V1))*100
+dmso_24h_counts[5,1] <- "3' UTR"
+dmso_24h_counts[7,1] <- "5' UTR"
+
+dmso_24h_pie <- ggplot(dmso_24h_counts, aes(x="", y=percentage, fill=Annotation)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  
+  theme_void()
+
+
+sgc_24h_counts <- NULL
+sgc_24h_counts$exon <- sum(str_count(sgc_24h$Annotation, "exon"))
+sgc_24h_counts <- as.data.frame(sgc_24h_counts)
+sgc_24h_counts$intron <- sum(str_count(sgc_24h$Annotation, "intron"))
+sgc_24h_counts$noncoding <- sum(str_count(sgc_24h$Annotation, "non-coding"))
+sgc_24h_counts$promoter <- sum(str_count(sgc_24h$Annotation, "promoter"))
+sgc_24h_counts$threeutr <- sum(str_count(sgc_24h$Annotation, "3' UTR"))
+sgc_24h_counts$intergenic <- sum(str_count(sgc_24h$Annotation, "Intergenic"))
+sgc_24h_counts$fiveutr <- sum(str_count(sgc_24h$Annotation, "5' UTR"))
+sgc_24h_counts$tss <- sum(str_count(sgc_24h$Annotation, "TSS"))
+
+sgc_24h_counts <- as.data.frame(t(sgc_24h_counts))
+sgc_24h_counts <- tibble::rownames_to_column(sgc_24h_counts, "Annotation")
+sgc_24h_counts$percentage <- (sgc_24h_counts$V1/sum(sgc_24h_counts$V1))*100
+sgc_24h_counts[5,1] <- "3' UTR"
+sgc_24h_counts[7,1] <- "5' UTR"
+
+sgc_24h_pie <- ggplot(sgc_24h_counts, aes(x="", y=percentage, fill=Annotation)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  
+  theme_void()
+
+plot_grid(dmso_24h_pie, sgc_24h_pie, labels = c("DMSO 24 hours", "SGC-iMLLT 24 hours"), label_size = 12, hjust=-1)
+```
+
+### 24 hours v 7 days
+
+```{r, fig.height= 5, fig.width= 10}
+plot_grid(dmso_24h_pie, dmso_7d_pie, sgc_24h_pie, sgc_7d_pie, labels = c("DMSO 24 hours", "DMSO 7 days", "SGC-iMLLT 24 hours", "SGC-iMLLT 7 days"), label_size = 10, hjust=-1)
+
+```
+
+```{r}
+sum_dmso_counts <- cbind (dmso_7d_counts, sgc_7d_counts, dmso_24h_counts, sgc_24h_counts)
+colnames(sum_dmso_counts) <- c("DMSO 7d Annotation", "DMSO 7d Counts", "DMSO 7d Percentage", "SGC 7d Annotation", "SGC 7d Counts", "SGC 7d Percentage",
+                           "DMSO 24h Annotation", "DMSO 24h Counts", "DMSO 24h Percentage","SGC 24h Annotation", "SGC 24h Counts", "SGC 24h Percentage")
 
 ```
