@@ -1,5 +1,5 @@
 ---
-title: "Pie Charts"
+title: "Comparison of MLLT1 binding in genomic regions"
 output: html_document
 ---
 
@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(stringr)
 library(tidyverse)
 library(cowplot)
+library(DT)
 
 # to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
 ```
@@ -154,6 +155,8 @@ mcf_dmso_counts <- cbind (dmso_7d_counts, sgc_7d_counts, dmso_24h_counts, sgc_24
 colnames(mcf_dmso_counts) <- c("DMSO 7d Annotation", "DMSO 7d Counts", "DMSO 7d Percentage", "SGC 7d Annotation", "SGC 7d Counts", "SGC 7d Percentage",
                            "DMSO 24h Annotation", "DMSO 24h Counts", "DMSO 24h Percentage","SGC 24h Annotation", "SGC 24h Counts", "SGC 24h Percentage")
 
+datatable(mcf_dmso_counts)
+
 ```
 
 
@@ -295,4 +298,5 @@ sum_dmso_counts <- cbind (dmso_7d_counts, sgc_7d_counts, dmso_24h_counts, sgc_24
 colnames(sum_dmso_counts) <- c("DMSO 7d Annotation", "DMSO 7d Counts", "DMSO 7d Percentage", "SGC 7d Annotation", "SGC 7d Counts", "SGC 7d Percentage",
                            "DMSO 24h Annotation", "DMSO 24h Counts", "DMSO 24h Percentage","SGC 24h Annotation", "SGC 24h Counts", "SGC 24h Percentage")
 
+datatable(sum_dmso_counts)
 ```
