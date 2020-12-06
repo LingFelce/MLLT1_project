@@ -1,0 +1,143 @@
+---
+title: "Venn diagrams"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+library(tidyverse)
+library(cowplot)
+library(DT)
+library(reshape)
+library(reshape2)
+library("RColorBrewer")
+library(wesanderson)
+library(limma)
+
+# to convert to Word document, type in Console >rmarkdown::render("file_name.Rmd")
+```
+
+# Venn diagrams to look at overlapping peaks between treatment
+
+## MCF-7
+
+```{r}
+dmso_7d <- read.delim("MCF_MLLT1_PEAKS_7D_FACTOR.quant.txt", header = TRUE, sep = "\t")
+dmso_24h <- read.delim("MCF_MLLT1_PEAKS_24H_FACTOR.quant.txt", header = TRUE, sep = "\t")
+sgc_7d <- read.delim("MCF_MLLT1_SGC_PEAKS_7D_FACTOR.quant.txt", header = TRUE, sep = "\t")
+sgc_24h <- read.delim("MCF_MLLT1_SGC_PEAKS_24H_FACTOR.quant.txt", header = TRUE, sep = "\t")
+```
+
+# DMSO v SGC-iMLLT
+```{r, fig.height=6, fig.width=6}
+dmso_7d_genes <- dmso_7d
+sgc_7d_genes <- sgc_7d
+dmso_24h_genes <- dmso_24h
+sgc_24h_genes <- sgc_24h
+
+# select only gene names
+dmso_7d_genes <- dmso_7d_genes %>% select(Gene.Name)
+sgc_7d_genes <- sgc_7d_genes %>% select(Gene.Name)
+dmso_24h_genes <- dmso_24h_genes %>% select(Gene.Name)
+sgc_24h_genes <- sgc_24h_genes %>% select(Gene.Name)
+
+# add column with 1 for each row
+dmso_7d_genes$DMSO_7d <- 1
+sgc_7d_genes$SGC_7d <- 1
+dmso_24h_genes$DMSO_24h <- 1
+sgc_24h_genes$SGC_24h <- 1
+
+# merge 2 dataframes first (can only do 2 max for merge)
+merge <- merge(dmso_7d_genes, sgc_7d_genes,  by="Gene.Name", all = T)
+
+# add other 2 dataframes
+merge <- merge(merge, dmso_24h_genes, by="Gene.Name", all = T)
+merge <- merge(merge, sgc_24h_genes, by="Gene.Name", all = T)
+
+# remove rows with no gene names
+merge <- merge[-c(1:33440),]
+
+# convert NA to 0
+merge[is.na(merge)] <- 0
+
+# create new objects to save and for venn diagram
+merge_mcf <- merge
+venn <- merge_mcf
+
+# remove Gene.Name column
+venn$Gene.Name <- NULL
+
+# plot venn diagram
+myCol <- brewer.pal(4, "Spectral")
+# c("red", "blue", "darkgreen", "yellow")
+png("venn_mcf7.png")
+vennDiagram(venn, circle.col = myCol, cex=c(1,0.9,0.7))
+
+```
+
+
+
+![](venn_mcf7.png)
+
+
+## SUM159
+
+```{r}
+dmso_7d <- read.delim("SUM_MLLT1_PEAKS_7D_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+dmso_24h <- read.delim("SUM_MLLT1_PEAKS_24H_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+sgc_7d <- read.delim("SUM_MLLT1_SGC_PEAKS_7D_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+sgc_24h <- read.delim("SUM_MLLT1_SGC_PEAKS_24H_FACTOR_NORM.quant.txt", header = TRUE, sep = "\t")
+```
+
+# DMSO v SGC-iMLLT
+```{r, fig.height=6, fig.width=6}
+dmso_7d_genes <- dmso_7d
+sgc_7d_genes <- sgc_7d
+dmso_24h_genes <- dmso_24h
+sgc_24h_genes <- sgc_24h
+
+# select only gene names
+dmso_7d_genes <- dmso_7d_genes %>% select(Gene.Name)
+sgc_7d_genes <- sgc_7d_genes %>% select(Gene.Name)
+dmso_24h_genes <- dmso_24h_genes %>% select(Gene.Name)
+sgc_24h_genes <- sgc_24h_genes %>% select(Gene.Name)
+
+# add column with 1 for each row
+dmso_7d_genes$DMSO_7d <- 1
+sgc_7d_genes$SGC_7d <- 1
+dmso_24h_genes$DMSO_24h <- 1
+sgc_24h_genes$SGC_24h <- 1
+
+# merge 2 dataframes first (can only do 2 max for merge)
+merge <- merge(dmso_7d_genes, sgc_7d_genes,  by="Gene.Name", all = T)
+
+# add other 2 dataframes
+merge <- merge(merge, dmso_24h_genes, by="Gene.Name", all = T)
+merge <- merge(merge, sgc_24h_genes, by="Gene.Name", all = T)
+
+# remove rows with no gene names
+merge <- merge[-c(1:8100),]
+
+# convert NA to 0
+merge[is.na(merge)] <- 0
+
+# create new objects to save and for venn diagram
+merge_sum <- merge
+venn <- merge_sum
+
+# remove Gene.Name column
+venn$Gene.Name <- NULL
+
+# plot venn diagram
+myCol <- brewer.pal(4, "Spectral")
+# c("red", "blue", "darkgreen", "yellow")
+png("venn_sum159.png")
+vennDiagram(venn, circle.col = myCol, cex=c(1,0.9,0.7))
+
+```
+
+
+
+![](venn_sum159.png)
+
