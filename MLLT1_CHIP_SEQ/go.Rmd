@@ -74,26 +74,107 @@ shared_24h <- subset(shared_24h, shared_24h[ , 6] == 2)
 #### DMSO 7 days only
 ```{r}
 # Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
-dmso_7d_only$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(dmso_7d_only$Gene.Name), keytype="SYMBOL", column="ENTREZID")
+sgc_7d_only$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(sgc_7d_only$Gene.Name), keytype="SYMBOL", column="ENTREZID")
 #Keep only rows from table without NAs
-dmso_7d_only <- dmso_7d_only[is.na(dmso_7d_only$Entrez.Gene)==FALSE,]
+sgc_7d_only <- sgc_7d_only[is.na(sgc_7d_only$Entrez.Gene)==FALSE,]
 #Remove duplicated entries
-dmso_7d_only <- dmso_7d_only[!duplicated(dmso_7d_only$Entrez.Gene),]
+sgc_7d_only <- sgc_7d_only[!duplicated(sgc_7d_only$Entrez.Gene),]
 
 #Change Entrez IDs from numbers to characters
-geneset <- as.character(dmso_7d_only$Entrez.Gene)
+geneset <- as.character(sgc_7d_only$Entrez.Gene)
 #This will take a little while to run
 ego <- enrichGO(gene = geneset, 
                 universe = NULL, #all available genes in database
                 OrgDb = org.Hs.eg.db, #Hs: homo sapiens
                 ont ="BP", #molecular function, biological process, cellular component
                 pAdjustMethod = "BH",
-                pvalueCutoff = 0.01,
+                pvalueCutoff = 0.05,
+                qvalueCutoff = 0.05,  # q value is FDR adjusted p value
+                readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
+# dimensions - number of GO terms
+dim(ego)
+
+sgc_7d_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+shared_7d_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+#Copy and paste table into Excel
+```
+
+## SUM159
+Subset gene lists
+```{r}
+## Unique gene lists
+
+# DMSO 7 days
+# only select genes (rows) where DMSO 7d has a count of 1
+dmso_7d_only <- merge_sum[merge_sum$DMSO_7d == "1", ]
+
+# create a new column where the 4 values are added together
+dmso_7d_only$sum <- rowSums(dmso_7d_only[2:5])
+
+# only keep rows where the sum is exactly 1 therefore the gene is unique to DMSO 7d
+dmso_7d_only <- subset(dmso_7d_only, dmso_7d_only[ , 6] == 1)  
+
+# SGC 7 days
+sgc_7d_only <- merge_sum[merge_sum$SGC_7d == "1", ]
+sgc_7d_only$sum <- rowSums(sgc_7d_only[2:5])
+sgc_7d_only <- subset(sgc_7d_only, sgc_7d_only[ , 6] == 1)  
+
+# DMSO 24 hours
+dmso_24h_only <- merge_sum[merge_sum$DMSO_24h == "1", ]
+dmso_24h_only$sum <- rowSums(dmso_24h_only[2:5])
+dmso_24h_only <- subset(dmso_24h_only, dmso_24h_only[ , 6] == 1) 
+
+# SGC 24 hours
+sgc_24h_only <- merge_sum[merge_sum$SGC_24h == "1", ]
+sgc_24h_only$sum <- rowSums(sgc_24h_only[2:5])
+sgc_24h_only <- subset(sgc_24h_only, sgc_24h_only[ , 6] == 1)
+
+
+## Shared gene lists
+
+# 7 days
+shared_7d <- merge_sum[merge_sum$DMSO_7d == "1", ]
+shared_7d <- shared_7d[shared_7d$SGC_7d == "1", ]
+shared_7d$sum <- rowSums(shared_7d[2:5])
+shared_7d <- subset(shared_7d, shared_7d[ , 6] == 2)  
+
+# 24 hours
+shared_24h <- merge_sum[merge_sum$DMSO_24h == "1", ]
+shared_24h <- shared_24h[shared_24h$SGC_24h == "1", ]
+shared_24h$sum <- rowSums(shared_24h[2:5])
+shared_24h <- subset(shared_24h, shared_24h[ , 6] == 2) 
+
+```
+
+### Gene ontology analysis
+
+#### DMSO 7 days only
+```{r}
+# Use Ensembl IDs to map Entrez Gene IDs. Use #keytypes(org.Hs.eg.db) to check what column names are
+shared_7d$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(shared_7d$Gene.Name), keytype="SYMBOL", column="ENTREZID")
+#Keep only rows from table without NAs
+shared_7d <- shared_7d[is.na(shared_7d$Entrez.Gene)==FALSE,]
+#Remove duplicated entries
+shared_7d <- shared_7d[!duplicated(shared_7d$Entrez.Gene),]
+
+#Change Entrez IDs from numbers to characters
+geneset <- as.character(shared_7d$Entrez.Gene)
+#This will take a little while to run
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, #all available genes in database
+                OrgDb = org.Hs.eg.db, #Hs: homo sapiens
+                ont ="BP", #molecular function, biological process, cellular component
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.05,
                 qvalueCutoff = 0.05,  #q value is FDR adjusted p value
                 readable = TRUE) #will show gene symbol in images later rather than Entrez Gene ID
-#dimensions - number of GO terms
+# dimensions - number of GO terms
 dim(ego)
-mcf_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
-#Copy and paste into Excel
+
+shared_7d_GOgenes <- data.frame(ego$ID, ego$Description, ego$p.adjust, ego$geneID)
+
+#Copy and paste table into Excel
 ```
+
+
 
