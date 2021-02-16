@@ -255,8 +255,8 @@ annotatePeaks.pl SUM_MLLT1_SGC_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_SGC_
 annotatePeaks.pl SUM_MLLT1_SGC_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_SGC_7D_IP/ SUM_DMSO_7D_IP/ > SUM_MLLT1_SGC_PEAKS_7D_FACTOR_NORM.quant.txt
 
 # generating output for metaplot - average distribution of MLLT1 over peaks under both conditions
-annotatePeaks.pl MCF_MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_24H_IP/ -size 1000 -hist 1000 > MCF_MLLT1_24H_average.txt 
-annotatePeaks.pl MCF_MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ -size 1000 -hist 1000 > MCF_MLLT1_7D_average.txt
+annotatePeaks.pl MCF_MLLT1_DMSO_24H_FACTOR.txt hg38 -d MCF_DMSO_24H_IP/ MCF_SGC_24H_IP/ -size 2000 -hist 100 > MCF_MLLT1_24H_average.txt 
+annotatePeaks.pl MCF_MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D_IP/ -size 2000 -hist 100 > MCF_MLLT1_7D_average.txt
 
-annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ -size 1000 -hist 1000 > SUM_MLLT1_24H_average.txt 
-annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ -size 1000 -hist 1000 > SUM_MLLT1_7D_average.txt
+annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ -size 2000 -hist 100 > SUM_MLLT1_24H_average.txt 
+annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ -size 2000 -hist 100 > SUM_MLLT1_7D_average.txt
