@@ -1,0 +1,75 @@
+---
+title: "ChIP-Seq metaplot"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(stringr)
+library(plyr)
+library(dplyr)
+library(cowplot)
+library(tidyverse)
+library(gridExtra)
+library(ggplot2)
+```
+
+## MLLT1 ChIP-Seq in MCF-7 and SUM159 breast cancer cell lines
+Generating metaplot to visualise changes in distribution of MLLT1 over peaks when treated with SGC-iMLLT compared to DMSO
+
+```{r}
+# read in files
+sum_24h <- read.delim("/t1-data/user/lfelce/MLLT1/ChIP-Seq/SUM_MLLT1_24H_average.txt", sep=",")
+sum_7d <- read.delim("/t1-data/user/lfelce/MLLT1/ChIP-Seq/SUM_MLLT1_7D_average.txt", sep=",")
+mcf_24h <- read.delim("/t1-data/user/lfelce/MLLT1/ChIP-Seq/MCF_MLLT1_24H_average.txt", sep=",")
+mcf_7d <- read.delim("/t1-data/user/lfelce/MLLT1/ChIP-Seq/SUM_MLLT1_7D_average.txt", sep=",")
+
+
+p1 <- ggplot(sum_24h, aes(x=position, y=count, color=treatment)) +
+  geom_line(size=2, aes(linetype=treatment)) +
+  labs(title="MLLT1 distribution at MLLT1 peaks in SUM159 with 24 hours treatment",
+       x="Position relative to peak centre (bp)", 
+       y = "Read count (per 10 million reads") +
+  scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
+  scale_linetype_manual(values = c("dashed", "solid")) + 
+  geom_vline(xintercept = 0, linetype="dotted")
+
+
+p2 <- ggplot(sum_7d, aes(x=position, y=count, color=treatment)) +
+  geom_line(size=2, aes(linetype=treatment)) +
+  labs(title="MLLT1 distribution at MLLT1 peaks in SUM159 with 7 days treatment",
+       x="Position relative to peak centre (bp)", 
+       y = "Read count (per 10 million reads") +
+  scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
+  scale_linetype_manual(values = c("dashed", "solid")) + 
+  geom_vline(xintercept = 0, linetype="dotted")
+
+p3 <- ggplot(mcf_24h, aes(x=position, y=count, color=treatment)) +
+  geom_line(size=2, aes(linetype=treatment)) +
+  labs(title="MLLT1 distribution at MLLT1 peaks in MCF-7 with 24 hours treatment",
+       x="Position relative to peak centre (bp)", 
+       y = "Read count (per 10 million reads") +
+  scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
+  scale_linetype_manual(values = c("dashed", "solid")) + 
+  geom_vline(xintercept = 0, linetype="dotted")
+
+p4 <- ggplot(mcf_7d, aes(x=position, y=count, color=treatment)) +
+  geom_line(size=2, aes(linetype=treatment)) +
+  labs(title="MLLT1 distribution at MLLT1 peaks in MCF-7 with 7 days treatment",
+       x="Position relative to peak centre (bp)", 
+       y = "Read count (per 10 million reads") +
+  scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
+  scale_linetype_manual(values = c("dashed", "solid")) + 
+  geom_vline(xintercept = 0, linetype="dotted")
+
+```
+
+```{r, fig.height=10, fig.width = 16}
+
+grid.arrange(p1, p2, p3, p4, nrow=2)
+
+```
+
