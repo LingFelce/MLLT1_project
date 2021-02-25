@@ -418,3 +418,5 @@ gzip *fastq # to zip all files in folder with .fastq extension
 ## next time can add gzip function to downsample.sh script - output as .fastq, then gzip *fastq files
 ## need to redo soft links for actual zipped files
 
+# trimmed files using trimmmomatic as part of python pipeline
+# used paired .fastq.gz files for kallisto - 1P = R1, 2P = R2
