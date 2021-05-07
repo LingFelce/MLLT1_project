@@ -17,14 +17,12 @@ library(ggplot2)
 library (stringi)
 library(AnnotationDbi)
 library(edgeR)
-library(DEFormats)
+# library(DEFormats)
 library(statmod)
 library(BiocParallel)
 library (limma)
 library("genefilter")
 ```
-
-Update 2nd October 2020
 
 # METABRIC dataset analysis
 
@@ -38,16 +36,13 @@ Managed to download from cBioPortal
 Trying to look at high and low MLLT1 expression and see if immune gene signatures correlate with expression.
 
 ```{r read in files}
+setwd("/t1-data/user/lfelce/METABRIC/")
+
 clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
-
 clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
-
 expression_median <- read.delim("data_expression_median.txt", header=TRUE, na.strings = c("", "NA"))
-
 gene_matrix <-  read.delim("data_gene_matrix.txt", header=TRUE)
-
 mrna_median_all_sample_zscores <- read.delim("data_mRNA_median_all_sample_Zscores.txt", header=TRUE)
-
 mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 ## important ones to use: clinical_patient for survival information and expression_median for gene expression matrix (ImSig uses TPM/FPKM not Z-scores) ##
 ```
@@ -55,190 +50,123 @@ mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 
 ```{r heatmap}
 # heatmap of interferon alpha and interferon gamma gene expression from Hallmark gene sets compared with MLLT1 expression
-
 # want patient MLLT1 expressing low to high on x axis, y axis different genes from ifn a and ifn g
-
 # upregulated core enriched genes only from Hallmark gene sets interferon alpha and interferon gamma response, inflammatory response
-
 # read in gene list - 266 (including MLLT1)
 ifn_genes <- read.csv("ifna_ifng_hallmark.csv", header=TRUE)
-
 # remove duplicated rows - 145 genes (also converts to character from vector?)
 ifn_genes <-  ifn_genes[!duplicated(ifn_genes), ]
-
 # want to use z-scores for simplicity
 exp <- mrna_median_all_sample_zscores
-
 # remove EntrezID
 exp[2] <- NULL
-
 # change . in patient IDs to - to match clinical data patient IDs
 names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
-
 # remove any NA
 exp <-  exp %>% na.omit()
-
 # make gene symbols row names, and remove 1st column
 rownames(exp) <- exp[,1]
 exp[1] <- NULL
-
-
 # select specific rows from expression matrix
 ifn_exp <- exp[c(ifn_genes),]
-
 # remove NA - 128 rows
 ifn_exp <-  ifn_exp %>% na.omit()
-
 # sort patients by MLLT1 expression low to high
 sorted_ifn_exp <- ifn_exp[order(ifn_exp["MLLT1",]), drop=FALSE]
-
-
 ```
 
 ```{r fig.width=12, fig.height=20 }
-
 # Generate heatmap - all patients
-
 mat <- data.matrix(sorted_ifn_exp)
 
-col.pan <- colorpanel(100, "green", "black", "red")
+pheatmap(mat)
 
+col.pan <- colorpanel(100, "green", "black", "red")
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
 
 # heat map only shows 476 patients? Why? Does show all genes though
-
-
 ```
 
 ```{r fig.width=12, fig.height=20 }
-
 # Generate heatmap - just low and high expressing patients (from cBioPortal EXP>1 and EXP<-1)
-
 # read in patient IDs
-
 high_ids <- read.csv("high_patient_ids.csv", header=TRUE)
-
 low_ids <- read.csv("low_patient_ids.csv", header=TRUE)
-
 # convert to character by removing duplicates, then remove brca_metabric from each name
-
 high_ids <-  high_ids[!duplicated(high_ids), ]
-
 high_ids <- high_ids %>% str_replace("brca_metabric:", "")
-
 low_ids <-  low_ids[!duplicated(low_ids), ]
-
 low_ids <- low_ids %>% str_replace("brca_metabric:", "")
-
-
 # select specific just high and low patient ids
 select_ifn_exp <- sorted_ifn_exp[c(high_ids, low_ids)]
-
 # sort by MLLT1 expression 
-
 sorted_select_ifn_exp <- select_ifn_exp[order(select_ifn_exp["MLLT1",]), drop=FALSE]
-
 mat <- data.matrix(sorted_select_ifn_exp)
 
+pheatmap(mat)
+
 col.pan <- colorpanel(100, "green", "black", "red")
-
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.1, cexCol=0.1, density.info="none")
-
 ```
 
 ```{r}
 # looking at select genes to do with antigen presentation and processing (favourite genes)
-
 ag_exp <- sorted_select_ifn_exp[c("HLA-A", "HLA-B", "HLA-C", "TAP1", "MLLT1"),]
-
 mat <- data.matrix(ag_exp)
 
-col.pan <- colorpanel(100, "green", "black", "red")
+pheatmap(mat, show_colnames=FALSE)
 
+col.pan <- colorpanel(100, "#5D8CBF", "#FEFEBC", "#E5553B")
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=1, cexCol=0.1, density.info="none")
-
-
 ```
 
 ```{r}
 # look at MYC and genes to be tested in ChIP-Seq in high and low MLLT1 expressing patients (all subtypes)
-
 # select specific patients (columns)
-
 mllt1_exp <- exp[c(high_ids, low_ids)]
-
 # select specific rows (10 genes)
-
 select_exp <- exp[c("MYC", "CACTIN", "OTUD5", "TTLL12", "NLRX1", "HAS2", "SRC", "HIF1A", "CXCL8", "MLLT1"),]
-
 # CACTIN and CXCL8 not present
 select_exp <-  select_exp %>% na.omit()
-
 # sort by MLLT1 expression
 sorted_select_exp <- select_exp[order(select_exp["MLLT1",]), drop=FALSE]
-
 mat <- data.matrix(sorted_select_exp)
-
 col.pan <- colorpanel(100, "green", "black", "red")
-
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
-
 ```
 
 ```{r}
 # looking at ER positive patients only - 455 patients with high or low MLLT1 expression only (can't seem to do it with all 1825 patients as some patients don't have expression data available)
-
 er_ids <- read.csv("er_patient_ids.csv", header=TRUE)
-
 # convert to character by removing duplicates, then remove brca_metabric from each name
-
 er_ids <-  er_ids[!duplicated(er_ids), ]
-
 er_ids <- er_ids %>% str_replace("brca_metabric:", "")
-
 # select specific columns
 er_exp <- exp[er_ids]
-
 # select specific rows
 hla_er_exp <- er_exp[c("HLA-A", "HLA-B", "HLA-C", "TAP1", "MYC", "MLLT1"),]
-
 # sort by MLLT1 expression
 sorted_hla_er_exp <- hla_er_exp[order(hla_er_exp["MLLT1",]), drop=FALSE]
-
 # heatmap
 mat <- data.matrix(sorted_hla_er_exp)
-
 col.pan <- colorpanel(100, "green", "black", "red")
-
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
-
 ```
 
 ```{r}
 # looking at ER negative patients only - 141 patients with high or low MLLT1 expression only (can't seem to do it with all 644 patients as some patients don't have expression data available)
-
 er_ids <- read.csv("er_neg_ids.csv", header=TRUE)
-
 # convert to character by removing duplicates, then remove brca_metabric from each name
-
 er_ids <-  er_ids[!duplicated(er_ids), ]
-
 er_ids <- er_ids %>% str_replace("brca_metabric:", "")
-
 # select specific columns
 er_exp <- exp[er_ids]
-
 # select specific rows
 hla_er_exp <- er_exp[c("HLA-A", "HLA-B", "HLA-C", "TAP1", "MYC", "MLLT1"),]
-
 # sort by MLLT1 expression
 sorted_hla_er_exp <- hla_er_exp[order(hla_er_exp["MLLT1",]), drop=FALSE]
-
 # heatmap
 mat <- data.matrix(sorted_hla_er_exp)
-
 col.pan <- colorpanel(100, "green", "black", "red")
-
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
-
 ```
