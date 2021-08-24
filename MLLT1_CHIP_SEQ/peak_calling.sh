@@ -260,3 +260,238 @@ annotatePeaks.pl MCF_MLLT1_DMSO_7D_FACTOR.txt hg38 -d MCF_DMSO_7D_IP/ MCF_SGC_7D
 
 annotatePeaks.pl SUM_MLLT1_DMSO_24H_FACTOR.txt hg38 -norm 6672871.029 -d SUM_DMSO_24H_IP/ SUM_SGC_24H_IP/ -size 2000 -hist 100 > SUM_MLLT1_24H_average.txt 
 annotatePeaks.pl SUM_MLLT1_DMSO_7D_FACTOR.txt hg38 -norm 7550759.462 -d SUM_DMSO_7D_IP/ SUM_SGC_7D_IP/ -size 2000 -hist 100 > SUM_MLLT1_7D_average.txt
+
+## redoing tags and bigwigs on CCB cluster
+
+module load igv
+igv
+
+#!/bin/bash
+#SBATCH --partition=batch
+#SBATCH --job-name=tag
+#SBATCH --ntasks=8
+#SBATCH --mem=50G
+#SBATCH --time=00-06:00:00
+#SBATCH --output=%j_%x.out
+#SBATCH --error=%j_%x.err
+
+cd /datashare/lfelce/ChIP-Seq/bam/deduplicated/
+
+module load homer
+module load ucsctools
+
+makeTagDirectory tag_MCF_DMSO_24H_IP /datashare/lfelce/ChIP-Seq/bam/deduplicated/MCF_DMSO_24H_IP.bam
+
+Loading homer/20201202
+  Loading requirement: htslib/1.10 samtools/1.10 R-base/4.1.0 gsl/2.6
+    hdf5/1.10.7 R-cbrg/current
+	Will parse file: /datashare/lfelce/ChIP-Seq/bam/deduplicated/MCF_DMSO_24H_IP.bam
+
+	Creating directory: tag_MCF_DMSO_24H_IP and removing existing *.tags.tsv
+
+	Treating /datashare/lfelce/ChIP-Seq/bam/deduplicated/MCF_DMSO_24H_IP.bam as a bam file
+	Reading alignment file /datashare/lfelce/ChIP-Seq/bam/deduplicated/MCF_DMSO_24H_IP.bam
+
+	Optimizing tag files...
+	Estimated genome size = 3086939541
+	Estimated average read density = 0.001741 per bp
+	Total Tags = 5373525.5
+	Total Positions = 10466427
+	Average tag length = 40.6
+	Median tags per position = 0 (ideal: 1)
+	Average tags per position = 0.021
+	Fragment Length Estimate: 177
+	Peak Width Estimate: 514
+	Autocorrelation quality control metrics:
+		Same strand fold enrichment: 1.2
+		Diff strand fold enrichment: 1.5
+		Same / Diff fold enrichment: 0.8
+
+		Guessing sample is ChIP-Seq - may have low enrichment with lots of background
+
++--------------------------------------------------------------+
+|   This is the CCB job profiler for your job. For help with   |
+|   the results, please contact genmail@molbiol.ox.ac.uk       |
++--------------------------------------------------------------+
+REQUESTED    : 0-06:00:00
+JOB RUN TIME : Days 0, Hours 0, Minutes 1, Seconds 43
+UTILISATION  : 0.476851851852%
+DEBUG        : 21600 103 0.476851851852
++--------------------------------------------------------------+
+|                    LOW TIME UTILISATION                      |
+|   Requesting roughly the correct amount of time (e.g. an     |
+|   hour, a day or a week) can help your job start sooner.     |
++--------------------------------------------------------------+
++--------------------------------------------------------------+
+|                         CPU Profiling                        |
++--------------------------------------------------------------+
+REQUESTED    : 8 CPU cores
+MAX USAGE    : 1.041 CPU cores
+UTILISATION  : 7.3972826087% of allocated CPU over job time
+DEBUG        : 8 1.041 7.3972826087 
++--------------------------------------------------------------+
+|                         LOW CPU USAGE                        |
+|   Please request fewer CPUs. This is generally safe and      |
+|   will allow more jobs to run at once.                       |
++--------------------------------------------------------------+
+
+Max|    ******  ********                                        
+   |   *******************                                      
+   |   *******************               *                      
+ C |   *******************              **                   ***
+ P |   *******************              **       ***************
+ U |  ********************             *************************
+   |  ********************        ******************************
+ % |  *********************    *********************************
+   |  ********************* ************************************
+   |************************************************************
+Min+------------------------------------------------------------
+   Start                      Job Time                       End
+
++--------------------------------------------------------------+
+|                       Memory Profiling                       |
++--------------------------------------------------------------+
+REQUESTED    : 50.0GB
+MAX USAGE    : 56856.0 KB, 55.52 MB, 0.05 GB
+UTILISATION  : 0.0585993891177% of allocated memory over job time
+DEBUG        : 50.0 0.05 0.0585993891177 
++--------------------------------------------------------------+
+|                        LOW MEMORY USAGE                      |
+|   Requesting an additional 25% to 50% memory is typically a  |
+|   sufficient safety margin for your jobs.                    |
++--------------------------------------------------------------+
+
+Max|                                       **                   
+   |                                      *****  **   ****  *** 
+   |                                      ********** ***********
+ M |                                      **********************
+ e |                   **                 **********************
+ m |  *********************              ***********************
+ o |************************************************************
+ r |************************************************************
+ y |************************************************************
+   |************************************************************
+Min+------------------------------------------------------------
+   Start                      Job Time                       End
+
+
+#!/bin/bash
+#SBATCH --partition=batch
+#SBATCH --job-name=bigwig
+#SBATCH --ntasks=4
+#SBATCH --mem=25G
+#SBATCH --time=00-01:00:00
+#SBATCH --output=%j_%x.out
+#SBATCH --error=%j_%x.err
+
+cd /datashare/lfelce/ChIP-Seq/tag_directories/
+
+module load homer
+module load ucsctools
+
+makeBigWig.pl /datashare/lfelce/ChIP-Seq/tag_directories/tag_MCF_DMSO_24H_IP hg38 -webdir /datashare/lfelce/ChIP-seq/bigwigs/ -url http://datashare.molbiol.ox.ac.uk/public/lfelce/ChIP-seq/bigwigs/
+
+Loading homer/20201202
+  Loading requirement: htslib/1.10 samtools/1.10 R-base/4.1.0 gsl/2.6
+    hdf5/1.10.7 R-cbrg/current
+
+	Visualization fragment length = 177
+	Output file: /datashare/lfelce/ChIP-Seq/tag_directories/tag_MCF_DMSO_24H_IP/tag_MCF_DMSO_24H_IP.ucsc.bigWig
+	No need to remove tags to get desired file size
+	Generating bedGraph for chr1
+	Generating bedGraph for chr10
+	Generating bedGraph for chr11
+	Generating bedGraph for chr12
+	Generating bedGraph for chr13
+	Generating bedGraph for chr14
+	Generating bedGraph for chr15
+	Generating bedGraph for chr16
+	Generating bedGraph for chr17
+	Generating bedGraph for chr18
+	Generating bedGraph for chr19
+	Generating bedGraph for chr2
+	Generating bedGraph for chr20
+	Generating bedGraph for chr21
+	Generating bedGraph for chr22
+	Generating bedGraph for chr3
+	Generating bedGraph for chr4
+	Generating bedGraph for chr5
+	Generating bedGraph for chr6
+	Generating bedGraph for chr7
+	Generating bedGraph for chr8
+	Generating bedGraph for chr9
+	Generating bedGraph for chrM
+	Generating bedGraph for chrX
+	Generating bedGraph for chrY
+	Creating bigWig from bedGraph /datashare/lfelce/ChIP-Seq/tag_directories/tag_MCF_DMSO_24H_IP/tag_MCF_DMSO_24H_IP.ucsc.bigWig
+mv: cannot move ‘/datashare/lfelce/ChIP-Seq/tag_directories/tag_MCF_DMSO_24H_IP/tag_MCF_DMSO_24H_IP.ucsc.bigWig’ to ‘/datashare/lfelce/ChIP-seq/bigwigs//tag_MCF_DMSO_24H_IP.ucsc.bigWig’: No such file or directory
+
+	If you want to upload these tracks to the WashU Epigenome Browser, use:
+		http://datashare.molbiol.ox.ac.uk/public/lfelce/ChIP-seq/bigwigs/tag_MCF_DMSO_24H_IP.ucsc.bigWig
+
++--------------------------------------------------------------+
+|   This is the CCB job profiler for your job. For help with   |
+|   the results, please contact genmail@molbiol.ox.ac.uk       |
++--------------------------------------------------------------+
+REQUESTED    : 0-01:00:00
+JOB RUN TIME : Days 0, Hours 0, Minutes 0, Seconds 54
+UTILISATION  : 1.5%
+DEBUG        : 3600 54 1.5
++--------------------------------------------------------------+
+|                    LOW TIME UTILISATION                      |
+|   Requesting roughly the correct amount of time (e.g. an     |
+|   hour, a day or a week) can help your job start sooner.     |
++--------------------------------------------------------------+
++--------------------------------------------------------------+
+|                         CPU Profiling                        |
++--------------------------------------------------------------+
+REQUESTED    : 4 CPU cores
+MAX USAGE    : 2.86 CPU cores
+UTILISATION  : 32.3140625% of allocated CPU over job time
+DEBUG        : 4 2.86 32.3140625 
++--------------------------------------------------------------+
+|                         LOW CPU USAGE                        |
+|   Please request fewer CPUs. This is generally safe and      |
+|   will allow more jobs to run at once.                       |
++--------------------------------------------------------------+
+
+Max|                         *                                  
+   |                         *                                  
+   |                         **                                 
+ C |                         ***********                        
+ P |                         ********************************** 
+ U |      **                ************************************
+   |    ********************************************************
+ % |    ********************************************************
+   |   *********************************************************
+   |************************************************************
+Min+------------------------------------------------------------
+   Start                      Job Time                       End
+
++--------------------------------------------------------------+
+|                       Memory Profiling                       |
++--------------------------------------------------------------+
+REQUESTED    : 25.0GB
+MAX USAGE    : 151516.0 KB, 147.96 MB, 0.14 GB
+UTILISATION  : 0.286871274312% of allocated memory over job time
+DEBUG        : 25.0 0.14 0.286871274312 
++--------------------------------------------------------------+
+|                        LOW MEMORY USAGE                      |
+|   Requesting an additional 25% to 50% memory is typically a  |
+|   sufficient safety margin for your jobs.                    |
++--------------------------------------------------------------+
+
+Max|                                                      ***   
+   |                                                 *********  
+   |                                                ************
+ M |                                                ************
+ e |                                               *************
+ m |    *   *** ** ** ******************************************
+ o |    ********************************************************
+ r |   *********************************************************
+ y |************************************************************
+   |************************************************************
+Min+------------------------------------------------------------
+   Start                      Job Time                       End
+
+
