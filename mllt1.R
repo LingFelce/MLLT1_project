@@ -217,3 +217,6 @@ fviz_pca_ind(data.pca,
              col.ind = data$ER_status,
              addEllipses = TRUE,
              legend.title = "ER status")
+
+var <- as.data.frame(data.pca$var)
+var <- rownames_to_column(var, var="Gene")
