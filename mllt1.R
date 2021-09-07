@@ -47,7 +47,7 @@ EnhancedVolcano(sum24h, lab=sum24h$SYMBOL, x = "log2FoldChange", y = "padj",
 
 
 
-#-----DEG low v high MLLT1 METABRIC patients-----------------
+#-----MLLT1 METABRIC patients-----------------
 setwd("/stopgap/donglab/ling/t1-data/METABRIC/")
 library(dplyr)
 library(tidyverse)
@@ -66,27 +66,12 @@ library (limma)
 library("genefilter")
 
 
-# METABRIC dataset analysis
-
-
-clinical_sample <-read.delim("data_clinical_sample.txt", header=TRUE)
-clinical_patient <- read.delim("data_clinical_patient.txt", header=TRUE, na.strings = c("", "NA"))
+# input data
 expression_median <- read.delim("data_expression_median.txt", header=TRUE, na.strings = c("", "NA"))
-gene_matrix <-  read.delim("data_gene_matrix.txt", header=TRUE)
 mrna_median_all_sample_zscores <- read.delim("data_mRNA_median_all_sample_Zscores.txt", header=TRUE)
-mrna_median_zscores <-  read.delim("data_mRNA_median_Zscores.txt", header=TRUE)
 ## important ones to use: clinical_patient for survival information and expression_median for gene expression matrix (ImSig uses TPM/FPKM not Z-scores) ##
 
-
-# heatmap of interferon alpha and interferon gamma gene expression from Hallmark gene sets compared with MLLT1 expression
-# want patient MLLT1 expressing low to high on x axis, y axis different genes from ifn a and ifn g
-# upregulated core enriched genes only from Hallmark gene sets interferon alpha and interferon gamma response, inflammatory response
-# read in gene list - 266 (including MLLT1)
-ifn_genes <- read.csv("ifna_ifng_hallmark.csv", header=TRUE)
-# # remove duplicated rows - 145 genes (also converts to character from vector?)
-ifn_genes <-  ifn_genes[!duplicated(ifn_genes), ]
-
-# want to use z-scores for simplicity
+# want to use z-scores for heat maps for simplicity
 exp <- mrna_median_all_sample_zscores
 # remove EntrezID
 exp[2] <- NULL
@@ -100,15 +85,6 @@ exp[1] <- NULL
 
 # Use just low and high expressing patients (from cBioPortal EXP>1 and EXP<-1)
 # read in patient IDs
-high_ids <- read.csv("high_patient_ids.csv", header=TRUE)
-low_ids <- read.csv("low_patient_ids.csv", header=TRUE)
-# convert to character by removing duplicates, then remove brca_metabric from each name
-high_ids <-  high_ids[!duplicated(high_ids), ]
-high_ids <- high_ids %>% str_replace("brca_metabric:", "")
-low_ids <-  low_ids[!duplicated(low_ids), ]
-low_ids <- low_ids %>% str_replace("brca_metabric:", "")
-
-# ID table
 high_ids <- as.data.frame(read.csv("high_patient_ids.csv", header=TRUE))
 high_ids$mllt1 <- "High"
 colnames(high_ids) <- c("Patient_ID", "MLLT1_status")
@@ -125,6 +101,17 @@ ids$ER_status <- ifelse(ids$Patient_ID %in% er_pos$er_ids, "ER positive",
 
 table(ids$MLLT1_status)
 table(ids$ER_status)
+
+# read in patient IDs (to select from expression matrix more easily not as dataframes)
+high_ids <- read.csv("high_patient_ids.csv", header=TRUE)
+low_ids <- read.csv("low_patient_ids.csv", header=TRUE)
+# convert to character by removing duplicates, then remove brca_metabric from each name
+high_ids <-  high_ids[!duplicated(high_ids), ]
+high_ids <- high_ids %>% str_replace("brca_metabric:", "")
+low_ids <-  low_ids[!duplicated(low_ids), ]
+low_ids <- low_ids %>% str_replace("brca_metabric:", "")
+
+#-----METABRIC heatmaps-----------------
 
 # all subtypes low and high MLLT1
 # select antigen presentation and processing and MYC
@@ -174,4 +161,33 @@ mat <- data.matrix(sorted_hla_er_exp)
 col.pan <- colorpanel(100, "green", "black", "red")
 heatmap.2(mat, col=col.pan, Rowv=FALSE, Colv=FALSE, scale="column", trace="none", dendrogram="none", cexRow=0.9, cexCol=0.1, density.info="none")
 
+#-----METABRIC DEG low v high-----------------
+ids$Patient_ID <- ids$Patient_ID %>% str_replace("brca_metabric:", "")
 
+# use median expression for DEG
+exp <- expression_median
+# remove EntrezID
+exp[2] <- NULL
+# change . in patient IDs to - to match clinical data patient IDs
+names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
+# remove any NA
+exp <-  exp %>% na.omit()
+# make gene symbols row names, and remove 1st column
+rownames(exp) <- exp[,1]
+exp[1] <- NULL
+select_exp <- exp[c(high_ids, low_ids)]
+
+select_exp_2 <- as.data.frame(lapply(select_exp, as.integer))
+rownames(select_exp_2) <- rownames(select_exp)
+colnames(select_exp_2) <- colnames(select_exp)
+
+dds <- DESeqDataSetFromMatrix(select_exp_2, 
+                              colData = ids, 
+                              design = ~ MLLT1_status)
+
+vsd <- vst(dds, blind=FALSE)
+select <- order(rowMeans(counts(dds, normalized=FALSE)), decreasing=TRUE)[1:200]
+df <- as.data.frame(colData(dds)[,"Condition"])
+annotation <- data.frame(Var1 = ids$MLLT1_status, Var2 = ids$ER_status)
+rownames(annotation) <- colnames(assay(vsd))
+pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
