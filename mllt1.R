@@ -181,13 +181,39 @@ select_exp_2 <- as.data.frame(lapply(select_exp, as.integer))
 rownames(select_exp_2) <- rownames(select_exp)
 colnames(select_exp_2) <- colnames(select_exp)
 
-dds <- DESeqDataSetFromMatrix(select_exp_2, 
-                              colData = ids, 
-                              design = ~ MLLT1_status)
+# dds <- DESeqDataSetFromMatrix(select_exp_2, 
+#                               colData = ids, 
+#                               design = ~ MLLT1_status)
+# 
+# vsd <- vst(dds, blind=FALSE)
+# select <- order(rowMeans(counts(dds, normalized=FALSE)), decreasing=TRUE)[1:200]
+# df <- as.data.frame(colData(dds)[,"Condition"])
+# annotation <- data.frame(Var1 = ids$MLLT1_status, Var2 = ids$ER_status)
+# rownames(annotation) <- colnames(assay(vsd))
+# pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
 
-vsd <- vst(dds, blind=FALSE)
-select <- order(rowMeans(counts(dds, normalized=FALSE)), decreasing=TRUE)[1:200]
-df <- as.data.frame(colData(dds)[,"Condition"])
-annotation <- data.frame(Var1 = ids$MLLT1_status, Var2 = ids$ER_status)
-rownames(annotation) <- colnames(assay(vsd))
-pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
+#-------METABRIC PCA-------
+
+library(factoextra)
+library(FactoMineR)
+
+t_select_exp <- as.data.frame(t(select_exp))
+t_select_exp <- rownames_to_column(t_select_exp, var="Patient_ID")
+data <- merge(t_select_exp, ids, by = "Patient_ID")
+data <- data[,c(1, 24362, 24363, 2:24360)]
+
+data.pca <- PCA(data[,-c(1:3)], graph=FALSE)
+print(data.pca)
+fviz_pca_ind(data.pca,
+             geom.ind = "point",
+             pointshape = 20,
+             col.ind = data$MLLT1_status,
+             addEllipses = TRUE,
+             legend.title = "MLLT1 status")
+
+fviz_pca_ind(data.pca,
+             geom.ind = "point",
+             pointshape = 20,
+             col.ind = data$ER_status,
+             addEllipses = TRUE,
+             legend.title = "ER status")
