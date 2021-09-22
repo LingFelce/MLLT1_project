@@ -265,20 +265,32 @@ res.cat$`HLA-C` <- ifelse(res.cat$`HLA-C` > 8.17, "high", "low")
 df2 <- res.cat
 df2 <- ifelse(df2[3:131] == "high", 1, 
               ifelse(df2[3:131] == "low", 0, ""))
-# convert to numeric
+
+df2 <- as.data.frame(df2, nrow=1904)
 df2[] <- lapply(df2, function(x) {
   if(is.character(x)) as.numeric(x) else x
 })
 sapply(df2, class)
-df2 <- as.data.frame(df2, nrow=1904)
 
-df2$ifn <- ifelse(rowSums(df2) > 64.5, "high", "low")
-
+# need to find good value to set - how many genes should be high?
+# MLLT1 has to be low!
+df2$ifn <- ifelse(rowSums(df2) > 128 & df2$MLLT1 < 5.74, "high", "low")
 table(df2$ifn)
 
-                                 
+res.cat$ifn <- df2$ifn
+
 fit <- survfit(Surv(time, status) ~ifn, data = res.cat)
 ggsurvplot(fit, risk.table = TRUE, conf.int = TRUE, pval = TRUE)
+
+
+fit <- survfit(Surv(time, status) ~MLLT1, data = res.cat)
+ggsurvplot(fit, risk.table = TRUE, conf.int = TRUE, pval = TRUE)
+
+fit <- survfit(Surv(time, status) ~MYC, data = res.cat)
+ggsurvplot(fit, risk.table = TRUE, conf.int = TRUE, pval = TRUE)
+
+
+
 
 #-------METABRIC PCA-------
 
