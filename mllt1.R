@@ -1,6 +1,6 @@
 #-----MLLT1 paper extra figures-----------------
 
-#-----Volcano plots-----------------
+#-----Bulk RNA-Seq volcano plots-----------------
 setwd("/stopgap/donglab/ling/R/test/")
 
 library(tidyverse)
@@ -191,6 +191,94 @@ colnames(select_exp_2) <- colnames(select_exp)
 # annotation <- data.frame(Var1 = ids$MLLT1_status, Var2 = ids$ER_status)
 # rownames(annotation) <- colnames(assay(vsd))
 # pheatmap(assay(vsd)[select,], cluster_rows = FALSE, show_rownames = FALSE, cluster_cols = TRUE, annotation =annotation)
+
+#-------METABRIC survival curves-------
+library(RTCGA)
+library(survminer)
+library(survival)
+library(data.table)
+library(tidyverse)
+library(dplyr)
+
+setwd("/stopgap/donglab/ling/t1-data/METABRIC/")
+
+# input data
+expression_median <- read.delim("data_expression_median.txt", header=TRUE, na.strings = c("", "NA"))
+# mrna_median_all_sample_zscores <- read.delim("data_mRNA_median_all_sample_Zscores.txt", header=TRUE)
+clin <- read.delim("data_clinical_patient.txt", header=TRUE)
+
+# tidy up expression data
+exp <- expression_median
+# remove EntrezID
+exp[2] <- NULL
+# change . in patient IDs to - to match clinical data patient IDs
+names(exp) <- gsub(x = names(exp), pattern = "\\.", replacement = "-")  
+# remove any NA
+exp <-  exp %>% na.omit()
+# make gene symbols row names, and remove 1st column
+rownames(exp) <- exp[,1]
+exp[1] <- NULL
+# transpose so patients are rows and genes are columns
+exp <- as.data.frame(t(exp))
+
+# tidy up clinical status
+clin <- clin[-c(1:3),]
+colnames(clin) <- clin[1,]
+clin <- clin[-1,]
+
+names(clin)[names(clin) == "OS_MONTHS"] <- "time"
+clin$time <- as.numeric(clin$time)
+
+# 0 = living, 1 = dead
+clin$status <- ifelse(grepl("1", clin$OS_STATUS), "1",
+                      ifelse(grepl("0", clin$OS_STATUS), "0", ""))
+clin$status <- as.numeric(clin$status)
+
+# interferon gene signature
+ifn <- read.csv("/stopgap/donglab/ling/t1-data/METABRIC/ifna_ifng_hallmark.csv")
+
+genes <- exp[,colnames(exp) %in% ifn$Gene,]
+genes <- rownames_to_column(genes, var="PATIENT_ID")
+
+# merge clinical and genes data
+df <- clin[,c("PATIENT_ID", "time", "status")]
+df <- merge(df, genes, by="PATIENT_ID")
+
+res.cut <- surv_cutpoint(df, time = "time", event = "status", 
+                         variables = colnames(df)[4:132])
+summary(res.cut)
+
+plot(res.cut, "MLLT1", palette = "npg")
+plot(res.cut, "MYC", palette = "npg")
+plot(res.cut, "HLA-A", palette = "npg")
+plot(res.cut, "HLA-B", palette = "npg")
+plot(res.cut, "HLA-C", palette = "npg")
+
+
+res.cat <- surv_categorize(res.cut)
+head(res.cat)
+
+res.cat$`HLA-A` <- ifelse(res.cat$`HLA-A` > 5.7, "high", "low")
+res.cat$`HLA-B` <- ifelse(res.cat$`HLA-B` > 12.23, "high", "low")
+res.cat$`HLA-C` <- ifelse(res.cat$`HLA-C` > 8.17, "high", "low")
+
+df2 <- res.cat
+df2 <- ifelse(df2[3:131] == "high", 1, 
+              ifelse(df2[3:131] == "low", 0, ""))
+# convert to numeric
+df2[] <- lapply(df2, function(x) {
+  if(is.character(x)) as.numeric(x) else x
+})
+sapply(df2, class)
+df2 <- as.data.frame(df2, nrow=1904)
+
+df2$ifn <- ifelse(rowSums(df2) > 64.5, "high", "low")
+
+table(df2$ifn)
+
+                                 
+fit <- survfit(Surv(time, status) ~ifn, data = res.cat)
+ggsurvplot(fit, risk.table = TRUE, conf.int = TRUE, pval = TRUE)
 
 #-------METABRIC PCA-------
 
