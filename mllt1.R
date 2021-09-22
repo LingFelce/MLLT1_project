@@ -286,10 +286,10 @@ sapply(df2, class)
 # need to find good value to set - how many genes should be high?
 # need to play around a bit
 # if want to change settings, have to redo from df2 <- res.cat again
-df2$ifn <- ifelse(rowSums(df2) > 46 & df2$MLLT1 == 0, "High IFN, Low MLLT1", 
-           ifelse(rowSums(df2) < 46 & df2$MLLT1 == 1, "Low IFN, High MLLT1", 
-           ifelse(rowSums(df2) > 46 & df2$MLLT1 == 1, "High IFN, High MLLT1",
-           ifelse(rowSums(df2) < 46 & df2$MLLT1 == 0, "Low IFN, Low MLLT1", ""))))
+df2$ifn <- ifelse(rowSums(df2) > 64 & df2$MLLT1 == 0, "High IFN, Low MLLT1", 
+           ifelse(rowSums(df2) < 64 & df2$MLLT1 == 1, "Low IFN, High MLLT1", 
+           ifelse(rowSums(df2) > 64 & df2$MLLT1 == 1, "High IFN, High MLLT1",
+           ifelse(rowSums(df2) < 64 & df2$MLLT1 == 0, "Low IFN, Low MLLT1", ""))))
 table(df2$ifn)
 
 res.cat$ifn <- df2$ifn
