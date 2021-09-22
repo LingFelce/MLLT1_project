@@ -274,20 +274,22 @@ df2[] <- lapply(df2, function(x) {
 sapply(df2, class)
 
 # check MLLT1 low and high expression
-mlow <- df2[df2$MLLT1 == 0,]
-mhi <- df2[df2$MLLT1 == 1,]
-
-ggplot(mlow, aes(x=rowSums(mlow))) +
-  geom_density()
-
-ggplot(mhi, aes(x=rowSums(mhi))) +
-  geom_density()
+# mlow <- df2[df2$MLLT1 == 0,]
+# mhi <- df2[df2$MLLT1 == 1,]
+# 
+# ggplot(mlow, aes(x=rowSums(mlow))) +
+#   geom_density()
+# 
+# ggplot(mhi, aes(x=rowSums(mhi))) +
+#   geom_density()
 
 # need to find good value to set - how many genes should be high?
 # need to play around a bit
 # if want to change settings, have to redo from df2 <- res.cat again
 df2$ifn <- ifelse(rowSums(df2) > 46 & df2$MLLT1 == 0, "High IFN, Low MLLT1", 
-           ifelse(rowSums(df2) < 46 & df2$MLLT1 == 1, "Low IFN, High MLLT1", ""))
+           ifelse(rowSums(df2) < 46 & df2$MLLT1 == 1, "Low IFN, High MLLT1", 
+           ifelse(rowSums(df2) > 46 & df2$MLLT1 == 1, "High IFN, High MLLT1",
+           ifelse(rowSums(df2) < 46 & df2$MLLT1 == 0, "Low IFN, Low MLLT1", ""))))
 table(df2$ifn)
 
 res.cat$ifn <- df2$ifn
