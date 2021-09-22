@@ -199,6 +199,7 @@ library(survival)
 library(data.table)
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
 
 setwd("/stopgap/donglab/ling/t1-data/METABRIC/")
 
@@ -272,9 +273,12 @@ df2[] <- lapply(df2, function(x) {
 })
 sapply(df2, class)
 
+# ggplot(df2, aes(x=rowSums(df2))) + 
+#   geom_density()
+
 # need to find good value to set - how many genes should be high?
 # MLLT1 has to be low!
-df2$ifn <- ifelse(rowSums(df2) > 128 & df2$MLLT1 < 5.74, "high", "low")
+df2$ifn <- ifelse(rowSums(df2) > 46 & df2$MLLT1 == 0, "high", "low")
 table(df2$ifn)
 
 res.cat$ifn <- df2$ifn
