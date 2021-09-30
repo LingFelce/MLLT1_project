@@ -311,6 +311,9 @@ ggsurvplot(fit, risk.table = TRUE, conf.int = TRUE, pval = TRUE)
 
 library(factoextra)
 library(FactoMineR)
+library(ggfortify)
+
+# have to run a lot of code above to get select_exp and ids correct!
 
 t_select_exp <- as.data.frame(t(select_exp))
 t_select_exp <- rownames_to_column(t_select_exp, var="Patient_ID")
@@ -335,3 +338,87 @@ fviz_pca_ind(data.pca,
 
 var <- as.data.frame(data.pca$var)
 var <- rownames_to_column(var, var="Gene")
+
+
+# different method of PCA 
+pca <- prcomp(data[,-c(1:3)])
+
+# https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
+autoplot(pca, data = data, colour = 'MLLT1_status')
+autoplot(pca, data = data, colour = 'ER_status')
+autoplot(pca)
+
+# from https://github.com/LingFelce/MLLT1_project/blob/master/CRISPR_RNA-Seq/ClusteringMCF.Rmd
+# # shows values for PC1 - PC9
+# pca_sub <- as.data.frame(pca$rotation)
+# # create a column for gene names
+# pca_sub <- rownames_to_column(pca_sub, var = "gene")
+# # rearrange columns so gene names is first column, then PC1 and PC2.
+# pca_sub <- pca_sub %>% dplyr::select(c("gene","PC1","PC2")) %>% arrange(desc(abs(PC1)))
+
+# https://www.biostars.org/p/289196/
+# top 200 genes with variation in PC1
+pc1_genes <- data.frame(sort(abs(pca$rotation[,"PC1"]), decreasing=TRUE)[1:200])
+pc1_genes <- rownames_to_column(pc1_genes, var = "gene")
+colnames(pc1_genes)[2] <- "PC1"
+
+write.csv(pc1_genes, "/stopgap/donglab/ling/R/mllt1/metabric_pc1_genes.csv")
+
+# top 200 genes with variation in PC2
+pc2_genes <- data.frame(sort(abs(pca$rotation[,"PC2"]), decreasing=TRUE)[1:200])
+pc2_genes <- rownames_to_column(pc2_genes, var = "gene")
+colnames(pc2_genes)[2] <- "PC2"
+
+write.csv(pc2_genes, "/stopgap/donglab/ling/R/mllt1/metabric_pc2_genes.csv")
+
+
+#------- METABRIC ORA--------------
+# can't do GSEA as don't have log2 fold change values for genes
+# do over-representation analysis using GO BP instead
+
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+genes <- pc1_genes
+
+genes$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(genes$gene), keytype="SYMBOL", column="ENTREZID")
+genes <- genes[is.na(genes$Entrez.Gene)==FALSE,]
+genes <- genes[!duplicated(genes$Entrez.Gene),]
+
+geneset <- as.character(genes$Entrez.Gene)
+
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, 
+                OrgDb = org.Hs.eg.db, 
+                ont ="BP", 
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  
+                readable = TRUE) 
+
+dim(ego)
+simp <- simplify(ego)
+dim(simp)
+
+barplot(simp, showCategory = 24)
+
+genes <- pc2_genes
+
+genes$Entrez.Gene <- mapIds(org.Hs.eg.db, keys=as.character(genes$gene), keytype="SYMBOL", column="ENTREZID")
+genes <- genes[is.na(genes$Entrez.Gene)==FALSE,]
+genes <- genes[!duplicated(genes$Entrez.Gene),]
+
+geneset <- as.character(genes$Entrez.Gene)
+
+ego <- enrichGO(gene = geneset, 
+                universe = NULL, 
+                OrgDb = org.Hs.eg.db, 
+                ont ="BP", 
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.01,
+                qvalueCutoff = 0.05,  
+                readable = TRUE) 
+
+dim(ego)
+
+barplot(ego, showCategory = 5)
