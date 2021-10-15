@@ -132,7 +132,7 @@ list <- lapply(list, function(x){
 p1 <- ggplot(list[[1]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 upregulated genes in SUM159 + 24h iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -143,7 +143,7 @@ p1 <- ggplot(list[[1]], aes(x=position, y=count, color=treatment)) +
 p2 <- ggplot(list[[2]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 downregulated genes in SUM159 + 24h iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -155,7 +155,7 @@ p2 <- ggplot(list[[2]], aes(x=position, y=count, color=treatment)) +
 p3 <- ggplot(list[[3]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 upregulated genes in SUM159 + 7d iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -166,7 +166,7 @@ p3 <- ggplot(list[[3]], aes(x=position, y=count, color=treatment)) +
 p4 <- ggplot(list[[4]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 downregulated genes in SUM159 + 7d iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -177,7 +177,7 @@ p4 <- ggplot(list[[4]], aes(x=position, y=count, color=treatment)) +
 p5 <- ggplot(list[[5]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 upregulated genes in MCF-7 + 24h iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -188,7 +188,7 @@ p5 <- ggplot(list[[5]], aes(x=position, y=count, color=treatment)) +
 p6 <- ggplot(list[[6]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 downregulated genes in MCF-7 + 24h iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -200,7 +200,7 @@ p6 <- ggplot(list[[6]], aes(x=position, y=count, color=treatment)) +
 p7 <- ggplot(list[[7]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 upregulated genes in MCF-7 + 7d iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -211,7 +211,7 @@ p7 <- ggplot(list[[7]], aes(x=position, y=count, color=treatment)) +
 p8 <- ggplot(list[[8]], aes(x=position, y=count, color=treatment)) +
   geom_line(size=2, aes(linetype=treatment)) +
   labs(title="MLLT1 distribution at MLLT1 downregulated genes in MCF-7 + 7d iMLLT",
-       x="Position relative to peak centre (bp)", 
+       x="Position relative to TSS (bp)", 
        y = "Read count (per 10 million reads") +
   scale_color_manual(values=c("grey", "#55A0FF")) + theme_classic() +
   scale_linetype_manual(values = c("dashed", "solid")) + 
@@ -279,40 +279,78 @@ sum_down <- rbind(list[[2]], list[[4]])
 mcf_up <- rbind(list[[5]], list[[7]])
 mcf_down <- rbind(list[[6]], list[[8]])
 
+sum_up$regulation <- "Upregulated"
+sum_down$regulation <- "Downregulated"
+
+mcf_up$regulation <- "Upregulated"
+mcf_down$regulation <- "Downregulated"
+
+sum <- rbind(sum_up, sum_down)
+mcf <- rbind(mcf_up, mcf_down)
+
+sum <- mutate(sum, group = paste(regulation, timepoint, sep=" "))
+mcf <- mutate(mcf, group = paste(regulation, timepoint, sep=" "))
+
+sum_7d <- sum[sum$timepoint == "7 days",]
+mcf_7d <- mcf[mcf$timepoint == "7 days",]
+
 ```
 
 ```{r}
-my_list <- list(c("24 hours", "7 days"))
+my_list <- list(c("Upregulated", "Downregulated"))
 
-p1 <- ggplot(sum_up, aes(x=timepoint, y=lfc)) +
-   geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
-  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
-  labs(title="SUM159 upregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
-  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
-  scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+# both timepoints, up and downregulated
+p1 <- ggplot(sum, aes(x=timepoint, y=lfc, fill = regulation)) +
+  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.5) +
+  labs(title="SUM159",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
+  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black")) +
+  scale_color_manual(breaks = c("Upregulated", "Downregulated"), values=c("#f8766d", "#00bfc4")) + stat_compare_means(comparisons = my_list, label = "p.signif")
 
-p2 <- ggplot(sum_down, aes(x=timepoint, y=lfc)) +
-   geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
-  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
-  labs(title="SUM159 downregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
-  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
-  scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+p2 <- ggplot(mcf, aes(x=timepoint, y=lfc, fill = regulation)) +
+  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.5) +
+  labs(title="MCF-7",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
+  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black")) +
+  scale_color_manual(breaks = c("Upregulated", "Downregulated"), values=c("#f8766d", "#00bfc4")) + stat_compare_means(comparisons = my_list, label = "p.signif")
 
-p3 <- ggplot(mcf_up, aes(x=timepoint, y=lfc)) +
-   geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
-  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
-  labs(title="MCF-7 upregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
-  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
-  scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+grid.arrange(p1, p2, nrow=1)
 
-p4 <- ggplot(mcf_down, aes(x=timepoint, y=lfc)) +
-   geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
-  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
-  labs(title="MCF-7 downregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
-  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
-  scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+# just 7 days
+p3 <- ggplot(sum_7d, aes(x=regulation, y=lfc, fill = regulation)) +
+  geom_jitter(width=0.25, size = 0.05) +
+  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.5) +
+  labs(title="SUM159",x="Regulation", y = "log2 fold change SGC/DMSO") + theme_light()+
+  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black")) +
+  scale_color_manual(breaks = c("Upregulated", "Downregulated"), values=c("#f8766d", "#00bfc4")) + stat_compare_means(comparisons = my_list, label = "p.signif")
 
-grid.arrange(p1, p2, p3, p4, nrow=2)
+p4 <- ggplot(mcf_7d, aes(x=regulation, y=lfc, fill = regulation)) +
+  geom_jitter(width=0.25, size = 0.05) +
+  geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.5) +
+  labs(title="MCF-7",x="Regulation", y = "log2 fold change SGC/DMSO") + theme_light()+
+  theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black")) +
+  scale_color_manual(breaks = c("Upregulated", "Downregulated"), values=c("#f8766d", "#00bfc4")) + stat_compare_means(comparisons = my_list, label = "p.signif")
+
+grid.arrange(p3, p4, nrow=1)
+
+wilcox.test(sum_7d$lfc ~ sum_7d$regulation)
+wilcox.test(mcf_7d$lfc ~ mcf_7d$regulation)
+
+# just by timepoint and log2 fold change (no regulation)
+
+# p3 <- ggplot(mcf_up, aes(x=timepoint, y=lfc)) +
+#    geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
+#   geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
+#   labs(title="MCF-7 upregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
+#   theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
+#   scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+# 
+# p4 <- ggplot(mcf_down, aes(x=timepoint, y=lfc)) +
+#    geom_jitter(width=0.25, size = 0.05, aes(colour = timepoint)) +
+#   geom_boxplot(width=0.5, outlier.shape=NA, alpha = 0.2) +
+#   labs(title="MCF-7 downregulated genes",x="Timepoint", y = "log2 fold change SGC/DMSO") + theme_light()+
+#   theme(plot.title = element_text(size=15, face = "bold"), axis.title = element_text(size=10), axis.text = element_text(size=8, color = "black"), legend.position="none") + stat_compare_means(comparisons = my_list, label = "p.signif") +
+#   scale_color_manual(breaks = c("24 hours", "7 days"), values=c("grey", "#55A0FF"))
+
+# grid.arrange(p1, p2, p3, p4, nrow=2)
 
 ```
 
